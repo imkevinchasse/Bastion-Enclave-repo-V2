@@ -1416,7 +1416,7 @@ class BastionShell:
             
             try:
                 shards = SecretSharer.split(secret, shares, threshold)
-                self.console.print(Panel("\n".join(shards), title="Generated Shards", style="green"))
+                self.console.print(Panel("\\n".join(shards), title="Generated Shards", style="green"))
                 self.console.print("[dim]Save these in different locations.[/dim]")
             except Exception as e:
                 self.console.print(f"[red]Error: {e}[/red]")
