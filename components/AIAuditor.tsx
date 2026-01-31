@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
-import { initLLM, runCredentialAudit, runPhishingAnalysis, isModelReady } from '../services/llmService';
+import { initLLM, runCredentialAudit, runPhishingAnalysis, isModelReady, isLlmAvailable, isEmbedderAvailable } from '../services/llmService';
 import { AuditResult, SecurityLevel, LLMStatus, PhishingResult } from '../types';
-import { BrainCircuit, AlertTriangle, CheckCircle, Download, Activity, ScanLine, Shield, Mail, Lock, User, Globe, AlertOctagon, Terminal, Eye, MessageSquare, Key, Layers, Workflow, Network, Zap } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, CheckCircle, Download, Activity, ScanLine, Shield, Mail, Lock, User, Globe, AlertOctagon, Terminal, Eye, MessageSquare, Key, Layers, Workflow, Network, Zap, Cpu } from 'lucide-react';
 
 type AnalysisMode = 'credential' | 'phishing';
 
@@ -27,19 +27,26 @@ export const AIAuditor: React.FC = () => {
       loadModel();
   }, []);
 
+  const getStatusText = () => {
+      if (isLlmAvailable()) return "HYBRID ENGINE ACTIVE";
+      if (isEmbedderAvailable()) return "STANDARD ENGINE (CPU)";
+      return "BASIC ENGINE (REGEX)";
+  };
+
   const loadModel = async () => {
     if (isModelReady()) {
-        setLlmStatus({ status: 'ready', progress: 100, message: 'Hybrid Engine Active' });
+        setLlmStatus({ status: 'ready', progress: 100, message: getStatusText() });
         return;
     }
 
-    setLlmStatus({ status: 'loading', progress: 0, message: 'Initializing Hybrid Architecture...' });
+    setLlmStatus({ status: 'loading', progress: 0, message: 'Initializing Security Core...' });
     try {
       await initLLM((progressText) => {
         setLlmStatus(prev => ({ ...prev, status: 'loading', message: progressText }));
       });
-      setLlmStatus({ status: 'ready', progress: 100, message: 'Neural Engines Ready' });
+      setLlmStatus({ status: 'ready', progress: 100, message: getStatusText() });
     } catch (e: any) {
+      // In theory initLLM shouldn't throw, but if it does, we show offline
       setLlmStatus({ status: 'error', progress: 0, message: e.message || 'Initialization Failed' });
     }
   };
@@ -62,20 +69,28 @@ export const AIAuditor: React.FC = () => {
       setPhishResult(null);
       setThinkingStep(1);
       
-      // Visualizing the 3-Layer Process with slight delays for UX
+      // Visualizing the Pipeline
       const sequence = async () => {
           setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 1: Deterministic Heuristics...' }));
           await new Promise(r => setTimeout(r, 600)); 
           
-          setThinkingStep(2);
-          setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 2: MiniLM-L12 Semantic Mapping...' }));
+          if (isEmbedderAvailable()) {
+              setThinkingStep(2);
+              setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 2: MiniLM-L12 Semantic Mapping...' }));
+          }
           
           try {
               const result = await runPhishingAnalysis(phishText);
               
               setThinkingStep(3);
-              setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: TinyLlama Logic Synthesis...' }));
-              await new Promise(r => setTimeout(r, 800));
+              if (isLlmAvailable()) {
+                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: TinyLlama Logic Synthesis...' }));
+                  await new Promise(r => setTimeout(r, 800));
+              } else if (isEmbedderAvailable()) {
+                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: Pattern Correlation (CPU)...' }));
+              } else {
+                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Finalizing Heuristic Score...' }));
+              }
               
               setPhishResult(result);
               setThinkingStep(0);
@@ -113,8 +128,10 @@ export const AIAuditor: React.FC = () => {
                 </h2>
                 <div className="flex items-center gap-4 text-slate-400 text-xs mt-1 font-mono">
                     <span className="flex items-center gap-1"><Layers size={10}/> 3-Layer Pipeline</span>
-                    <span className="flex items-center gap-1"><Workflow size={10}/> MiniLM-L12 (Embeddings)</span>
-                    <span className="flex items-center gap-1"><Network size={10}/> TinyLlama (Logic)</span>
+                    <span className={`flex items-center gap-1 ${isEmbedderAvailable() ? 'text-slate-400' : 'text-slate-600 line-through'}`}><Workflow size={10}/> MiniLM-L12</span>
+                    <span className={`flex items-center gap-1 ${isLlmAvailable() ? 'text-slate-400' : 'text-slate-600 line-through'}`}>
+                        <Network size={10}/> TinyLlama
+                    </span>
                 </div>
             </div>
 
@@ -122,13 +139,13 @@ export const AIAuditor: React.FC = () => {
                 {llmStatus.status === 'loading' ? (
                     <Activity size={18} className="text-indigo-400 animate-spin" />
                 ) : llmStatus.status === 'ready' ? (
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <div className={`w-2 h-2 rounded-full ${isLlmAvailable() ? 'bg-emerald-500' : isEmbedderAvailable() ? 'bg-blue-500' : 'bg-amber-500'} animate-pulse`}></div>
                 ) : (
                     <AlertTriangle size={18} className="text-red-400" />
                 )}
                 <div className="text-right">
-                    <div className={`text-xs font-bold uppercase tracking-widest ${llmStatus.status === 'ready' ? 'text-emerald-400' : 'text-slate-400'}`}>
-                        {llmStatus.status === 'error' ? 'OFFLINE' : llmStatus.status === 'ready' ? 'HYBRID ENGINE ACTIVE' : 'PROCESSING'}
+                    <div className={`text-xs font-bold uppercase tracking-widest ${llmStatus.status === 'ready' ? (isLlmAvailable() ? 'text-emerald-400' : isEmbedderAvailable() ? 'text-blue-400' : 'text-amber-400') : 'text-slate-400'}`}>
+                        {llmStatus.status === 'error' ? 'OFFLINE' : llmStatus.status === 'ready' ? getStatusText() : 'PROCESSING'}
                     </div>
                     {llmStatus.message && <div className="text-[10px] text-slate-500 font-mono max-w-[200px] truncate">{llmStatus.message}</div>}
                 </div>
@@ -154,16 +171,7 @@ export const AIAuditor: React.FC = () => {
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 bg-slate-800/30 rounded-b-2xl rounded-tr-2xl border border-white/5 p-8 relative overflow-hidden">
             
-            {llmStatus.status === 'error' && (
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm p-8 text-center">
-                    <AlertTriangle size={48} className="text-red-500 mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-2">Neural Engine Unavailable</h3>
-                    <p className="text-slate-400 max-w-md mb-6">
-                        Your browser does not support WebGPU or the model failed to load.
-                    </p>
-                    <Button onClick={loadModel} variant="secondary">Retry Initialization</Button>
-                </div>
-            )}
+            {/* REMOVED: Blocking Error Overlay. Now we just degrade to Basic Mode. */}
 
             {mode === 'credential' ? (
                 <div className="grid lg:grid-cols-2 gap-12 h-full">
@@ -234,7 +242,7 @@ export const AIAuditor: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">AI Reasoning</div>
+                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{isLlmAvailable() ? 'Neural Reasoning' : 'Heuristic Analysis'}</div>
                                     <p className="text-slate-300 text-sm leading-relaxed bg-black/20 p-4 rounded-xl border border-white/5">
                                         {credResult.analysis}
                                     </p>
@@ -260,7 +268,7 @@ export const AIAuditor: React.FC = () => {
                     <div className="space-y-6">
                         <div className="bg-emerald-900/10 p-4 rounded-xl border border-emerald-500/20 text-emerald-200 text-sm">
                             <strong className="block mb-1 flex items-center gap-2"><Layers size={16}/> 3-Layer Defense Grid</strong>
-                            Content is processed sequentially: Heuristic Rules &rarr; Semantic Embeddings &rarr; Neural Reasoning.
+                            Content is processed sequentially: Heuristic Rules &rarr; Semantic Embeddings &rarr; {isLlmAvailable() ? 'Neural Reasoning' : 'Pattern Correlation'}.
                         </div>
 
                         <textarea 
@@ -280,7 +288,7 @@ export const AIAuditor: React.FC = () => {
                                 <span className="text-xs text-emerald-400 font-mono animate-pulse">
                                     {thinkingStep === 1 && 'EXTRACTING_SIGNALS'}
                                     {thinkingStep === 2 && 'MAPPING_VECTORS'}
-                                    {thinkingStep === 3 && 'GENERATING_REPORT'}
+                                    {thinkingStep === 3 && (isLlmAvailable() ? 'GENERATING_REPORT' : 'CORRELATING_PATTERNS')}
                                 </span>
                             </div>
                         )}
@@ -317,7 +325,7 @@ export const AIAuditor: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Neural Explanation</div>
+                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{isLlmAvailable() ? 'Neural Explanation' : 'Pattern Analysis'}</div>
                                     <p className="text-slate-300 text-sm leading-relaxed bg-black/20 p-4 rounded-xl border border-white/5">
                                         {phishResult.analysis}
                                     </p>

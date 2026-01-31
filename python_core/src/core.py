@@ -1,4 +1,3 @@
-
 import os
 import json
 import base64
@@ -16,7 +15,7 @@ import argon2
 from .serializer import BastionSerializer
 
 # --- CONSTANTS ---
-# V3 (Argon2id) Parameters - Matches TypeScript
+# V3 (Argon2id) Parameters
 ARGON_TIME_COST = 3
 ARGON_MEMORY_COST = 65536 # 64 MB
 ARGON_PARALLELISM = 1
@@ -28,10 +27,10 @@ LEGACY_ITERATIONS_V2 = 210_000
 LEGACY_ITERATIONS_V1 = 100_000
 
 # Headers
-HEADER_V3_5 = b"\x42\x53\x54\x4E\x04" # BSTN + 0x04 (V3.5 with Padding)
-HEADER_V3 = b"\x42\x53\x54\x4E\x03" # BSTN + 0x03 (V3 Raw)
-HEADER_V2 = b"\x42\x53\x54\x4E\x02" # BSTN + 0x02 (Legacy)
-MAGIC_HEADER_STR = "BASTION_V3::" # Wrapper for text file storage
+HEADER_V3_5 = b"\x42\x53\x54\x4E\x04" # BSTN + 0x04 (V3.5)
+HEADER_V3 = b"\x42\x53\x54\x4E\x03" # BSTN + 0x03 (V3)
+HEADER_V2 = b"\x42\x53\x54\x4E\x02" # BSTN + 0x02
+MAGIC_HEADER_STR = "BASTION_V3::"
 
 # --- DATA MODELS ---
 
@@ -275,6 +274,16 @@ class VaultManager:
 
     def create_new(self, password: str):
         entropy = secrets.token_hex(32)
+        state = VaultState(entropy=entropy, lastModified=int(time.time()*1000))
+        self.blobs = []
+        self.active_state = state
+        self.active_password = password
+        self.active_blob_index = 0
+        self.blobs.append("") 
+        self.save_file()
+
+    def restore_from_seed(self, entropy: str, password: str):
+        """Restores a vault using an existing Hex Entropy Seed."""
         state = VaultState(entropy=entropy, lastModified=int(time.time()*1000))
         self.blobs = []
         self.active_state = state

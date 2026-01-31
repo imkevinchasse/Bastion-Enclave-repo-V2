@@ -4,6 +4,7 @@ import time
 import threading
 import secrets
 import getpass
+import re
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -111,49 +112,62 @@ class BastionShell:
             
             elif action == "restore":
                 self.console.print("\n[bold]Restoration Mode[/bold]")
-                self.console.print("Paste your backup string (Blob or 'BASTION_V3::...').")
+                self.console.print("Paste your backup string (Blob or Hex Seed).")
                 blob_input = Prompt.ask("Backup Data").strip()
-                
-                # Cleanup quotes/whitespace if user copy-pasted loosely
                 blob_input = blob_input.strip('"').strip("'")
                 
                 if not blob_input:
                     self.console.print("[red]No data provided.[/red]")
                     sys.exit(1)
                 
-                pwd = getpass.getpass("Enter Master Password to Decrypt: ")
+                # Check if this is a SEED (64 hex chars)
+                if re.match(r'^[0-9a-fA-F]{64}$', blob_input):
+                    self.console.print("[green]✓ Valid Master Seed detected.[/green]")
+                    self.console.print("[dim]Seeds restore your identity, but you must set a new encryption password for this device.[/dim]")
+                    
+                    while True:
+                        new_pwd = getpass.getpass("Set New Master Password: ")
+                        if len(new_pwd) < 8:
+                            self.console.print("[red]Password too weak (min 8 chars).[/red]")
+                            continue
+                        confirm = getpass.getpass("Confirm Password: ")
+                        if new_pwd != confirm:
+                            self.console.print("[red]Passwords do not match.[/red]")
+                            continue
+                        
+                        self.manager.restore_from_seed(blob_input.lower(), new_pwd)
+                        self.console.print("[green]✓ Vault Restored from Seed.[/green]")
+                        time.sleep(1)
+                        break
                 
-                # Manually inject into manager to verify
-                # Handle legacy plain JSON array or new Header format
-                if blob_input.startswith("BASTION_V3::"):
-                    # Extract payload part if wrapped
-                    # Logic mimics VaultManager.load_file but in-memory
-                    try:
-                        payload = blob_input[len("BASTION_V3::"):]
-                        # Decode just to validate b64 structure, actual parsing handles list
-                        import base64
-                        decoded = base64.b64decode(payload).decode('utf-8')
-                        import json
-                        self.manager.blobs = json.loads(decoded)
-                    except:
-                        # Fallback: treat as raw blob list if manual paste was weird
-                        self.manager.blobs = [blob_input]
                 else:
-                    # Treat as raw blob or raw list JSON
-                    if blob_input.startswith("["):
-                        import json
-                        try: self.manager.blobs = json.loads(blob_input)
-                        except: self.manager.blobs = [blob_input]
+                    # It's an encrypted BLOB
+                    pwd = getpass.getpass("Enter Master Password to Decrypt Blob: ")
+                    
+                    if blob_input.startswith("BASTION_V3::"):
+                        try:
+                            payload = blob_input[len("BASTION_V3::"):]
+                            import base64
+                            decoded = base64.b64decode(payload).decode('utf-8')
+                            import json
+                            self.manager.blobs = json.loads(decoded)
+                        except:
+                            self.manager.blobs = [blob_input]
                     else:
-                        self.manager.blobs = [blob_input]
+                        if blob_input.startswith("["):
+                            import json
+                            try: self.manager.blobs = json.loads(blob_input)
+                            except: self.manager.blobs = [blob_input]
+                        else:
+                            self.manager.blobs = [blob_input]
 
-                if self.manager.unlock(pwd):
-                    self.console.print("[green]✓ Access Granted. Saving restored vault...[/green]")
-                    self.manager.save_file()
-                    time.sleep(1)
-                else:
-                    self.console.print("[bold red]Restoration Failed.[/bold red] Incorrect password or invalid backup data.")
-                    sys.exit(1)
+                    if self.manager.unlock(pwd):
+                        self.console.print("[green]✓ Access Granted. Saving restored vault...[/green]")
+                        self.manager.save_file()
+                        time.sleep(1)
+                    else:
+                        self.console.print("[bold red]Restoration Failed.[/bold red] Incorrect password or invalid backup data.")
+                        sys.exit(1)
 
             else:
                 sys.exit(0)
