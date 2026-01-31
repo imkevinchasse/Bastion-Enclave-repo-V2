@@ -2,15 +2,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
-import { initLLM, runCredentialAudit, runPhishingAnalysis, isModelReady, isLlmAvailable, isEmbedderAvailable } from '../services/llmService';
+import { initLLM, runCredentialAudit, runPhishingAnalysis, isModelReady, isLlmAvailable, isEmbedderAvailable, checkWebGPUSupport } from '../services/llmService';
 import { AuditResult, SecurityLevel, LLMStatus, PhishingResult } from '../types';
-import { BrainCircuit, AlertTriangle, CheckCircle, Download, Activity, ScanLine, Shield, Mail, Lock, User, Globe, AlertOctagon, Terminal, Eye, MessageSquare, Key, Layers, Workflow, Network, Zap, Cpu } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, CheckCircle, Download, Activity, ScanLine, Shield, Mail, Lock, User, Globe, AlertOctagon, Terminal, Eye, MessageSquare, Key, Layers, Workflow, Network, Zap, Cpu, XCircle, Monitor } from 'lucide-react';
 
 type AnalysisMode = 'credential' | 'phishing';
 
 export const AIAuditor: React.FC = () => {
   const [mode, setMode] = useState<AnalysisMode>('credential');
   const [llmStatus, setLlmStatus] = useState<LLMStatus>({ status: 'idle', progress: 0, message: '' });
+  const [isCompatible, setIsCompatible] = useState<boolean>(true);
   
   // Credential State
   const [password, setPassword] = useState('');
@@ -24,13 +25,16 @@ export const AIAuditor: React.FC = () => {
   const [thinkingStep, setThinkingStep] = useState<number>(0); // 0=Idle, 1=Heuristic, 2=Semantic, 3=Reasoning
 
   useEffect(() => {
+      if (!checkWebGPUSupport()) {
+          setIsCompatible(false);
+          return;
+      }
       loadModel();
   }, []);
 
   const getStatusText = () => {
-      if (isLlmAvailable()) return "HYBRID ENGINE ACTIVE";
-      if (isEmbedderAvailable()) return "STANDARD ENGINE (CPU)";
-      return "BASIC ENGINE (REGEX)";
+      if (isLlmAvailable()) return "NEURAL ENGINE ACTIVE";
+      return "ENGINE INITIALIZING";
   };
 
   const loadModel = async () => {
@@ -46,10 +50,60 @@ export const AIAuditor: React.FC = () => {
       });
       setLlmStatus({ status: 'ready', progress: 100, message: getStatusText() });
     } catch (e: any) {
-      // In theory initLLM shouldn't throw, but if it does, we show offline
       setLlmStatus({ status: 'error', progress: 0, message: e.message || 'Initialization Failed' });
     }
   };
+
+  if (!isCompatible) {
+      return (
+          <div className="flex flex-col h-[calc(100vh-12rem)] min-h-[600px] items-center justify-center animate-in fade-in zoom-in-95">
+              <div className="bg-slate-900 border border-red-500/30 rounded-2xl p-8 max-w-2xl text-center shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-32 bg-red-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                  
+                  <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-red-500/30">
+                      <Cpu size={40} className="text-red-500" />
+                  </div>
+                  
+                  <h2 className="text-3xl font-black text-white tracking-tight mb-4">Hardware Acceleration Required</h2>
+                  
+                  <p className="text-lg text-slate-300 leading-relaxed mb-8">
+                      To run the Neural Security Engine locally, your environment must support <strong>WebGPU</strong>. 
+                      This ensures your data never leaves your device while performing advanced AI analysis.
+                  </p>
+
+                  <div className="grid md:grid-cols-2 gap-4 text-left">
+                      <div className="bg-slate-950 p-4 rounded-xl border border-white/5">
+                          <h4 className="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                              <CheckCircle size={16} className="text-emerald-500" /> Compatible Systems
+                          </h4>
+                          <ul className="space-y-2 text-xs text-slate-400">
+                              <li className="flex items-center gap-2"><Monitor size={12}/> Google Chrome 113+ (Desktop)</li>
+                              <li className="flex items-center gap-2"><Monitor size={12}/> Microsoft Edge 113+ (Desktop)</li>
+                              <li className="flex items-center gap-2"><Monitor size={12}/> Brave Browser (Desktop)</li>
+                          </ul>
+                      </div>
+                      
+                      <div className="bg-slate-950 p-4 rounded-xl border border-white/5">
+                          <h4 className="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                              <XCircle size={16} className="text-red-500" /> Incompatible / Unstable
+                          </h4>
+                          <ul className="space-y-2 text-xs text-slate-400">
+                              <li>• Safari (WebGPU Disabled by Default)</li>
+                              <li>• Firefox (Experimental Support)</li>
+                              <li>• Mobile Browsers (iOS/Android)</li>
+                          </ul>
+                      </div>
+                  </div>
+
+                  <div className="mt-8 p-4 bg-red-950/20 border border-red-500/20 rounded-xl text-xs text-red-300">
+                      <strong className="block mb-1 uppercase tracking-widest text-red-400">Liability Constraint</strong>
+                      The AI model operates under strict local-only execution policies to prevent data leakage. 
+                      Cloud fallback is legally prohibited for this module.
+                  </div>
+              </div>
+          </div>
+      );
+  }
 
   const handleCredentialAudit = async () => {
     if (!password || llmStatus.status !== 'ready') return;
@@ -83,14 +137,7 @@ export const AIAuditor: React.FC = () => {
               const result = await runPhishingAnalysis(phishText);
               
               setThinkingStep(3);
-              if (isLlmAvailable()) {
-                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: TinyLlama Logic Synthesis...' }));
-                  await new Promise(r => setTimeout(r, 800));
-              } else if (isEmbedderAvailable()) {
-                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: Pattern Correlation (CPU)...' }));
-              } else {
-                  setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Finalizing Heuristic Score...' }));
-              }
+              setLlmStatus(prev => ({ ...prev, status: 'loading', message: 'Layer 3: TinyLlama Logic Synthesis...' }));
               
               setPhishResult(result);
               setThinkingStep(0);
@@ -171,8 +218,6 @@ export const AIAuditor: React.FC = () => {
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 bg-slate-800/30 rounded-b-2xl rounded-tr-2xl border border-white/5 p-8 relative overflow-hidden">
             
-            {/* REMOVED: Blocking Error Overlay. Now we just degrade to Basic Mode. */}
-
             {mode === 'credential' ? (
                 <div className="grid lg:grid-cols-2 gap-12 h-full">
                     <div className="space-y-6">

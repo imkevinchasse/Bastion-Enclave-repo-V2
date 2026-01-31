@@ -117,8 +117,19 @@ export const isLlmAvailable = (): boolean => state.status === 'ready' && state.l
 
 export const isEmbedderAvailable = (): boolean => state.status === 'ready' && state.embedder !== null;
 
+export const checkWebGPUSupport = (): boolean => {
+    return !!(navigator as any).gpu;
+};
+
 export const initLLM = async (onProgress: (text: string) => void): Promise<void> => {
     if (state.status === 'ready') return;
+
+    // STRICT WEBGPU CHECK
+    if (!checkWebGPUSupport()) {
+        const error = "WebGPU Required: This AI model requires hardware acceleration not available in your current environment.";
+        state.status = 'error';
+        throw new Error(error);
+    }
 
     try {
         state.status = 'loading';
@@ -130,15 +141,14 @@ export const initLLM = async (onProgress: (text: string) => void): Promise<void>
             const transformersMod = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2");
             const { pipeline, env } = transformersMod;
             
-            // CRITICAL SAFARI FIX: Force Single Threading
-            // Safari blocks SharedArrayBuffer without strict COOP/COEP headers.
-            // Setting numThreads to 1 avoids threading and ensures stability.
+            // Configuration
             env.allowLocalModels = false;
             env.useBrowserCache = true;
+            // Even if WebGPU is present, we often use WASM for the embedder to save GPU VRAM for the LLM
             env.backends.onnx.wasm.numThreads = 1; 
-            env.backends.onnx.wasm.simd = true; // Try SIMD, usually supported
+            env.backends.onnx.wasm.simd = true;
 
-            onProgress("Loading Semantic Encoder (CPU)...");
+            onProgress("Loading Semantic Encoder...");
             state.embedder = await pipeline('feature-extraction', EMBEDDING_MODEL, {
                 quantized: true,
             });
@@ -158,44 +168,34 @@ export const initLLM = async (onProgress: (text: string) => void): Promise<void>
             state.anchors = { threat: threatEmbeds, safe: safeEmbeds };
 
         } catch (e) {
-            console.warn("Layer 2 (Embeddings) Init Failed. Falling back to Basic Mode.", e);
-            state.embedder = null;
-            onProgress("Embedder Unavailable. Using Heuristics.");
+            console.warn("Layer 2 (Embeddings) Init Failed.", e);
+            throw new Error("Failed to load Semantic Encoder.");
         }
 
-        // 2. Attempt to load Layer 3 (LLM) - Only if Embedder worked + GPU exists
-        if (state.embedder && (navigator as any).gpu) {
-            try {
-                onProgress("Initializing Neural Reasoner (GPU)...");
-                // @ts-ignore
-                const webLlmMod = await import(/* @vite-ignore */ "https://esm.sh/@mlc-ai/web-llm@0.2.72");
-                const { CreateMLCEngine } = webLlmMod;
-                
-                state.llm = await CreateMLCEngine(LLM_MODEL_ID, {
-                    initProgressCallback: (report: any) => onProgress(report.text)
-                });
-                onProgress("Hybrid Intelligence Active");
-            } catch (e) {
-                console.warn("WebGPU Init Failed. Falling back to Standard Mode.", e);
-                state.llm = null;
-                onProgress("Standard Engine Active (CPU Fallback)");
-            }
-        } else {
-            state.llm = null;
-            const mode = state.embedder ? "Standard Engine (CPU)" : "Basic Engine (Heuristics)";
-            onProgress(`${mode} Active`);
+        // 2. Attempt to load Layer 3 (LLM)
+        try {
+            onProgress("Initializing Neural Reasoner (GPU)...");
+            // @ts-ignore
+            const webLlmMod = await import(/* @vite-ignore */ "https://esm.sh/@mlc-ai/web-llm@0.2.72");
+            const { CreateMLCEngine } = webLlmMod;
+            
+            state.llm = await CreateMLCEngine(LLM_MODEL_ID, {
+                initProgressCallback: (report: any) => onProgress(report.text)
+            });
+            onProgress("Hybrid Intelligence Active");
+        } catch (e) {
+            console.error("WebGPU Init Failed:", e);
+            throw new Error("Failed to initialize GPU Neural Engine. Check VRAM availability.");
         }
 
-        // Always reach ready state to allow Layer 1 (Regex) to function
         state.status = 'ready';
 
     } catch (e: any) {
         console.error("Critical AI Init Failed:", e);
-        // Even if everything explodes, we set Ready so the UI doesn't block.
-        // The individual functions check for null components.
-        state.status = 'ready';
+        state.status = 'error';
         state.llm = null;
         state.embedder = null;
+        throw e; // Propagate error to UI
     }
 };
 
@@ -205,7 +205,6 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
     if (state.status !== 'ready') throw new Error("AI Engine not ready");
 
     // --- STEP 1: Signal Extraction (Heuristic - Layer 1) ---
-    // This ALWAYS works, even if models failed.
     const signals = extractSignalVector(text);
     const activeSignals = Object.entries(signals)
         .filter(([k, v]) => v === true && k !== 'score')
@@ -227,9 +226,6 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
             semanticRisk = (threatSim - safeSim) * 100 * 2;
         }
         semanticRisk = Math.min(100, Math.max(0, semanticRisk));
-    } else {
-        // Fallback if embedder missing: Rely purely on heuristics
-        semanticRisk = signals.score; 
     }
 
     // --- HYBRID SCORING ---
@@ -239,11 +235,10 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
     if (hybridScore > 65) riskLevel = 'DANGEROUS';
     else if (hybridScore > 35) riskLevel = 'SUSPICIOUS';
 
-    // --- STEP 3: Neural Explanation (Generative or Fallback) ---
+    // --- STEP 3: Neural Explanation (Generative) ---
     let analysis = "";
     
     if (state.llm) {
-        // GPU MODE: Generative Reasoning
         const systemPrompt = `You are a security analyst.
 Input: "${text.substring(0, 150)}..."
 Signals: ${activeSignals.join(", ") || "None"}.
@@ -261,14 +256,7 @@ Task: Explain why this is ${riskLevel} in one sentence.`;
             analysis = `Automated Analysis: Detected ${activeSignals.length} risk signals.`;
         }
     } else {
-        // CPU / BASIC MODE: Template Reasoning
-        const mode = state.embedder ? "Standard" : "Basic";
-        if (riskLevel === 'SAFE') {
-            analysis = `${mode} Analysis: No significant threat patterns detected. Content appears benign.`;
-        } else {
-            const triggers = activeSignals.length > 0 ? activeSignals.join(", ") : "semantic anomalies";
-            analysis = `${mode} Analysis: Content exhibits high risk indicators (${triggers}). Proceed with extreme caution.`;
-        }
+        analysis = "Neural Engine unavailable. Heuristic Analysis only.";
     }
 
     return {
@@ -299,7 +287,7 @@ export const runCredentialAudit = async (password: string, service?: string, use
 
     const suggestions = hasContext ? ["Remove service name from password"] : ["Increase length", "Use symbols"];
 
-    // Reasoner (or Fallback)
+    // Reasoner
     let analysis = "";
     if (state.llm) {
         const prompt = `Password Score: ${totalScore}/100.
@@ -316,10 +304,6 @@ Task: Give 1 specific advice to improve this password. Be brief.`;
         } catch (e) {
             analysis = "Use a longer, random password generated by the Bastion Chaos Engine.";
         }
-    } else {
-        if (totalScore > 80) analysis = "Strong password entropy detected. No immediate improvements needed.";
-        else if (hasContext) analysis = "Critical Failure: Password contains predictable personal info (Service/User).";
-        else analysis = "Entropy is insufficient. Recommend increasing length to >16 chars.";
     }
 
     return {
@@ -331,7 +315,7 @@ Task: Give 1 specific advice to improve this password. Be brief.`;
 };
 
 export const expandSearchQuery = async (query: string): Promise<string[]> => {
-    if (!state.llm) return []; // Feature not available in CPU/Basic mode
+    if (!state.llm) return []; 
     try {
         const response = await state.llm.chat.completions.create({
             messages: [{ role: "user", content: `List 3 synonyms for "${query}" as comma-separated words:` }],
