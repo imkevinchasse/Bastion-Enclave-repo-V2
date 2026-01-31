@@ -39,7 +39,21 @@ class BastionUpdater:
             
             if process.returncode == 0:
                 self.console.print("\n[bold green]✓ Update Successful[/bold green]")
-                self.console.print("Please restart the shell.")
+                self.console.print("[dim]Restarting Bastion...[/dim]")
+                
+                # Auto-restart logic
+                # We assume the user is running via the 'bastion' global command or the wrapper.
+                # The standard install location is ~/.local/bin/bastion
+                executable = os.path.expanduser("~/.local/bin/bastion")
+                
+                if os.path.exists(executable):
+                    try:
+                        # Replace current process with new instance
+                        os.execv(executable, [executable])
+                    except OSError:
+                        self.console.print("[yellow]Auto-restart failed. Please run 'bastion' manually.[/yellow]")
+                else:
+                    self.console.print("Please restart your shell to use the new version.")
             else:
                 self.console.print(f"[red]Update failed:[/red]\n{stderr}")
 
