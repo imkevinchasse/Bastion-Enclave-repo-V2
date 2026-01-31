@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { PublicPage } from '../types';
@@ -298,10 +299,10 @@ const PythonContent = () => {
                     </div>
                     <div className="p-6 relative group">
                         <div className="text-emerald-400 break-all pr-8 leading-relaxed">
-                            curl -fsSL https://raw.githubusercontent.com/imkevinchasse/bastion-enclave/main/install.sh | bash
+                            curl -fsSL https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/python_core/install.sh | bash
                         </div>
                         <div className="absolute top-6 right-6">
-                            <CopyButton text="curl -fsSL https://raw.githubusercontent.com/imkevinchasse/bastion-enclave/main/install.sh | bash" />
+                            <CopyButton text="curl -fsSL https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/python_core/install.sh | bash" />
                         </div>
                     </div>
                 </div>
