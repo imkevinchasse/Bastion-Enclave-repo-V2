@@ -102,8 +102,8 @@ export class ProvenanceService {
             const isValid = await window.crypto.subtle.verify(
                 { name: "ECDSA", hash: { name: "SHA-256" } },
                 key,
-                signature,
-                data
+                signature.buffer as any, // Use .buffer property and cast to any
+                data.buffer as any // Use .buffer property and cast to any
             );
 
             return {
