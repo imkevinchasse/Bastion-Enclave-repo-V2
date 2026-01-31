@@ -1,7 +1,7 @@
 
 export const PYTHON_APP_SOURCE = {
   "bastion.py": `#!/usr/bin/env python3
-\"\"\"
+"""
 BASTION SECURE ENCLAVE // PYTHON RUNTIME
 v3.5.0
 
@@ -13,7 +13,7 @@ bastion             # Launch Interactive Shell
 bastion --version   # Check Version
 bastion update      # Update to latest
 bastion -gui        # Launch GUI Mode
-\"\"\"
+"""
 
 import sys
 import os
@@ -86,13 +86,13 @@ if __name__ == "__main__":
   "install.sh": `#!/bin/bash
 
 # BASTION ENCLAVE INSTALLER
-# Sets up ~/.bastion with a python virtual environment and alias.
+# Sets up ~/.bastion with a python virtual environment and global alias.
 
 set -e
 
 INSTALL_DIR="$HOME/.bastion"
-BIN_DIR="/usr/local/bin"
-REPO_ZIP_URL="https://bastion.os/assets/bastion-python-runtime-v3.0.zip" # Placeholder for valid artifact URL
+USER_BIN="$HOME/.local/bin"
+SCRIPT_DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 echo -e "\\033[0;34m[+] Bastion Enclave Installer\\033[0m"
 
@@ -102,60 +102,70 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# 2. Create Directory
-echo "[*] Creating Enclave at $INSTALL_DIR..."
+# 2. Setup Directory & Copy Files
+echo "[*] Installing to $INSTALL_DIR..."
+# Remove existing install to ensure clean state
+rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
+
+# Copy contents from the script directory to the install directory
+# This ensures src/, bastion.py, and requirements.txt are present
+cp -R "$SCRIPT_DIR/"* "$INSTALL_DIR/" 2>/dev/null || true
+
 cd "$INSTALL_DIR"
 
-# 3. Download Core (Simulation)
-# In a real script, this would curl the zip or git clone.
-# For this script to work standalone, it assumes files are present or fetches them.
-# echo "[*] Fetching Core Protocol..."
-# curl -L -o bastion.zip "$REPO_ZIP_URL"
-# unzip -o bastion.zip
-# rm bastion.zip
-
-# 4. Setup Venv
+# 3. Setup Virtual Environment
 echo "[*] Initializing Virtual Environment..."
 if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
-# 5. Install Deps
+# 4. Install Dependencies
 echo "[*] Installing Dependencies..."
-./venv/bin/pip install -r requirements.txt --quiet
+if [ -f "requirements.txt" ]; then
+    ./venv/bin/pip install -r requirements.txt --quiet
+else
+    echo "[!] Warning: requirements.txt not found in source."
+fi
+
+# 5. Make Executable
+# Ensure the python script can be run directly
+chmod +x bastion.py
 
 # 6. Create Wrapper
-echo "[*] Creating 'bastion' executable..."
+echo "[*] Creating 'bastion' executable wrapper..."
 cat <<EOF > bastion_wrapper
 #!/bin/bash
+# Activate the isolated virtual environment and run the application
 source "$INSTALL_DIR/venv/bin/activate"
-python3 "$INSTALL_DIR/bastion.py" "\$@"
-deactivate
+exec python3 "$INSTALL_DIR/bastion.py" "\$@"
 EOF
 
 chmod +x bastion_wrapper
 
-# 7. Link to Path (User Local Bin usually preferred over system bin for non-root)
-USER_BIN="$HOME/.local/bin"
+# 7. Link to User Path
 mkdir -p "$USER_BIN"
 
-# Remove old link if exists
-if [ -L "$USER_BIN/bastion" ]; then
-    rm "$USER_BIN/bastion"
+# Remove old link/file if exists to prevent conflicts
+if [ -L "$USER_BIN/bastion" ] || [ -f "$USER_BIN/bastion" ]; then
+    rm -f "$USER_BIN/bastion"
 fi
 
+echo "[*] Linking to $USER_BIN/bastion..."
 ln -s "$INSTALL_DIR/bastion_wrapper" "$USER_BIN/bastion"
 
-# 8. Path Check
+# 8. Success & Path Check
+echo -e "\\033[0;32m[✓] Install Complete.\\033[0m"
+
 if [[ ":\$PATH:" == *":$USER_BIN:"* ]]; then
-    echo -e "\\033[0;32m[✓] Install Complete.\\033[0m"
-    echo "Run 'bastion' to start."
+    echo -e "You can now type \\033[1mbastion\\033[0m to launch the enclave."
 else
-    echo -e "\\033[0;33m[!] Warning: $USER_BIN is not in your PATH.\\033[0m"
-    echo "Add this to your shell profile:"
-    echo "export PATH=\"\$PATH:$USER_BIN\""
-    echo "Then run 'bastion'."
+    echo -e "\\033[0;33m[!] Warning: $USER_BIN is not currently in your PATH.\\033[0m"
+    echo "To run 'bastion', add this to your shell profile (e.g. ~/.bashrc, ~/.zshrc):"
+    echo ""
+    echo "  export PATH=\"\\\$PATH:$USER_BIN\""
+    echo ""
+    echo "Then restart your terminal and type 'bastion'."
 fi
 `,
   "requirements.txt": `cryptography>=41.0.0
@@ -887,7 +897,7 @@ class BastionShell:
             self.console.print("[yellow]! Clipboard module not found (pip install pyperclip)[/yellow]")
 
     def check_lock_status(self):
-        \"\"\"Checks inactivity and locks if necessary.\"\"\"
+        """Checks inactivity and locks if necessary."""
         if self.manager.active_state and self.monitor.is_expired():
             self.clear()
             self.console.print(Panel("[bold red]SESSION TIMEOUT[/bold red]\\nVault locked due to inactivity.", border_style="red"))
