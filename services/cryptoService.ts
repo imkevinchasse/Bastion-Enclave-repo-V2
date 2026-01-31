@@ -85,8 +85,8 @@ export class ChaosLock {
     return out;
   }
 
-  static async computeHash(data: Uint8Array): Promise<string> {
-    // Cast data to any to bypass strict BufferSource check
+  static async computeHash(data: BufferSource): Promise<string> {
+    // Cast data to any to bypass strict BufferSource check in some TS environments
     const hash = await cryptoAPI.subtle.digest("SHA-256", data as any);
     return this.buf2hex(hash);
   }
@@ -417,6 +417,7 @@ export class ResonanceEngine {
     const id = ChaosLock.getUUID();
     const keyHex = await ChaosLock.generateKey();
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
+    // Explicitly allow passing Uint8Array to computeHash
     const hash = await ChaosLock.computeHash(data);
 
     const key = await cryptoAPI.subtle.importKey(
