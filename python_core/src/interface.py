@@ -1,4 +1,3 @@
-
 import os
 import sys
 import time
@@ -49,7 +48,7 @@ class BastionShell:
         self.console.print(Panel.fit(
             "[bold cyan]BASTION SECURE ENCLAVE[/bold cyan]\n"
             "[dim]Python Runtime v3.5.0 | Sovereign Protocol[/dim]",
-            border_style="indigo"
+            border_style="blue"
         ))
 
     def copy_to_clipboard(self, text: str):

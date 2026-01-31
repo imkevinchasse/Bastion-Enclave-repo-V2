@@ -224,7 +224,7 @@ import subprocess
 import requests
 from rich.console import Console
 
-REPO_URL = "https://raw.githubusercontent.com/imkevinchasse/bastion-enclave/main"
+REPO_URL = "https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/python_core"
 
 class BastionUpdater:
     def __init__(self):
@@ -916,7 +916,7 @@ class BastionShell:
         self.console.print(Panel.fit(
             "[bold cyan]BASTION SECURE ENCLAVE[/bold cyan]\\n"
             "[dim]Python Runtime v3.5.0 | Sovereign Protocol[/dim]",
-            border_style="indigo"
+            border_style="blue"
         ))
 
     def copy_to_clipboard(self, text: str):
@@ -1416,7 +1416,7 @@ class BastionShell:
             
             try:
                 shards = SecretSharer.split(secret, shares, threshold)
-                self.console.print(Panel("\\n".join(shards), title="Generated Shards", style="green"))
+                self.console.print(Panel("\n".join(shards), title="Generated Shards", style="green"))
                 self.console.print("[dim]Save these in different locations.[/dim]")
             except Exception as e:
                 self.console.print(f"[red]Error: {e}[/red]")
