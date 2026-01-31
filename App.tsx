@@ -26,16 +26,25 @@ import { Shield, LogOut, Terminal, Copy, Check, Layers, Cpu, Book, FileLock2, Us
 import { Button } from './components/Button';
 import { BrandLogo } from './components/BrandLogo';
 
-const NavButton = ({active, onClick, icon, children}: any) => (
-    <button onClick={onClick} className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${active ? 'bg-indigo-500/10 text-indigo-400 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)] border border-indigo-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'}`}>
-        {icon} {children}
-    </button>
-);
-
 const MobileNavBtn = ({active, onClick, icon, label}: any) => (
     <button onClick={onClick} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all ${active ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-500 hover:text-slate-300'}`}>
         {icon}
         <span className="text-[9px] font-medium">{label}</span>
+    </button>
+);
+
+const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
+    <button 
+        onClick={onClick}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium transition-all duration-200 group ${
+            active 
+                ? (activeClass || 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+        }`}
+    >
+        <span className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>{icon}</span>
+        {label}
+        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50"></span>}
     </button>
 );
 
@@ -98,7 +107,6 @@ export default function App() {
 
           if (staleConfigs.length === 0) return; // Nothing to do
 
-          console.log(`[Bastion] Starting compliance audit for ${staleConfigs.length} stale items.`);
           isScanningRef.current = true;
 
           const compromisedItems: string[] = [];
@@ -298,8 +306,6 @@ export default function App() {
       setBreachReport(null);
       isScanningRef.current = false;
   };
-
-  // --- RENDER ROUTER ---
 
   const renderContent = () => {
     if (publicPage === 'landing' && !vaultState) return <LandingPage onNavigate={setPublicPage} />;
@@ -590,18 +596,3 @@ export default function App() {
     </>
   );
 }
-
-const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
-    <button 
-        onClick={onClick}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium transition-all duration-200 group ${
-            active 
-                ? (activeClass || 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-        }`}
-    >
-        <span className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>{icon}</span>
-        {label}
-        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50"></span>}
-    </button>
-);
