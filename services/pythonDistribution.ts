@@ -92,7 +92,7 @@ set -e
 
 INSTALL_DIR="$HOME/.bastion"
 USER_BIN="$HOME/.local/bin"
-SCRIPT_DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REPO_ZIP_URL="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2/archive/refs/heads/main.zip"
 
 echo -e "\\033[0;34m[+] Bastion Enclave Installer\\033[0m"
 
@@ -102,37 +102,81 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# 2. Setup Directory & Copy Files
-echo "[*] Installing to $INSTALL_DIR..."
-# Remove existing install to ensure clean state
+# 2. Setup Directory
+echo "[*] Cleaning target $INSTALL_DIR..."
 rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 
-# Copy contents from the script directory to the install directory
-# This ensures src/, bastion.py, and requirements.txt are present
-cp -R "$SCRIPT_DIR/"* "$INSTALL_DIR/" 2>/dev/null || true
+# 3. Resolve Source Files
+# Check if we are running from a local folder with files (Zip download) or via Pipe (Curl)
+SOURCE_DIR=""
+if [ -n "\${BASH_SOURCE[0]}" ] && [ -f "\${BASH_SOURCE[0]}" ]; then
+    # Script exists on disk, get its directory
+    SOURCE_DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+fi
+
+if [ -n "$SOURCE_DIR" ] && [ -f "$SOURCE_DIR/bastion.py" ]; then
+    echo "[*] Installing from local source..."
+    cp -R "$SOURCE_DIR/"* "$INSTALL_DIR/"
+else
+    echo "[*] Downloading core files from remote repository..."
+    
+    # Check for unzip
+    if ! command -v unzip &> /dev/null; then
+        echo -e "\\033[0;31m[!] 'unzip' is required for web installation. Please install it.\\033[0m"
+        exit 1
+    fi
+
+    # Create Temp
+    TEMP_DIR=$(mktemp -d)
+    
+    # Download Repo
+    echo "    - Fetching $REPO_ZIP_URL"
+    curl -L -o "$TEMP_DIR/repo.zip" "$REPO_ZIP_URL"
+    
+    # Extract
+    echo "    - Extracting archive..."
+    unzip -q "$TEMP_DIR/repo.zip" -d "$TEMP_DIR"
+    
+    # Find the python_core directory inside the extracted repo (depth agnostic)
+    # We look for 'bastion.py' to ensure we have the right folder
+    FOUND_SRC=$(find "$TEMP_DIR" -name "bastion.py" -type f | head -n 1)
+    
+    if [ -z "$FOUND_SRC" ]; then
+        echo -e "\\033[0;31m[!] Error: Integrity check failed. 'bastion.py' not found in download.\\033[0m"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+    
+    SRC_ROOT=$(dirname "$FOUND_SRC")
+    
+    # Move files to install dir
+    cp -R "$SRC_ROOT/"* "$INSTALL_DIR/"
+    
+    # Cleanup
+    rm -rf "$TEMP_DIR"
+fi
 
 cd "$INSTALL_DIR"
 
-# 3. Setup Virtual Environment
+# 4. Setup Virtual Environment
 echo "[*] Initializing Virtual Environment..."
 if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
-# 4. Install Dependencies
+# 5. Install Dependencies
 echo "[*] Installing Dependencies..."
 if [ -f "requirements.txt" ]; then
     ./venv/bin/pip install -r requirements.txt --quiet
 else
-    echo "[!] Warning: requirements.txt not found in source."
+    echo "[!] Warning: requirements.txt not found."
 fi
 
-# 5. Make Executable
-# Ensure the python script can be run directly
+# 6. Make Executable
 chmod +x bastion.py
 
-# 6. Create Wrapper
+# 7. Create Wrapper
 echo "[*] Creating 'bastion' executable wrapper..."
 cat <<EOF > bastion_wrapper
 #!/bin/bash
@@ -143,10 +187,10 @@ EOF
 
 chmod +x bastion_wrapper
 
-# 7. Link to User Path
+# 8. Link to User Path
 mkdir -p "$USER_BIN"
 
-# Remove old link/file if exists to prevent conflicts
+# Remove old link/file if exists
 if [ -L "$USER_BIN/bastion" ] || [ -f "$USER_BIN/bastion" ]; then
     rm -f "$USER_BIN/bastion"
 fi
@@ -154,7 +198,7 @@ fi
 echo "[*] Linking to $USER_BIN/bastion..."
 ln -s "$INSTALL_DIR/bastion_wrapper" "$USER_BIN/bastion"
 
-# 8. Success & Path Check
+# 9. Success & Path Check
 echo -e "\\033[0;32m[✓] Install Complete.\\033[0m"
 
 if [[ ":\$PATH:" == *":$USER_BIN:"* ]]; then
