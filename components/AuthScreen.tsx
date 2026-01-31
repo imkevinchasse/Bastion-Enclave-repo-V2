@@ -45,10 +45,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
       if (storedBlob) {
           setBlob(storedBlob);
           setLocalVaultFound(true);
-          setTab('open'); // Default to open if found
-      } else {
-          setTab('create'); // Default to create if new
       }
+      
+      // Always default to 'open' (Restore/Unlock) to allow inputting existing vault info immediately.
+      // We do not force 'create' even if no local vault is found.
+      setTab('open');
 
       // Check Integrity
       const report = SecurityService.checkIntegrity();
@@ -60,7 +61,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
       localStorage.removeItem('BASTION_MAX_VERSION');
       setBlob('');
       setLocalVaultFound(false);
-      setTab('create');
+      setTab('open'); // Default to open/restore after clear
       setPassword('');
       setShowClearConfirm(false);
   };
