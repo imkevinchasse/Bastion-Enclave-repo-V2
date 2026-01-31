@@ -85,9 +85,9 @@ export class ChaosLock {
     return out;
   }
 
-  static async computeHash(data: BufferSource): Promise<string> {
+  static async computeHash(data: any): Promise<string> {
     // Cast data to any to bypass strict BufferSource check in some TS environments
-    const hash = await cryptoAPI.subtle.digest("SHA-256", data as any);
+    const hash = await cryptoAPI.subtle.digest("SHA-256", data);
     return this.buf2hex(hash);
   }
 
@@ -287,7 +287,7 @@ const BN = {
         const buf = new Uint8Array(bytes);
         let val = 0n;
         do {
-            crypto.getRandomValues(buf);
+            cryptoAPI.getRandomValues(buf);
             val = 0n;
             for (const b of buf) {
                 val = (val << 8n) + BigInt(b);
@@ -299,11 +299,11 @@ const BN = {
 
 export class SecretSharer {
     static async split(secretStr: string, shares: number, threshold: number): Promise<string[]> {
-        const sessionKeyBytes = crypto.getRandomValues(new Uint8Array(32));
+        const sessionKeyBytes = cryptoAPI.getRandomValues(new Uint8Array(32));
         
-        const iv = crypto.getRandomValues(new Uint8Array(12));
-        const key = await crypto.subtle.importKey("raw", sessionKeyBytes as any, "AES-GCM", false, ["encrypt"]);
-        const encryptedSecret = await crypto.subtle.encrypt(
+        const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
+        const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes as any, { name: "AES-GCM" }, false, ["encrypt"]);
+        const encryptedSecret = await cryptoAPI.subtle.encrypt(
             { name: "AES-GCM", iv },
             key,
             new TextEncoder().encode(secretStr)
@@ -325,7 +325,7 @@ export class SecretSharer {
         }
 
         const shards: string[] = [];
-        const setId = ChaosLock.buf2hex(crypto.getRandomValues(new Uint8Array(4)));
+        const setId = ChaosLock.buf2hex(cryptoAPI.getRandomValues(new Uint8Array(4)));
 
         for (let x = 1; x <= shares; x++) {
             const xBig = BigInt(x);
@@ -394,8 +394,8 @@ export class SecretSharer {
             const iv = payloadBytes.slice(0, 12);
             const cipher = payloadBytes.slice(12);
 
-            const key = await crypto.subtle.importKey("raw", sessionKeyBytes as any, "AES-GCM", false, ["decrypt"]);
-            const decrypted = await crypto.subtle.decrypt(
+            const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes as any, { name: "AES-GCM" }, false, ["decrypt"]);
+            const decrypted = await cryptoAPI.subtle.decrypt(
                 { name: "AES-GCM", iv },
                 key,
                 cipher
@@ -418,7 +418,7 @@ export class ResonanceEngine {
     const keyHex = await ChaosLock.generateKey();
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
     // Explicitly allow passing Uint8Array to computeHash
-    const hash = await ChaosLock.computeHash(data);
+    const hash = await ChaosLock.computeHash(data as any);
 
     const key = await cryptoAPI.subtle.importKey(
       "raw",
