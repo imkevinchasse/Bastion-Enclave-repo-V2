@@ -33,14 +33,15 @@ const cryptoAPI = globalThis.crypto;
 /* ===================== HELPERS ===================== */
 
 // Robustly convert any ArrayBufferView to a clean ArrayBuffer
-// This handles subarrays correctly by slicing the underlying buffer
-function toArrayBuffer(view: Uint8Array | ArrayBufferView | ArrayBuffer): ArrayBuffer {
+// Accepts 'any' to silence strict TS checks on BufferSource types
+function toArrayBuffer(view: any): ArrayBuffer {
   if (view instanceof ArrayBuffer) {
       return view;
   }
   if (ArrayBuffer.isView(view)) {
       return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
   }
+  // Fallback/Safety
   return view as ArrayBuffer;
 }
 
@@ -76,8 +77,15 @@ export class ChaosLock {
     return out;
   }
 
-  static buf2hex(buf: ArrayBuffer): string {
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  // Accepts either ArrayBuffer or View (Uint8Array)
+  static buf2hex(buf: ArrayBuffer | ArrayBufferView): string {
+    let bytes: Uint8Array;
+    if (buf instanceof Uint8Array) {
+        bytes = buf;
+    } else {
+        bytes = new Uint8Array(toArrayBuffer(buf));
+    }
+    return [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
   }
 
   static hex2buf(hex: string): Uint8Array {
