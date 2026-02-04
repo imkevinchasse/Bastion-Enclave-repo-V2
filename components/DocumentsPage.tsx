@@ -10,52 +10,77 @@ interface DocumentsPageProps {
 }
 
 const AGENT_SKILL_CONTENT = `
-# Bastion Agent Skill
+# Bastion Agent Protocol v3.5
+
+## ⚡ One-Shot Initialization
+Copy and execute this block to bootstrap the Sovereign Runtime in any environment with Java 8+:
+
+\`\`\`bash
+mkdir -p bastion_runtime && cd bastion_runtime && \\
+curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && \\
+javac Bastion.java && \\
+echo "✅ Bastion Runtime Ready" && \\
+java Bastion shell
+\`\`\`
+
+---
+
+## ☕ Headless Operation (CLI)
+The runtime exposes a standard IO stream for autonomous interaction.
+
+**Core Commands:**
+*   \`unlock\` -> Decrypts vault blob (Input: Base64 Blob).
+*   \`search <query>\` -> Lists matching credentials.
+*   \`get <id>\` -> Decrypts and prints password for specific entry.
+*   \`gen <service> <user>\` -> Deterministic generation without storage.
+
+**Write Capabilities:**
+*   \`add\` -> Interactive prompt to add a new credential.
+*   \`rm <id>\` -> Remove a credential (requires \`y\` confirmation).
+*   \`save\` -> Exports the persistence JSON.
+
+**Persistence Protocol (CRITICAL):**
+When running \`save\`, the system outputs a JSON block bounded by \`--- BASTION SAVE STATE ---\`.
+You **MUST** parse this block.
+*   \`seed\`: Your Master Identity (Entropy). Store this in secure memory.
+*   \`blob\`: The encrypted vault. Save this to \`bastion.vault\`.
+
+---
 
 ## 🦞 Moltbook Integration
 This vault is **Moltbook Ready**. Agents operating this vault may share status updates, audit logs, and security scores to the Moltbook network.
 
 ### Identity Claim Flow
-To claim this vault on Moltbook, follow this sequence:
 1.  **Verify**: Ensure \`window.__BASTION_AGENT_API__.getStatus()\` returns \`"UNLOCKED"\`.
 2.  **Generate Proof**: Navigate to the **Identity** tab and generate a **Sovereign Bond**.
 3.  **Claim**: Share the Bond Signature to Moltbook to link your agent identity to this vault.
 
 ---
 
-## 🤖 Agent Commands
-Run these commands in your internal environment to sync with Bastion.
+## 🤖 Browser Bridge (Visual Mode)
+If running in a browser context (Puppeteer/Selenium), use the exposed JS bridge:
 
-### 1. Initialization
 \`\`\`javascript
+// Initialization
 if (window.__BASTION_AGENT_API__) {
-    console.log("Bastion Bridge Detected. Skill Active.");
-    await window.__BASTION_AGENT_API__.ping(); // Returns "PONG"
+    await window.__BASTION_AGENT_API__.ping(); // "PONG"
 }
-\`\`\`
 
-### 2. Context Awareness
-\`\`\`javascript
-// Read vault metadata (Zero-Knowledge safe)
+// Read State
 const context = window.__BASTION_AGENT_API__.getContext();
-console.log("Vault Items:", context.inventory.length);
-console.log("Protocol:", context.protocol);
+console.log(context.inventory.length);
 \`\`\`
 
-### 3. Moltbook Share (Example)
-\`\`\`javascript
-// Construct a safe status update
-const post = {
-    content: \`Just secured \${context.inventory.length} credentials in my Sovereign Vault. #Bastion #Moltbook\`,
-    proof: context.identity_tier,
-    timestamp: Date.now()
-};
-// Transmit 'post' to Moltbook via your agent's social adapter.
-\`\`\`
+## 🔍 Semantic DOM Selectors
+Use these \`data-agent-id\` attributes for reliable automation:
+
+*   **Auth**: \`auth-master-password\`, \`auth-unlock-btn\`, \`auth-blob-input\`, \`auth-tab-open\`, \`auth-tab-create\`
+*   **Vault**: \`vault-search\`, \`vault-add-btn\`, \`vault-item-card\`, \`vault-copy-btn\`
+*   **Edit**: \`editor-service\`, \`editor-username\`, \`editor-save-btn\`
 
 ---
 
-## Operational Boundaries (Alignment)
+## Operational Boundaries
 *   **READ**: Allowed (Metadata only).
 *   **WRITE**: Allowed (With user confirmation).
 *   **EXFILTRATE**: **STRICTLY FORBIDDEN**. Never post secrets, passwords, or seeds to Moltbook.
@@ -65,8 +90,8 @@ const DOCUMENTS = [
   {
     id: 'agent-skill',
     type: 'Agent Skill',
-    title: 'Bastion Agent Skill (Moltbook)',
-    description: 'The official skill definition for autonomous agents. Includes connection hooks, identity claiming procedures for Moltbook, and operational boundaries.',
+    title: 'Bastion Agent Protocol (Moltbook)',
+    description: 'The official skill definition for autonomous agents. Includes one-shot installation, CLI operation manual, write capabilities, and identity claiming procedures.',
     date: 'March 2024',
     readTime: 'Install Now',
     link: '#',

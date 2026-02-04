@@ -95,6 +95,7 @@ const COMPARISON_DATA = [
     { feature: "Zero-Knowledge Architecture", bastion: "Guaranteed (Code)", lp: "Policy Based", bw: "Audited Code", op: "Proprietary", kp: "Open Source" },
     { feature: "Centralized Attack Surface", bastion: "None (Distributed)", lp: "High (Honeypot)", bw: "High (Honeypot)", op: "High (Honeypot)", kp: "None" },
     { feature: "Breach Monitoring", bastion: "k-Anonymity (API)", lp: "Cloud Scans", bw: "Cloud Scans", op: "Watchtower", kp: "Plugin Required" },
+    { feature: "AI Security Analysis", bastion: "On-Device (WebGPU)", lp: "None", bw: "None", op: "None", kp: "None" },
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
@@ -146,7 +147,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)]">
                             Enter Vault <ArrowRight size={20} />
                         </Button>
-                        <a href="https://github.com/google-gemini/bastion" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+                        <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
                            <Button variant="secondary" size="lg" className="w-full h-14 text-lg px-8">
                                <Terminal size={20} /> Inspect Source
                            </Button>
@@ -359,12 +360,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
             {/* 6. INVESTOR CALLOUTS */}
             <div className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-3 gap-8">
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
                         <Anchor size={32} className="text-indigo-400 mb-6" />
                         <h3 className="text-xl font-bold text-white mb-3">Anchored Data</h3>
                         <p className="text-slate-400 text-sm leading-relaxed">
                             Heavy files in the Locker are <strong>anchored</strong> to the specific device they were encrypted on. They do not sync automatically, preventing massive bandwidth usage or "surprise" downloads on mobile.
+                        </p>
+                    </div>
+                    <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
+                        <Scaling size={32} className="text-violet-400 mb-6" />
+                        <h3 className="text-xl font-bold text-white mb-3">Edge AI Analysis</h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            Our Neural Auditor runs via WebGPU on your local graphics card. We don't send your passwords to an AI server; we bring the AI model to you.
                         </p>
                     </div>
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">

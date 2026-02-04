@@ -31,7 +31,7 @@ const FEATURES = [
     icon: <Bot size={28} className="text-pink-400" />,
     title: "OpenClaw Ready",
     short: "Semantic DOM and JSON Bridge for headless automation and agents.",
-    specs: ["SEMANTIC DOM", "STATE BRIDGE", "SELENIUM COMPATIBLE"]
+    specs: ["V3.5 SPEC", "SEMANTIC DOM", "STATE BRIDGE"]
   }
 ];
 
@@ -80,9 +80,9 @@ const GLOSSARY: Record<string, { title: string, body: string }> = {
         title: "Reactive State Bridge",
         body: "A hidden JSON feed (`#bastion-agent-bridge`) reflects the vault's internal cryptographic state in real-time. Agents can 'see' the application state (locked status, item counts, sync status) instantly without OCR or screen scraping."
     },
-    "SELENIUM COMPATIBLE": {
-        title: "Headless Browser Ready",
-        body: "The application detects when it is running in a headless environment and optimizes its rendering pipeline. It is fully compatible with Selenium, Puppeteer, and Playwright for users who wish to build their own automated rotation scripts."
+    "V3.5 SPEC": {
+        title: "Sovereign-V3.5 Protocol",
+        body: "The official interchange standard for Bastion Agents. Ensures that headless CLI tools (Java) and visual agents (Browser) share perfect parity in cryptographic primitives (Argon2id), serialization formats, and persistence capabilities."
     }
 };
 
@@ -109,7 +109,7 @@ const DEEP_DIVES: Record<string, { title: string, subtitle: string, desc: string
         title: "Agent-First Architecture",
         subtitle: "Programmable Sovereignty",
         desc: "Bastion is designed to be operated by machines as well as humans. We expose a full Semantic DOM and State Bridge that allows tools like OpenClaw and Selenium to drive the vault programmatically. This enables you to build your own auto-rotation bots, backup daemons, and audit scripts that run entirely offline on your own infrastructure.",
-        technical: ["Data-Agent-ID Selectors", "JSON State Bridge", "Parity Spec v1"]
+        technical: ["Data-Agent-ID Selectors", "JSON State Bridge", "V3.5 Protocol"]
     }
 };
 
