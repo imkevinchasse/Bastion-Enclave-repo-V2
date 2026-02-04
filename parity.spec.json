@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "project": "Bastion Enclave",
+    "codename": "THE_ONE",
+    "version": "3.5.0",
+    "last_updated": "2024-03-20T12:00:00Z"
+  },
+  "crypto": {
+    "kdf": {
+      "algorithm": "Argon2id",
+      "params": {
+        "time_cost": 3,
+        "memory_cost": 65536,
+        "parallelism": 1,
+        "hash_len": 32
+      }
+    },
+    "encryption": {
+      "algorithm": "AES-GCM",
+      "key_len": 256,
+      "iv_len": 12,
+      "tag_len": 128
+    },
+    "chaos_engine": {
+      "algorithm": "PBKDF2-HMAC-SHA512",
+      "iterations": 210000,
+      "salt_prefix": "BASTION_GENERATOR_V2::"
+    }
+  },
+  "structure": {
+    "header_magic": "BASTION_V3::",
+    "binary_header": "BSTN\\x04",
+    "serialization": "CANONICAL_JSON_FRAMED_64"
+  },
+  "agent_interface": {
+    "dom_hook": "bastion-agent-bridge",
+    "js_hook": "window.__BASTION_AGENT_API__",
+    "data_format": "application/json",
+    "selectors": {
+      "auth": {
+        "password_input": "auth-master-password",
+        "unlock_button": "auth-unlock-btn",
+        "create_tab": "auth-tab-create",
+        "open_tab": "auth-tab-open",
+        "blob_input": "auth-blob-input"
+      },
+      "vault": {
+        "search_input": "vault-search",
+        "add_button": "vault-add-btn",
+        "lock_button": "nav-lock-btn",
+        "item_card": "vault-item-card",
+        "copy_password_btn": "vault-copy-btn"
+      },
+      "editor": {
+        "service_input": "editor-service",
+        "username_input": "editor-username",
+        "save_button": "editor-save-btn"
+      }
+    }
+  }
+}

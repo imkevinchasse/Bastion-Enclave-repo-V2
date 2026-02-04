@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LandingPage } from './components/LandingPage';
 import { AuthScreen } from './components/AuthScreen';
 import { Vault } from './components/Vault';
-import { AIAuditor } from './components/AIAuditor';
 import { Notes } from './components/Notes';
 import { Locker } from './components/Locker';
 import { Contacts } from './components/Contacts';
@@ -18,11 +17,14 @@ import { SecurityMonitor } from './components/SecurityMonitor';
 import { Generator } from './components/Generator';
 import { BreachPage } from './components/BreachPage';
 import { MigrationModal } from './components/MigrationModal';
-import { VaultConfig, AppTab, VaultState, PublicPage, VaultFlags, BreachStats } from './types';
+import { CovenantModal } from './components/CovenantModal';
+import { IdentityCard } from './components/IdentityCard';
+import { AgentBridge } from './components/AgentBridge'; // NEW IMPORT
+import { VaultConfig, AppTab, VaultState, PublicPage, VaultFlags, BreachStats, IdentityProof } from './types';
 import { ChaosLock, ChaosEngine } from './services/cryptoService';
 import { BreachService } from './services/breachService';
 import { Guardrail } from './services/guardrail';
-import { Shield, LogOut, Terminal, Copy, Check, Layers, Cpu, Book, FileLock2, Users, Download, AlertTriangle, Blocks, Fingerprint, AlertOctagon, RefreshCw, FlaskConical } from 'lucide-react';
+import { Shield, LogOut, Terminal, Copy, Check, Layers, Book, FileLock2, Users, Download, AlertTriangle, Blocks, Fingerprint, AlertOctagon, RefreshCw, FlaskConical, Award, RotateCcw } from 'lucide-react';
 import { Button } from './components/Button';
 import { BrandLogo } from './components/BrandLogo';
 
@@ -65,6 +67,11 @@ export default function App() {
   // Modals & Notifications
   const [showExitModal, setShowExitModal] = useState(false);
   const [showMigrationModal, setShowMigrationModal] = useState(false);
+  const [showCovenant, setShowCovenant] = useState(false);
+  const [covenantMode, setCovenantMode] = useState<'onboarding' | 'sustenance'>('onboarding');
+
+  // Value Event Tracking
+  const valueActionRef = useRef(0);
 
   // Sentinel State (Rollback Protection)
   const [rollbackAlert, setRollbackAlert] = useState<{current: number, known: number} | null>(null);
@@ -171,7 +178,7 @@ export default function App() {
       encryptedBlob: string, 
       password: string, 
       isNew: boolean = false,
-      isLegacy: boolean = false
+      detectedVersion: number = 4
   ) => {
     try {
         // Enforce Schema Correctness immediately upon load
@@ -205,6 +212,11 @@ export default function App() {
     if (!state.lastModified) state.lastModified = Date.now();
     if (!state.flags) state.flags = 0;
 
+    // VETERAN BADGE LOGIC
+    if (detectedVersion < 3 && !state.legacyOrigin) {
+        state.legacyOrigin = detectedVersion;
+    }
+
     // Sentinel Check
     const storedMax = localStorage.getItem('BASTION_MAX_VERSION');
     const knownMax = storedMax ? parseInt(storedMax, 10) : 0;
@@ -226,9 +238,16 @@ export default function App() {
     setLastBackupTime(isNew ? 0 : Date.now());
     setHasCopiedSeed(false);
 
-    if (isLegacy) {
+    if (detectedVersion < 3) {
         handleUpdateVault(state, true);
         setShowMigrationModal(true);
+    }
+
+    // --- COVENANT CHECK ---
+    const hasLegacyAck = localStorage.getItem('BASTION_COVENANT_ACK');
+    if (!state.identity && !hasLegacyAck) {
+        setCovenantMode('onboarding');
+        setShowCovenant(true);
     }
   };
 
@@ -268,6 +287,28 @@ export default function App() {
     }
   };
 
+  const handleValueAction = () => {
+      valueActionRef.current += 1;
+      if (
+          vaultState?.identity?.tier === 'sovereign' && 
+          valueActionRef.current % 3 === 0
+      ) {
+          setCovenantMode('sustenance');
+          setShowCovenant(true);
+      }
+  };
+
+  const handleCovenantResolve = (proof: IdentityProof) => {
+      if (vaultState) {
+          handleUpdateVault({
+              ...vaultState,
+              identity: proof
+          });
+      }
+      localStorage.setItem('BASTION_COVENANT_ACK', 'true');
+      setShowCovenant(false);
+  };
+
   const handleBackup = () => {
     const blob = new Blob([vaultString], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -305,21 +346,26 @@ export default function App() {
       setShowMigrationModal(false);
       setBreachReport(null);
       isScanningRef.current = false;
+      valueActionRef.current = 0; // Reset session value counter
   };
 
   const renderContent = () => {
-    if (publicPage === 'landing' && !vaultState) return <LandingPage onNavigate={setPublicPage} />;
-    if (publicPage === 'news' && !vaultState) return <NewsPage onNavigate={setPublicPage} />;
-    if (publicPage === 'documents' && !vaultState) return <DocumentsPage onNavigate={setPublicPage} />;
-    if (publicPage === 'game' && !vaultState) return <GamePage onNavigate={setPublicPage} />;
-    if (publicPage === 'docs' && !vaultState) return <DocsPage onNavigate={setPublicPage} />;
-    if (publicPage === 'breach' && !vaultState) return <BreachPage onNavigate={setPublicPage} />;
-    if (!vaultState) return <AuthScreen onOpen={handleOpenVault} onNavigate={setPublicPage} />;
+    // --- PARITY AGENT BRIDGE ---
+    const bridge = <AgentBridge state={vaultState} status={vaultState ? 'UNLOCKED' : 'LOCKED'} />;
+
+    if (publicPage === 'landing' && !vaultState) return <>{bridge}<LandingPage onNavigate={setPublicPage} /></>;
+    if (publicPage === 'news' && !vaultState) return <>{bridge}<NewsPage onNavigate={setPublicPage} /></>;
+    if (publicPage === 'documents' && !vaultState) return <>{bridge}<DocumentsPage onNavigate={setPublicPage} /></>;
+    if (publicPage === 'game' && !vaultState) return <>{bridge}<GamePage onNavigate={setPublicPage} /></>;
+    if (publicPage === 'docs' && !vaultState) return <>{bridge}<DocsPage onNavigate={setPublicPage} /></>;
+    if (publicPage === 'breach' && !vaultState) return <>{bridge}<BreachPage onNavigate={setPublicPage} /></>;
+    if (!vaultState) return <>{bridge}<AuthScreen onOpen={handleOpenVault} onNavigate={setPublicPage} /></>;
 
     return (
       <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
           
           <SecurityMonitor />
+          {bridge}
 
           {/* Desktop Sidebar */}
           <aside className="hidden md:flex w-64 bg-slate-900 border-r border-white/5 flex-col p-4 shrink-0 z-30">
@@ -329,7 +375,7 @@ export default function App() {
                       <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-indigo-200 transition-colors">Bastion Enclave</h1>
                       <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                          SECURE_V2.6
+                          SECURE_V3.5
                       </div>
                   </div>
               </div>
@@ -343,9 +389,9 @@ export default function App() {
                   
                   <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-6">Utilities</div>
                   <SidebarBtn active={currentTab === AppTab.GENERATOR} onClick={() => setCurrentTab(AppTab.GENERATOR)} icon={<RefreshCw size={18}/>} label="Generator" />
-                  <SidebarBtn active={currentTab === AppTab.AUDITOR} onClick={() => setCurrentTab(AppTab.AUDITOR)} icon={<Cpu size={18}/>} label="Neural Auditor" />
                   <SidebarBtn active={currentTab === AppTab.EXTENSIONS} onClick={() => setCurrentTab(AppTab.EXTENSIONS)} icon={<Blocks size={18}/>} label="Extensions" />
                   <SidebarBtn active={currentTab === AppTab.SANDBOX} onClick={() => setCurrentTab(AppTab.SANDBOX)} icon={<FlaskConical size={18}/>} label="Sandbox" />
+                  <SidebarBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={18}/>} label="My Identity" />
                   
                   {isDeveloper && (
                       <>
@@ -358,6 +404,7 @@ export default function App() {
               <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
                   <button 
                       onClick={handleBackup}
+                      data-agent-id="nav-backup-btn"
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
                   >
                       <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" /> Backup Kit
@@ -434,6 +481,7 @@ export default function App() {
                               onDeleteConfig={(id) => handleUpdateVault({...vaultState, configs: vaultState.configs.filter(c => c.id !== id)})}
                               onUpdateConfig={(c) => handleUpdateVault({...vaultState, configs: vaultState.configs.map(old => old.id === c.id ? c : old)})}
                               onUpdateAllConfigs={(newConfigs) => handleUpdateVault({...vaultState, configs: newConfigs})}
+                              onValueAction={handleValueAction}
                           />
                       )}
                       {currentTab === AppTab.CONTACTS && (
@@ -467,6 +515,7 @@ export default function App() {
                               entries={vaultState.locker}
                               onLock={(entry) => handleUpdateVault({...vaultState, locker: [...vaultState.locker, entry]})}
                               onDelete={(id) => handleUpdateVault({...vaultState, locker: vaultState.locker.filter(e => e.id !== id)})}
+                              onValueAction={handleValueAction}
                           />
                       )}
                       
@@ -481,7 +530,30 @@ export default function App() {
                           </div>
                       )}
 
-                      {currentTab === AppTab.AUDITOR && <AIAuditor />}
+                      {currentTab === AppTab.IDENTITY && (
+                          <div className="max-w-4xl mx-auto animate-in fade-in">
+                              <h2 className="text-2xl font-bold text-white mb-6">Sovereign Identity</h2>
+                              {vaultState.identity ? (
+                                  <div className="space-y-8">
+                                      <IdentityCard proof={vaultState.identity} />
+                                      <div className="text-center">
+                                          <Button variant="secondary" onClick={() => { setCovenantMode('onboarding'); setShowCovenant(true); }}>
+                                              <RotateCcw size={16} /> Renew or Upgrade Bond
+                                          </Button>
+                                          <p className="text-xs text-slate-500 mt-2">
+                                              Renewing generates a new proof and resets the bond epoch.
+                                          </p>
+                                      </div>
+                                  </div>
+                              ) : (
+                                  <div className="text-center p-12 bg-slate-900/50 rounded-2xl border border-white/5">
+                                      <p className="text-slate-400 mb-4">No identity proof found.</p>
+                                      <Button onClick={() => setShowCovenant(true)}>Generate Identity</Button>
+                                  </div>
+                              )}
+                          </div>
+                      )}
+
                       {currentTab === AppTab.EXTENSIONS && <Extensions />}
                       {currentTab === AppTab.SANDBOX && <Sandbox />}
                       {currentTab === AppTab.DEVELOPER && isDeveloper && (
@@ -499,17 +571,26 @@ export default function App() {
                   <MobileNavBtn active={currentTab === AppTab.VAULT} onClick={() => setCurrentTab(AppTab.VAULT)} icon={<Shield size={20}/>} label="Vault" />
                   <MobileNavBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={20}/>} label="Notes" />
                   <div className="relative -top-6">
-                      <button onClick={handleBackup} className="bg-indigo-600 text-white p-4 rounded-full shadow-lg shadow-indigo-500/40 border-4 border-slate-950 active:scale-95 transition-transform">
+                      <button onClick={handleBackup} data-agent-id="nav-backup-btn" className="bg-indigo-600 text-white p-4 rounded-full shadow-lg shadow-indigo-500/40 border-4 border-slate-950 active:scale-95 transition-transform">
                           <Download size={24} />
                       </button>
                   </div>
                   <MobileNavBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={20}/>} label="Locker" />
-                  <MobileNavBtn active={currentTab === AppTab.AUDITOR} onClick={() => setCurrentTab(AppTab.AUDITOR)} icon={<Cpu size={20}/>} label="AI Audit" />
+                  <MobileNavBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={20}/>} label="Identity" />
               </div>
           </main>
 
           {/* Notifications & Modals */}
           
+          {showCovenant && (
+              <CovenantModal 
+                  onResolve={handleCovenantResolve} 
+                  mode={covenantMode}
+                  onDismiss={() => setShowCovenant(false)}
+                  legacyVersion={vaultState?.legacyOrigin}
+              />
+          )}
+
           {showMigrationModal && (
               <MigrationModal 
                   onDismiss={() => setShowMigrationModal(false)}

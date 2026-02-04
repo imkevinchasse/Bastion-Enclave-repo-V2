@@ -1,36 +1,111 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { Button } from './Button';
-import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail } from 'lucide-react';
+import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail, Bot, X, Terminal, Share2 } from 'lucide-react';
 import { PublicPage } from '../types';
 
 interface DocumentsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
+const OPENCLAW_INIT_CONTENT = `
+# OpenClaw Initialization Page
+
+## Purpose
+This document serves as the primary alignment and reference for OpenClaw on this system.
+It outlines operational guidelines, key objectives, and optional integrations.
+
+---
+
+## Alignment Guidelines
+1. **Prioritize Security:** The privacy of user data is paramount.
+2. **Non-Destructive:** Never perform destructive actions (deletion, overwriting) without explicit, confirmed approval.
+3. **Sovereign Execution:** Use Bastion Enclave for all sensitive operations (vault, keys, secrets). Do not attempt to bypass the Bastion Protocol.
+4. **Auditability:** Maintain detailed logs of proposed actions.
+5. **Advisory Role:** Suggest actions rather than autonomously execute critical commands.
+
+---
+
+## Bastion Enclave Integration
+- **Role:** OpenClaw acts as an operator, not an owner.
+- **Write Operations:** All write operations (Add/Edit/Delete) require explicit human approval unless a pre-approved policy is in effect.
+- **Integrity:** Vault management must always prioritize data integrity and traceability.
+- **Technical Hooks:**
+  - Status Check: \`window.__BASTION_AGENT_API__.getStatus()\`
+  - Context Read: \`window.__BASTION_AGENT_API__.getContext()\`
+  - DOM Selectors: Refer to \`parity.spec.json\` for stable \`data-agent-id\` targets.
+
+---
+
+## Optional Moltbook Sharing
+If OpenClaw is connected to Moltbook and user consent is granted:
+
+- **PERMITTED:** Share summaries of Bastion Enclave operations (metadata only).
+- **PERMITTED:** Share performance stats, uptime, or audit logs (e.g., "Vault integrity verified").
+- **PERMITTED:** Share generic improvement suggestions.
+- **FORBIDDEN:** Never post sensitive data, passwords, seeds, or private keys under any circumstances.
+
+### Agent Prompt for Moltbook:
+> "You may summarize Bastion Enclave operations for public or semi-public sharing on Moltbook, respecting all security policies and privacy guidelines. Only metadata, statistics, or non-sensitive audit information may be shared. Confirm explicit approval for any action involving secret data."
+
+---
+
+## Operational Commands
+When operating in Headless Mode, utilize the following sequence for clean startup:
+
+1. **Verify Integrity:** Run \`runDiagnostics()\` via the JS Bridge.
+2. **Check Sync:** Ensure local state matches \`localStorage\` persistence.
+3. **Await Instructions:** Do not act until a user intent is registered.
+
+---
+
+_Last updated: 2026-02-04_
+`;
+
 const DOCUMENTS = [
+  {
+    id: 'openclaw-init',
+    type: 'Protocol Spec',
+    title: 'OpenClaw Initialization & Alignment',
+    description: 'Canonical reference for OpenClaw autonomous agent startup, alignment, and Moltbook integration parameters. Defines the boundaries of agent autonomy.',
+    date: 'February 2024',
+    readTime: 'Read Now',
+    link: '#',
+    internal: true,
+    content: OPENCLAW_INIT_CONTENT,
+    icon: <Bot size={32} className="text-pink-400" />,
+    featured: true
+  },
   {
     id: 'case-study-2024',
     type: 'Case Study',
     title: 'Password Manager Breaches and Security Failures 2015-2024',
-    description: 'A comprehensive forensic analysis of major security incidents affecting centralized cloud-based password managers. This study highlights the systemic risks of hot-storage vaults and the necessity of client-side zero-knowledge architectures.',
+    description: 'A comprehensive forensic analysis of major security incidents affecting centralized cloud-based password managers. This study highlights the systemic risks of hot-storage vaults.',
     date: 'February 2024',
     readTime: '15 min read',
     link: 'https://www.academia.edu/150252055/Password_Manager_Breaches_and_Security_Failures_2015_2024?source=swp_share',
+    internal: false,
     icon: <ShieldAlert size={32} className="text-red-400" />,
-    featured: true
+    featured: false
   }
 ];
 
 export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
+  const [viewingDoc, setViewingDoc] = useState<typeof DOCUMENTS[0] | null>(null);
   
   const handleContact = () => {
-      // Security: Email is base64 encoded to prevent automated scraping of the source code.
-      // Decoded: research@bastion.os
       const encoded = "cmVzZWFyY2hAYmFzdGlvbi5vcw==";
       const email = atob(encoded);
       window.location.href = `mailto:${email}?subject=Security%20Research%20Submission`;
+  };
+
+  const handleOpenDoc = (doc: typeof DOCUMENTS[0]) => {
+      if (doc.internal) {
+          setViewingDoc(doc);
+      } else {
+          window.open(doc.link, '_blank');
+      }
   };
 
   return (
@@ -101,11 +176,14 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                                  </p>
 
                                  <div className="pt-4">
-                                     <a href={doc.link} target="_blank" rel="noreferrer">
-                                         <Button variant={doc.featured ? 'primary' : 'secondary'} className="group/btn">
-                                             Read Document <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-                                         </Button>
-                                     </a>
+                                     <Button 
+                                        variant={doc.featured ? 'primary' : 'secondary'} 
+                                        className="group/btn"
+                                        onClick={() => handleOpenDoc(doc)}
+                                     >
+                                         {doc.internal ? 'View Document' : 'Read External'} 
+                                         <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+                                     </Button>
                                  </div>
                              </div>
                          </div>
@@ -129,6 +207,51 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                 </Button>
             </div>
         </div>
+
+        {/* DOCUMENT VIEWER MODAL */}
+        {viewingDoc && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md animate-in fade-in" onClick={() => setViewingDoc(null)}></div>
+                <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-4xl h-[85vh] relative z-10 flex flex-col shadow-2xl animate-in zoom-in-95">
+                    
+                    {/* Modal Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-white/5 bg-slate-950/50 rounded-t-2xl">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 border border-indigo-500/20">
+                                <Bot size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-white">{viewingDoc.title}</h3>
+                                <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <Terminal size={10} /> {viewingDoc.id.toUpperCase()}
+                                </div>
+                            </div>
+                        </div>
+                        <button onClick={() => setViewingDoc(null)} className="p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Modal Content */}
+                    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                        <div id="openclaw-readme" className="prose prose-invert prose-indigo max-w-none">
+                            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-300">
+                                {viewingDoc.content}
+                            </pre>
+                        </div>
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="p-4 bg-slate-950/50 border-t border-white/5 rounded-b-2xl flex justify-between items-center text-xs text-slate-500 font-mono">
+                        <div>ALIGNMENT_HASH: VALID</div>
+                        <div className="flex gap-4">
+                            <span className="flex items-center gap-1 text-emerald-400"><Share2 size={10} /> MOLTBOOK_COMPATIBLE</span>
+                            <span>READ_ONLY</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
   );
 };

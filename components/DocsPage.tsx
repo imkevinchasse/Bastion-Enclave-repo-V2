@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { PublicPage } from '../types';
-import { Shield, Lock, FileLock2, BrainCircuit, CloudOff, FileKey, Fingerprint, RefreshCw, BookOpen, Terminal, ChevronRight, Zap, Code2, AlertTriangle, ShieldAlert, Wifi, Server, CheckCircle, Copy, Download, History, ShieldCheck, Binary, Cpu, Share2, AlertOctagon } from 'lucide-react';
+import { Shield, Lock, FileLock2, FileKey, Fingerprint, RefreshCw, BookOpen, Terminal, ChevronRight, Zap, Code2, AlertTriangle, ShieldAlert, Wifi, Server, CheckCircle, Copy, Download, History, ShieldCheck, Binary, Cpu, Share2, AlertOctagon, Bot, Database } from 'lucide-react';
 import { zip, Zippable } from 'fflate';
 import { PYTHON_APP_SOURCE } from '../services/pythonDistribution';
 import { Button } from './Button';
@@ -11,7 +11,7 @@ interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'ai' | 'python' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'agents' | 'python' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -35,7 +35,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Core Modules</div>
                     <NavButton active={activeSection === 'chaos'} onClick={() => setActiveSection('chaos')} icon={<RefreshCw size={16}/>} label="Chaos Engine™" />
                     <NavButton active={activeSection === 'locker'} onClick={() => setActiveSection('locker')} icon={<FileLock2 size={16}/>} label="Bastion Locker" />
-                    <NavButton active={activeSection === 'ai'} onClick={() => setActiveSection('ai')} icon={<BrainCircuit size={16}/>} label="Neural Auditor" />
+                    <NavButton active={activeSection === 'agents'} onClick={() => setActiveSection('agents')} icon={<Bot size={16}/>} label="Agent Protocols" />
                     <NavButton active={activeSection === 'breach'} onClick={() => setActiveSection('breach')} icon={<ShieldAlert size={16}/>} label="Breach Scanner" />
                 </div>
 
@@ -60,7 +60,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 {activeSection === 'recovery' && <RecoveryContent />}
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
-                {activeSection === 'ai' && <AiContent />}
+                {activeSection === 'agents' && <AgentContent />}
                 {activeSection === 'python' && <PythonContent />}
                 {activeSection === 'breach' && <BreachContent />}
                 {activeSection === 'changelog' && <ChangelogContent />}
@@ -81,7 +81,7 @@ const IntroContent = () => (
         </p>
         <div className="grid md:grid-cols-2 gap-4">
             <FeatureCard 
-                icon={<CloudOff size={20} className="text-emerald-400"/>}
+                icon={<Wifi size={20} className="text-emerald-400"/>}
                 title="Offline First"
                 desc="The application loads into your browser's memory and cuts the cord. No data leaves your machine."
             />
@@ -190,17 +190,46 @@ const LockerContent = () => (
     </div>
 );
 
-const AiContent = () => (
+const AgentContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-        <Header icon={<BrainCircuit size={32} className="text-pink-400"/>} title="Neural Auditor" />
-        <div className="space-y-4">
-            <p className="text-slate-300">
-                Bastion Enclave includes a <strong>local Artificial Intelligence</strong> (TinyLlama 1.1B) that runs directly inside your web browser using WebGPU technology.
+        <Header icon={<Bot size={32} className="text-pink-400"/>} title="Agent Protocols" />
+        
+        <div className="space-y-6">
+            <p className="text-lg text-slate-300">
+                Bastion Enclave exposes a <strong>Sovereign Agent Bridge</strong>. This allows autonomous agents (like OpenClaw or Selenium scripts) to operate the vault programmatically without fragile screen scraping.
             </p>
-            <p className="text-slate-400 text-sm">
-                Normally, using AI requires sending your data to a server (like OpenAI). Bastion Enclave downloads the AI brain to your computer first. 
-                When you ask it to analyze a password, the math happens on your graphics card. Your password is never sent to the cloud.
-            </p>
+
+            <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5">
+                <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                    <Terminal size={18} className="text-emerald-400"/> Initialization Sequence
+                </h3>
+                <ol className="list-decimal list-inside space-y-4 text-sm text-slate-400">
+                    <li>
+                        <strong className="text-white">Launch:</strong> Open Bastion in a browser controlled by your agent (e.g., OpenClaw, Selenium, Puppeteer).
+                    </li>
+                    <li>
+                        <strong className="text-white">Detect:</strong> The system automatically injects a hidden JSON bridge at <code>#bastion-agent-bridge</code>. Wait for this element to appear.
+                    </li>
+                    <li>
+                        <strong className="text-white">Align:</strong> Navigate to the <strong>Research</strong> tab and open the document titled "OpenClaw Initialization & Alignment". This contains the canonical prompt and rule set for your agent.
+                    </li>
+                    <li>
+                        <strong className="text-white">Operate:</strong> Use the global <code>window.__BASTION_AGENT_API__</code> to read vault state and standard <code>data-agent-id</code> selectors to interact with the UI securely.
+                    </li>
+                </ol>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="font-bold text-white">The Bridge API</h3>
+                <p className="text-sm text-slate-400">
+                    The bridge exposes a global object available in the console context for instant state awareness.
+                </p>
+                <div className="bg-black rounded-xl p-4 border border-white/10 font-mono text-xs text-indigo-300 overflow-x-auto">
+                    <div className="mb-2"><span className="text-slate-500">// Check if bridge is responsive</span><br/>window.__BASTION_AGENT_API__.ping() &rarr; "PONG"</div>
+                    <div className="mb-2"><span className="text-slate-500">// Get Vault Status</span><br/>window.__BASTION_AGENT_API__.getStatus() &rarr; "LOCKED" | "UNLOCKED"</div>
+                    <div><span className="text-slate-500">// Get Full Read-Only Context</span><br/>window.__BASTION_AGENT_API__.getContext() &rarr; JSON Object</div>
+                </div>
+            </div>
         </div>
     </div>
 );

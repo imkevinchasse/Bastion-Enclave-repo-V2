@@ -30,9 +30,10 @@ interface LockerProps {
   entries: Resonance[];
   onLock: (entry: Resonance) => void;
   onDelete: (id: string) => void;
+  onValueAction?: () => void;
 }
 
-export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete }) => {
+export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onValueAction }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [status, setStatus] = useState<'idle' | 'compressing' | 'binding' | 'resolving' | 'storing' | 'complete'>('idle');
@@ -138,6 +139,9 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete }) => 
             const url = URL.createObjectURL(blob);
             setSuccessFile({ name: `${fileToProcess.name}.bastion`, url });
             setStatus('complete');
+            
+            // Value Event Trigger
+            if (onValueAction) onValueAction();
         }
 
     } catch (e: any) {
@@ -169,6 +173,9 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete }) => 
       const url = URL.createObjectURL(blob);
       setSuccessFile({ name: resonance.label, url });
       setStatus('complete');
+      
+      // Value Event Trigger
+      if (onValueAction) onValueAction();
   }
 
   const handleUnlockStored = async (entry: Resonance) => {

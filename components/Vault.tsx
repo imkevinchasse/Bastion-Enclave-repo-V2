@@ -17,6 +17,7 @@ interface VaultProps {
   onDeleteConfig: (id: string) => void;
   onUpdateConfig: (config: VaultConfig) => void;
   onUpdateAllConfigs?: (configs: VaultConfig[]) => void;
+  onValueAction?: () => void;
 }
 
 type SortMode = 'alpha' | 'created' | 'usage' | 'manual';
@@ -81,7 +82,7 @@ const ShardRecovery: React.FC = () => {
     );
 };
 
-export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, onDeleteConfig, onUpdateConfig, onUpdateAllConfigs }) => {
+export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, onDeleteConfig, onUpdateConfig, onUpdateAllConfigs, onValueAction }) => {
   const [view, setView] = useState<'list' | 'editor' | 'generator' | 'recover' | 'scanner'>('list');
   const [search, setSearch] = useState('');
   
@@ -286,6 +287,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                     });
                 }
             }}
+            onValueAction={onValueAction}
           />
       );
   }
@@ -335,6 +337,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
             <form onSubmit={handleSave} className="space-y-8 relative z-10">
                 <div className="grid md:grid-cols-2 gap-6">
                     <Input 
+                        data-agent-id="editor-service"
                         label="Service Name" 
                         placeholder="e.g. GitHub" 
                         value={editConfig.name}
@@ -343,6 +346,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                         required
                     />
                     <Input 
+                        data-agent-id="editor-username"
                         label="Identity / Username" 
                         placeholder="user@domain.com"
                         value={editConfig.username}
@@ -395,7 +399,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                 </div>
 
                 <div className="pt-2">
-                    <Button type="submit" className="w-full py-3 text-lg">{isNewEntry ? 'Encrypt & Add to Vault' : 'Save Changes'}</Button>
+                    <Button type="submit" data-agent-id="editor-save-btn" className="w-full py-3 text-lg">{isNewEntry ? 'Encrypt & Add to Vault' : 'Save Changes'}</Button>
                 </div>
             </form>
         </div>
@@ -419,6 +423,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
              
              <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
                 <Input 
+                    data-agent-id="vault-search"
                     icon={<Search size={16} />} 
                     placeholder="Search or !cmd..." 
                     value={search}
@@ -465,7 +470,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                 <Button onClick={() => setView('generator')} variant="secondary" className="shrink-0 h-10" title="Random Password Generator">
                     <ShieldCheck size={18} />
                 </Button>
-                <Button onClick={() => openEditor()} className="shrink-0 h-10">
+                <Button onClick={() => openEditor()} data-agent-id="vault-add-btn" className="shrink-0 h-10">
                     <Plus size={18} /> New
                 </Button>
              </div>
@@ -609,7 +614,7 @@ const VaultConfigCard: React.FC<{
     };
 
     return (
-        <div className={`border p-5 rounded-xl transition-all duration-300 relative group overflow-hidden ${isCompromised ? 'bg-red-950/20 border-red-500/50 shadow-[0_0_20px_-5px_rgba(239,68,68,0.3)]' : 'bg-slate-900/80 border-white/5 hover:border-indigo-500/30 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]'}`}>
+        <div data-agent-id="vault-item-card" className={`border p-5 rounded-xl transition-all duration-300 relative group overflow-hidden ${isCompromised ? 'bg-red-950/20 border-red-500/50 shadow-[0_0_20px_-5px_rgba(239,68,68,0.3)]' : 'bg-slate-900/80 border-white/5 hover:border-indigo-500/30 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]'}`}>
             
             {/* Compromised Banner */}
             {isCompromised && (
@@ -653,7 +658,7 @@ const VaultConfigCard: React.FC<{
                     <button onClick={toggleReveal} className="p-1.5 text-slate-500 hover:text-white transition-colors">
                         {reveal ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
-                    <button onClick={copy} className="p-1.5 text-slate-500 hover:text-white transition-colors" title="Copy to Clipboard">
+                    <button onClick={copy} data-agent-id="vault-copy-btn" className="p-1.5 text-slate-500 hover:text-white transition-colors" title="Copy to Clipboard">
                         <Copy size={16} />
                     </button>
                     <button onClick={handleShare} disabled={isSharing} className="p-1.5 text-slate-500 hover:text-indigo-400 transition-colors disabled:opacity-50" title="Share Secret (Split Key)">

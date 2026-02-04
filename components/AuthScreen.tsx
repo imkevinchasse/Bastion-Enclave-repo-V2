@@ -10,7 +10,7 @@ import { track } from '@vercel/analytics';
 import { SecurityService } from '../services/securityService';
 
 interface AuthScreenProps {
-  onOpen: (state: VaultState, blob: string, password: string, isNew?: boolean, isLegacy?: boolean) => void;
+  onOpen: (state: VaultState, blob: string, password: string, isNew?: boolean, detectedVersion?: number) => void;
   onNavigate: (page: PublicPage) => void;
 }
 
@@ -151,7 +151,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         track('Vault Created');
 
         // Pass isNew=true to trigger unsaved changes warning until backup
-        onOpen(initialState, newBlob, finalPassword, true, false);
+        onOpen(initialState, newBlob, finalPassword, true, 4); // 4 = Current Protocol
     } catch (e) {
         setError("Failed to create vault.");
     } finally {
@@ -190,17 +190,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
             track('Identity Recovered');
 
             // Recovering from seed is effectively a "new" session in memory until saved
-            onOpen(recoveredState, newBlob, password, true, false);
+            onOpen(recoveredState, newBlob, password, true, 4);
         } else {
             const { state, version } = await ChaosLock.unpack(inputData, password);
             
-            const isLegacy = version < 3; // 3 is the current V3 standard (Argon2id)
-
             // Analytics Beacon
             track('Vault Unlocked');
 
-            // Opening from blob is a "safe" state, pass legacy flag
-            onOpen(state, inputData, password, false, isLegacy);
+            // Pass detected version to App for legacy handling
+            onOpen(state, inputData, password, false, version);
         }
 
     } catch (e) {
@@ -261,12 +259,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                     <div className="flex border-b border-white/5 bg-black/20">
                         <button 
                             onClick={() => {setTab('open'); setError('');}}
+                            data-agent-id="auth-tab-open"
                             className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${tab === 'open' ? 'text-white bg-white/5' : 'text-slate-500 hover:text-slate-300'}`}
                         >
                             <LogIn size={16} /> Unlock Vault
                         </button>
                         <button 
                             onClick={() => {setTab('create'); setError('');}}
+                            data-agent-id="auth-tab-create"
                             className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${tab === 'create' ? 'text-white bg-white/5' : 'text-slate-500 hover:text-slate-300'}`}
                         >
                             <UserPlus size={16} /> Create New
@@ -339,6 +339,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                             )}
                                             
                                             <textarea 
+                                                data-agent-id="auth-blob-input"
                                                 value={blob}
                                                 onChange={e => setBlob(e.target.value)}
                                                 className="w-full h-32 bg-transparent p-4 text-[11px] font-mono text-slate-300 resize-none outline-none relative z-10 placeholder-transparent custom-scrollbar leading-relaxed"
@@ -366,6 +367,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Master Password</label>
                                         <div className="relative">
                                             <Input 
+                                                data-agent-id="auth-master-password"
                                                 type={showPassword ? "text" : "password"}
                                                 value={password}
                                                 onChange={e => setPassword(e.target.value)}
@@ -412,7 +414,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                                     <Trash2 size={20} />
                                                 </button>
                                             )}
-                                            <Button type="submit" className={`w-full h-12 text-lg shadow-lg ${isSeed ? 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500' : 'shadow-indigo-500/20'}`} isLoading={loading}>
+                                            <Button type="submit" data-agent-id="auth-unlock-btn" className={`w-full h-12 text-lg shadow-lg ${isSeed ? 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500' : 'shadow-indigo-500/20'}`} isLoading={loading}>
                                                 {isSeed ? 'Recover Vault' : 'Unlock Vault'}
                                             </Button>
                                         </div>
@@ -438,6 +440,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                     </label>
                                     <div className="relative group">
                                         <Input 
+                                            data-agent-id="auth-master-password"
                                             type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
@@ -459,7 +462,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                     )}
                                 </div>
 
-                                <Button type="submit" className={`w-full h-12 text-lg shadow-lg ${isDevModeTrigger ? 'shadow-amber-500/20 bg-amber-600 hover:bg-amber-500' : 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500'}`} isLoading={loading}>
+                                <Button type="submit" data-agent-id="auth-create-btn" className={`w-full h-12 text-lg shadow-lg ${isDevModeTrigger ? 'shadow-amber-500/20 bg-amber-600 hover:bg-amber-500' : 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500'}`} isLoading={loading}>
                                     {isDevModeTrigger ? 'Initialize Dev Vault' : 'Create Vault'}
                                 </Button>
                                 

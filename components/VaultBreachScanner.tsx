@@ -13,6 +13,7 @@ interface VaultBreachScannerProps {
   onClose: () => void;
   onNavigateToConfig: (id: string) => void;
   onMarkCompromised?: (id: string) => void; 
+  onValueAction?: () => void;
 }
 
 interface ScanResult {
@@ -22,7 +23,7 @@ interface ScanResult {
   pwnCount: number;
 }
 
-export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs, masterSeed, onClose, onNavigateToConfig, onMarkCompromised }) => {
+export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs, masterSeed, onClose, onNavigateToConfig, onMarkCompromised, onValueAction }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<ScanResult[]>([]);
@@ -85,6 +86,12 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
         // 4. Rate Limiting (Politeness Delay)
         await new Promise(r => setTimeout(r, 1500));
       }
+      
+      // Value Event Trigger on Completion
+      if (onValueAction && !abortControllerRef.current.signal.aborted) {
+          onValueAction();
+      }
+
     } finally {
       if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
           setIsScanning(false);

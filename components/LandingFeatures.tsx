@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Archive, Network, Cpu, Atom, Activity, Lock, FileCode2, Zap, X, Terminal, ShieldCheck, Database, FileKey, Share2 } from 'lucide-react';
+import { Archive, Atom, Activity, Lock, FileCode2, Zap, X, Terminal, ShieldCheck, Database, FileKey, Share2, Bot, Workflow } from 'lucide-react';
 
 // --- DATA STRUCTURES ---
 
@@ -27,11 +27,11 @@ const FEATURES = [
     specs: ["SHAMIR SECRET SHARING", "FINITE FIELD (Fp)", "INFORMATION THEORETIC SECURITY"]
   },
   {
-    id: 'neural',
-    icon: <Cpu size={28} className="text-violet-400" />,
-    title: "Neural Auditor",
-    short: "Local WebGPU AI analysis for semantic pattern detection.",
-    specs: ["TINYLLAMA 1.1B", "WEBGPU", "AIR-GAPPED LOGIC"]
+    id: 'agent',
+    icon: <Bot size={28} className="text-pink-400" />,
+    title: "OpenClaw Ready",
+    short: "Semantic DOM and JSON Bridge for headless automation and agents.",
+    specs: ["SEMANTIC DOM", "STATE BRIDGE", "SELENIUM COMPATIBLE"]
   }
 ];
 
@@ -72,17 +72,17 @@ const GLOSSARY: Record<string, { title: string, body: string }> = {
         title: "Information-Theoretic Security",
         body: "The highest level of security. It means the system cannot be broken even with infinite computing power. Our sharding implementation adheres to this standard."
     },
-    "TINYLLAMA 1.1B": {
-        title: "Local LLM Inference",
-        body: "We execute a quantized version of the TinyLlama neural network entirely within your browser's Wasm runtime. This allows for 'smart' security audits without sending a single byte of data to an external server."
+    "SEMANTIC DOM": {
+        title: "Semantic Agent DOM",
+        body: "The interface exposes stable `data-agent-id` attributes for every interactive element. This allows autonomous agents (like OpenClaw or Selenium scripts) to reliably navigate, read, and operate the vault without relying on fragile XPath or CSS selectors that break with UI updates."
     },
-    "WEBGPU": {
-        title: "Web Graphics Processing Unit",
-        body: "A modern browser API allowing direct access to the GPU. Bastion uses this to accelerate the massive matrix multiplications required for AI inference, keeping the application responsive."
+    "STATE BRIDGE": {
+        title: "Reactive State Bridge",
+        body: "A hidden JSON feed (`#bastion-agent-bridge`) reflects the vault's internal cryptographic state in real-time. Agents can 'see' the application state (locked status, item counts, sync status) instantly without OCR or screen scraping."
     },
-    "AIR-GAPPED LOGIC": {
-        title: "Offline-First Architecture",
-        body: "Bastion is delivered as a Progressive Web App (PWA) but is designed to function with zero network connectivity. Once loaded, you can (and should) disconnect from the internet for maximum security."
+    "SELENIUM COMPATIBLE": {
+        title: "Headless Browser Ready",
+        body: "The application detects when it is running in a headless environment and optimizes its rendering pipeline. It is fully compatible with Selenium, Puppeteer, and Playwright for users who wish to build their own automated rotation scripts."
     }
 };
 
@@ -105,11 +105,11 @@ const DEEP_DIVES: Record<string, { title: string, subtitle: string, desc: string
         desc: "Backups are a security risk. If you write down your password, it can be stolen. Bastion allows you to split your master password into 5 'shards'. You can distribute these shards (e.g., one to a lawyer, one in a safe, one with a spouse). An attacker needs 3 combined shards to recover the key. 2 shards are useless.",
         technical: ["Lagrange Interpolation", "GF(2^256) Arithmetic", "Hybrid Encryption"]
     },
-    "neural": {
-        title: "Neural Auditor",
-        subtitle: "Private Semantic Analysis",
-        desc: "Standard strength checkers just count characters. Bastion's Neural Auditor understands context. It knows that 'P@ssword1!' is weak despite having symbols and numbers. It runs a specialized neural network on your own hardware to find semantic weaknesses without exposing your data.",
-        technical: ["ONNX Runtime", "4-bit Quantization", "Zero Data Egress"]
+    "agent": {
+        title: "Agent-First Architecture",
+        subtitle: "Programmable Sovereignty",
+        desc: "Bastion is designed to be operated by machines as well as humans. We expose a full Semantic DOM and State Bridge that allows tools like OpenClaw and Selenium to drive the vault programmatically. This enables you to build your own auto-rotation bots, backup daemons, and audit scripts that run entirely offline on your own infrastructure.",
+        technical: ["Data-Agent-ID Selectors", "JSON State Bridge", "Parity Spec v1"]
     }
 };
 

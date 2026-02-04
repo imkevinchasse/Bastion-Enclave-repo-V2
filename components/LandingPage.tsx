@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { TopNav } from '@/components/TopNav';
-import { LandingFeatures } from '@/components/LandingFeatures';
-import { Button } from '@/components/Button';
-import { BrandLogo } from '@/components/BrandLogo';
-import { ArrowRight, HeartHandshake, Zap, HardDrive, FileJson, Binary, Shield, ServerOff, Scaling, Terminal, Lock, Globe, Database, Anchor, RefreshCw, Cpu, CheckCircle, GitFork, ShieldCheck, Fingerprint, Activity } from 'lucide-react';
-import { PublicPage } from '@/types';
-import { ProvenanceService, ProvenanceReport } from '@/services/provenance';
+import { TopNav } from './TopNav';
+import { LandingFeatures } from './LandingFeatures';
+import { Button } from './Button';
+import { BrandLogo } from './BrandLogo';
+import { ArrowRight, HeartHandshake, Zap, HardDrive, FileJson, Binary, Shield, ServerOff, Scaling, Terminal, Lock, Globe, Database, Anchor, RefreshCw, Cpu, CheckCircle, GitFork } from 'lucide-react';
+import { PublicPage } from '../types';
+import { ProvenanceService, ProvenanceReport } from '../services/provenance';
 
 interface LandingPageProps {
   onNavigate: (page: PublicPage) => void;
@@ -23,9 +23,9 @@ const DEMO_STAGES = {
         code: `{
   "id": "vault_entry_8f92a",
   "service": "github.com",
-  "username": "faith@key.homestead",
+  "username": "developer@bastion.os",
   "password": "correct-horse-battery-staple",
-  "protocol": "SOVEREIGN_V3.5"
+  "protocol": "SOVEREIGN_V3"
 }`
     },
     'process': {
@@ -75,13 +75,12 @@ while (out.length < length) {
         color: 'text-amber-400',
         borderColor: 'border-amber-500',
         bg: 'bg-amber-500/10',
-        code: `// Header: "BSTN" + Version 0x04 (V3.5)
-[0x42, 0x53, 0x54, 0x4E, 0x04]
+        code: `// Header: "BSTN" + Version 0x03
+[0x42, 0x53, 0x54, 0x4E, 0x03]
 
-// Payload (AES-256-GCM) + Deterministic Padding
+// Payload (AES-256-GCM)
 IV:  [12 bytes random]
 TAG: [16 bytes auth]
-PAD: [0x00 * n] // Align to 64 bytes
 CIPHER: [Encrypted Data]
 
 // STORAGE LOCATION: IndexedDB / LocalStorage
@@ -89,17 +88,13 @@ CIPHER: [Encrypted Data]
     }
 };
 
-// Fact-checked comparison data. 
-// "Local-First" vs "Cloud-First". 
-// "On-Device AI" vs "Cloud AI".
 const COMPARISON_DATA = [
-    { feature: "Primary Storage Model", bastion: "Local Device (Sovereign)", lp: "Cloud Database", bw: "Cloud Database", op: "Cloud Database", kp: "Local File" },
-    { feature: "Trust Boundary", bastion: "Device Root", lp: "Vendor Cloud", bw: "Vendor Cloud", op: "Vendor Cloud", kp: "Device Root" },
-    { feature: "Encryption", bastion: "Argon2id (Memory-Hard)", lp: "PBKDF2", bw: "PBKDF2 (Argon2 Opt)", op: "PBKDF2 + Secret Key", kp: "AES / ChaCha20" },
-    { feature: "Zero-Knowledge Architecture", bastion: "By Architecture (No Server)", lp: "By Policy", bw: "Audited Code", op: "Proprietary", kp: "Local Only" },
-    { feature: "AI Security Analysis", bastion: "On-Device (WebGPU)", lp: "Cloud-Assisted", bw: "Basic Reporting", op: "Basic Reporting", kp: "None" },
-    { feature: "Traffic Analysis Resistance", bastion: "Deterministic Padding", lp: "Variable", bw: "Variable", op: "Variable", kp: "Variable" },
-    { feature: "Data Serialization", bastion: "Canonical (Enforced)", lp: "Implementation Dependent", bw: "Implementation Dependent", op: "Implementation Dependent", kp: "XML / Binary" },
+    { feature: "Primary Storage Location", bastion: "Device (Local)", lp: "Cloud (Central)", bw: "Cloud (Central)", op: "Cloud (Central)", kp: "Device (Local)" },
+    { feature: "Password Logic", bastion: "Deterministic (Math)", lp: "Random (Database)", bw: "Random (Database)", op: "Random (Database)", kp: "Random (Database)" },
+    { feature: "KDF / Hashing Hardness", bastion: "Argon2id (64MB)", lp: "PBKDF2 (Low RAM)", bw: "PBKDF2 (Low RAM)", op: "PBKDF2 (Low RAM)", kp: "Argon2 (Config)" },
+    { feature: "Zero-Knowledge Architecture", bastion: "Guaranteed (Code)", lp: "Policy Based", bw: "Audited Code", op: "Proprietary", kp: "Open Source" },
+    { feature: "Centralized Attack Surface", bastion: "None (Distributed)", lp: "High (Honeypot)", bw: "High (Honeypot)", op: "High (Honeypot)", kp: "None" },
+    { feature: "Breach Monitoring", bastion: "k-Anonymity (API)", lp: "Cloud Scans", bw: "Cloud Scans", op: "Watchtower", kp: "Plugin Required" },
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
@@ -130,7 +125,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 1. HERO SECTION */}
             <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
                 <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
-                     
+                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/50 border border-indigo-500/30 text-indigo-400 text-[10px] font-mono uppercase tracking-widest">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Protocol V3 Active
+                    </div>
+                    
                     <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1.1]">
                         The Cloud is Compromised. <br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-emerald-400">
@@ -139,22 +138,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     </h1>
                     
                     <p className="text-xl text-slate-400 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                        Bastion Enclave replaces trust with cryptographic certainty. We do not store credentials; we compute them deterministically on-the-fly using Argon2id.
-                        <br/>
-                        <strong className="text-white">Your data physically cannot leave this device.</strong>
+                        Bastion Enclave replaces "trust" with <strong>Argon2id Cryptography</strong> and <strong>Deterministic Math</strong>. 
+                        We don't store your passwords; we calculate them on-the-fly. Your data physically cannot leave your device.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] border border-indigo-400/20">
-                            Launch App <ArrowRight size={20} />
+                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)]">
+                            Enter Vault <ArrowRight size={20} />
                         </Button>
+                        <a href="https://github.com/google-gemini/bastion" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+                           <Button variant="secondary" size="lg" className="w-full h-14 text-lg px-8">
+                               <Terminal size={20} /> Inspect Source
+                           </Button>
+                        </a>
                     </div>
                 </div>
 
                 <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000">
-                    <div className="relative group">
-                        <div className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full group-hover:bg-indigo-500/30 transition-all duration-1000"></div>
-                        <BrandLogo size={320} animated={true} className="drop-shadow-[0_0_50px_rgba(99,102,241,0.3)] relative z-10 transition-transform duration-700 group-hover:scale-105" />
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full"></div>
+                        <BrandLogo size={320} animated={true} className="drop-shadow-[0_0_50px_rgba(99,102,241,0.3)] relative z-10" />
                     </div>
                 </div>
             </div>
@@ -173,9 +176,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     
                     <div className="grid lg:grid-cols-2 gap-12 p-8 lg:p-16 items-start">
                         <div className="space-y-8">
-                            <div className="inline-flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest">
-                                <Activity size={16} /> Zero-Knowledge Architecture
-                            </div>
                             <h2 className="text-3xl md:text-4xl font-bold text-white">Trust No One. Not Even Us.</h2>
                             <p className="text-lg text-slate-400 leading-relaxed">
                                 Most password managers claim "Zero Knowledge" while still storing your encrypted blob on their central servers. This is a <strong>policy</strong>, not a guarantee. If their server is subpoenaed or breached, your data is at risk.
@@ -185,22 +185,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             
                             {/* Interactive Pipeline Triggers */}
                             <div className="flex flex-col gap-4">
-                                {Object.entries(DEMO_STAGES).map(([key, stage]) => (
-                                    <button 
-                                        key={key}
-                                        onClick={() => setActiveStage(key as any)}
-                                        className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === key ? 'bg-indigo-500/10 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
-                                    >
-                                        <div className={`p-3 rounded-lg ${activeStage === key ? stage.bg.replace('/10', '') + ' text-white' : 'bg-slate-800 text-slate-500'}`}>
-                                            {stage.icon}
-                                        </div>
-                                        <div>
-                                            <h4 className={`font-bold ${activeStage === key ? 'text-white' : 'text-slate-400'}`}>{stage.label}</h4>
-                                            <p className="text-xs text-slate-500">{stage.desc}</p>
-                                        </div>
-                                        <ArrowRight className={`ml-auto ${activeStage === key ? stage.color : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
-                                    </button>
-                                ))}
+                                <button 
+                                    onClick={() => setActiveStage('input')}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'input' ? 'bg-indigo-500/10 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                >
+                                    <div className={`p-3 rounded-lg ${activeStage === 'input' ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                        <FileJson size={20}/>
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold ${activeStage === 'input' ? 'text-white' : 'text-slate-400'}`}>1. Volatile Input</h4>
+                                        <p className="text-xs text-slate-500">Plaintext exists ONLY in RAM.</p>
+                                    </div>
+                                    <ArrowRight className={`ml-auto ${activeStage === 'input' ? 'text-indigo-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                </button>
+
+                                <button 
+                                    onClick={() => setActiveStage('process')}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'process' ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                >
+                                    <div className={`p-3 rounded-lg ${activeStage === 'process' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                        <Zap size={20}/>
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold ${activeStage === 'process' ? 'text-white' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
+                                        <p className="text-xs text-slate-500">V3 Protocol: Memory-hard derivation.</p>
+                                    </div>
+                                    <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-emerald-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                </button>
+
+                                <button 
+                                    onClick={() => setActiveStage('chaos')}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'chaos' ? 'bg-violet-500/10 border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                >
+                                    <div className={`p-3 rounded-lg ${activeStage === 'chaos' ? 'bg-violet-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                        <RefreshCw size={20}/>
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold ${activeStage === 'chaos' ? 'text-white' : 'text-slate-400'}`}>3. Chaos Engine V2</h4>
+                                        <p className="text-xs text-slate-500">Deterministic SHA-512 Generation.</p>
+                                    </div>
+                                    <ArrowRight className={`ml-auto ${activeStage === 'chaos' ? 'text-violet-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                </button>
+
+                                <button 
+                                    onClick={() => setActiveStage('storage')}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'storage' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                >
+                                    <div className={`p-3 rounded-lg ${activeStage === 'storage' ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                        <HardDrive size={20}/>
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold ${activeStage === 'storage' ? 'text-white' : 'text-slate-400'}`}>4. Opaque Persistence</h4>
+                                        <p className="text-xs text-slate-500">Only encrypted noise touches the disk.</p>
+                                    </div>
+                                    <ArrowRight className={`ml-auto ${activeStage === 'storage' ? 'text-amber-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                </button>
                             </div>
                         </div>
                         
@@ -213,8 +252,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
                                     <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/50"></div>
                                 </div>
-                                <div className="flex-1 text-center font-mono text-[10px] text-slate-500 uppercase flex items-center justify-center gap-2">
-                                    <Lock size={10} /> bastion_runtime_env
+                                <div className="flex-1 text-center font-mono text-[10px] text-slate-500 uppercase">
+                                    bastion_runtime_env
                                 </div>
                             </div>
 
@@ -237,7 +276,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                             {/* Status Footer */}
                             <div className="px-4 py-2 bg-slate-900 border-t border-white/5 text-[10px] font-mono flex justify-between text-slate-500">
-                                <span className="flex items-center gap-1"><ShieldCheck size={10} /> INTEGRITY_OK</span>
+                                <span>UTF-8</span>
                                 <span>{activeStage === 'storage' ? 'ENCRYPTED' : activeStage === 'process' ? 'PROCESSING' : activeStage === 'chaos' ? 'COMPUTING' : 'PLAINTEXT'}</span>
                             </div>
                         </div>
@@ -286,7 +325,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 <div className="overflow-x-auto pb-6">
                     <div className="min-w-[1000px]">
                         <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 mb-4 px-4">
-                            <div className="font-bold text-sm text-slate-500 uppercase tracking-wider py-4">Category</div>
+                            <div className="font-bold text-sm text-slate-500 uppercase tracking-wider py-4">Architecture</div>
                             <div className="font-bold text-lg text-white py-2 flex flex-col items-center justify-center bg-indigo-600/20 border border-indigo-500/50 rounded-t-xl">
                                 <BrandLogo size={24} className="mb-2" />
                                 Bastion
@@ -320,19 +359,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
             {/* 6. INVESTOR CALLOUTS */}
             <div className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 gap-8">
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
                         <Anchor size={32} className="text-indigo-400 mb-6" />
                         <h3 className="text-xl font-bold text-white mb-3">Anchored Data</h3>
                         <p className="text-slate-400 text-sm leading-relaxed">
                             Heavy files in the Locker are <strong>anchored</strong> to the specific device they were encrypted on. They do not sync automatically, preventing massive bandwidth usage or "surprise" downloads on mobile.
-                        </p>
-                    </div>
-                    <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
-                        <Scaling size={32} className="text-violet-400 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-3">Sovereign Intelligence</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            Our optimized Neural Auditor executes entirely on your local silicon via WebGPU. We don't ship your data to a cloud brain; we ship the model to your device.
                         </p>
                     </div>
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">

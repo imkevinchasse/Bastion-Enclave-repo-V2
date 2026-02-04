@@ -44,6 +44,36 @@ export interface Contact {
 }
 
 /**
+ * GENESIS ARTIFACT
+ * A specific, scarce proof of early adoption/stewardship.
+ * Linked to a specific Protocol Epoch.
+ */
+export interface GenesisArtifact {
+  id: string; // Hash of the artifact
+  epoch: string; // e.g., "V3.5_GENESIS"
+  rank: number; // Calculated based on time-of-entry (lower is rarer)
+  issuedAt: number;
+  totalSlots: number; // The theoretical max slots for this epoch
+}
+
+/**
+ * IDENTITY & ATTESTATION
+ * Cryptographic proofs of contribution and adherence to the protocol.
+ */
+export interface IdentityProof {
+  id: string; // Public Key Fingerprint (Hex)
+  type: 'pledge' | 'supporter';
+  tier: 'sovereign' | 'advocate' | 'architect' | 'guardian';
+  stewardName?: string; // Optional: Named Continuity Bond
+  timestamp: number;
+  signature: string; // Hex signature of the pledge statement
+  publicKey: JsonWebKey; // The public key used to verify the signature
+  privateKey?: JsonWebKey; // Stored locally to allow re-signing or proof generation
+  genesis?: GenesisArtifact; // Optional: If bonded during a Genesis Window
+  veteran?: { version: number; label: string }; // Optional: For users migrating from V1/V2
+}
+
+/**
  * RESONANCE (formerly LockerEntry)
  * A cryptographic binding between the Vault (Key) and an External Blob (Ciphertext).
  * 
@@ -86,6 +116,12 @@ export interface VaultState {
   lastModified: number; // Timestamp of last write
   lastBreachCheck?: number; // Global timestamp of last scan start
   flags?: number; // Bitmask for vault capabilities (Encrypted)
+  
+  // Identity Layer
+  identity?: IdentityProof;
+  
+  // Legacy Tracking
+  legacyOrigin?: number; // Tracks the protocol version this vault was originally created with (if < 3)
 }
 
 export enum SecurityLevel {
@@ -119,7 +155,8 @@ export enum AppTab {
   EXTENSIONS = 'EXTENSIONS',
   SANDBOX = 'SANDBOX',
   NEWS = 'NEWS',
-  DEVELOPER = 'DEVELOPER'
+  DEVELOPER = 'DEVELOPER',
+  IDENTITY = 'IDENTITY'
 }
 
 export interface LLMStatus {
