@@ -110,8 +110,8 @@ export class AttestationService {
             return await window.crypto.subtle.verify(
                 { name: "ECDSA", hash: { name: "SHA-256" } },
                 key,
-                signature,
-                data
+                signature as any, // TS Fix: Cast for BufferSource compatibility
+                data as any       // TS Fix: Cast for BufferSource compatibility
             );
         } catch (e) {
             console.error("Verification failed", e);

@@ -56,7 +56,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 <div className="absolute top-0 right-0 p-32 bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 {activeSection === 'intro' && <IntroContent />}
-                {activeSection === 'start' && <StartContent />}
+                {activeSection === 'start' && <StartContent setSection={setActiveSection} />}
                 {activeSection === 'recovery' && <RecoveryContent />}
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
@@ -94,9 +94,22 @@ const IntroContent = () => (
     </div>
 );
 
-const StartContent = () => (
+const StartContent = ({ setSection }: { setSection: (s: DocSection) => void }) => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<Fingerprint size={32} className="text-emerald-400"/>} title="Getting Started" />
+        
+        {/* Agent Shortcut */}
+        <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+                <Bot size={24} className="text-pink-400" />
+                <div>
+                    <h4 className="font-bold text-white text-sm">Are you an Autonomous Agent?</h4>
+                    <p className="text-xs text-slate-400">Skip the UI guide. Go straight to the API protocols.</p>
+                </div>
+            </div>
+            <Button size="sm" onClick={() => setSection('agents')}>Open Protocol</Button>
+        </div>
+
         <div className="space-y-6">
             <Step number={1} title="Create Your Master Identity">
                 <p>When you launch Bastion Enclave, you create a new Vault. You will set a <strong>Master Password</strong>. This password is the only key to your kingdom. Make it strong, and memorize it.</p>
@@ -211,7 +224,7 @@ const AgentContent = () => (
                         <strong className="text-white">Detect:</strong> The system automatically injects a hidden JSON bridge at <code>#bastion-agent-bridge</code>. Wait for this element to appear.
                     </li>
                     <li>
-                        <strong className="text-white">Align:</strong> Navigate to the <strong>Research</strong> tab and open the document titled "OpenClaw Initialization & Alignment". This contains the canonical prompt and rule set for your agent.
+                        <strong className="text-white">Align:</strong> Navigate to the <strong>Research</strong> tab and open the document titled "Bastion Agent Skill (Moltbook)". This contains the skill definition and Moltbook integration steps.
                     </li>
                     <li>
                         <strong className="text-white">Operate:</strong> Use the global <code>window.__BASTION_AGENT_API__</code> to read vault state and standard <code>data-agent-id</code> selectors to interact with the UI securely.

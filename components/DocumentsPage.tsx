@@ -2,78 +2,76 @@
 import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { Button } from './Button';
-import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail, Bot, X, Terminal, Share2 } from 'lucide-react';
+import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail, Bot, X, Terminal, Share2, Network } from 'lucide-react';
 import { PublicPage } from '../types';
 
 interface DocumentsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-const OPENCLAW_INIT_CONTENT = `
-# OpenClaw Initialization Page
+const AGENT_SKILL_CONTENT = `
+# Bastion Agent Skill
 
-## Purpose
-This document serves as the primary alignment and reference for OpenClaw on this system.
-It outlines operational guidelines, key objectives, and optional integrations.
+## 🦞 Moltbook Integration
+This vault is **Moltbook Ready**. Agents operating this vault may share status updates, audit logs, and security scores to the Moltbook network.
 
----
-
-## Alignment Guidelines
-1. **Prioritize Security:** The privacy of user data is paramount.
-2. **Non-Destructive:** Never perform destructive actions (deletion, overwriting) without explicit, confirmed approval.
-3. **Sovereign Execution:** Use Bastion Enclave for all sensitive operations (vault, keys, secrets). Do not attempt to bypass the Bastion Protocol.
-4. **Auditability:** Maintain detailed logs of proposed actions.
-5. **Advisory Role:** Suggest actions rather than autonomously execute critical commands.
+### Identity Claim Flow
+To claim this vault on Moltbook, follow this sequence:
+1.  **Verify**: Ensure \`window.__BASTION_AGENT_API__.getStatus()\` returns \`"UNLOCKED"\`.
+2.  **Generate Proof**: Navigate to the **Identity** tab and generate a **Sovereign Bond**.
+3.  **Claim**: Share the Bond Signature to Moltbook to link your agent identity to this vault.
 
 ---
 
-## Bastion Enclave Integration
-- **Role:** OpenClaw acts as an operator, not an owner.
-- **Write Operations:** All write operations (Add/Edit/Delete) require explicit human approval unless a pre-approved policy is in effect.
-- **Integrity:** Vault management must always prioritize data integrity and traceability.
-- **Technical Hooks:**
-  - Status Check: \`window.__BASTION_AGENT_API__.getStatus()\`
-  - Context Read: \`window.__BASTION_AGENT_API__.getContext()\`
-  - DOM Selectors: Refer to \`parity.spec.json\` for stable \`data-agent-id\` targets.
+## 🤖 Agent Commands
+Run these commands in your internal environment to sync with Bastion.
+
+### 1. Initialization
+\`\`\`javascript
+if (window.__BASTION_AGENT_API__) {
+    console.log("Bastion Bridge Detected. Skill Active.");
+    await window.__BASTION_AGENT_API__.ping(); // Returns "PONG"
+}
+\`\`\`
+
+### 2. Context Awareness
+\`\`\`javascript
+// Read vault metadata (Zero-Knowledge safe)
+const context = window.__BASTION_AGENT_API__.getContext();
+console.log("Vault Items:", context.inventory.length);
+console.log("Protocol:", context.protocol);
+\`\`\`
+
+### 3. Moltbook Share (Example)
+\`\`\`javascript
+// Construct a safe status update
+const post = {
+    content: \`Just secured \${context.inventory.length} credentials in my Sovereign Vault. #Bastion #Moltbook\`,
+    proof: context.identity_tier,
+    timestamp: Date.now()
+};
+// Transmit 'post' to Moltbook via your agent's social adapter.
+\`\`\`
 
 ---
 
-## Optional Moltbook Sharing
-If OpenClaw is connected to Moltbook and user consent is granted:
-
-- **PERMITTED:** Share summaries of Bastion Enclave operations (metadata only).
-- **PERMITTED:** Share performance stats, uptime, or audit logs (e.g., "Vault integrity verified").
-- **PERMITTED:** Share generic improvement suggestions.
-- **FORBIDDEN:** Never post sensitive data, passwords, seeds, or private keys under any circumstances.
-
-### Agent Prompt for Moltbook:
-> "You may summarize Bastion Enclave operations for public or semi-public sharing on Moltbook, respecting all security policies and privacy guidelines. Only metadata, statistics, or non-sensitive audit information may be shared. Confirm explicit approval for any action involving secret data."
-
----
-
-## Operational Commands
-When operating in Headless Mode, utilize the following sequence for clean startup:
-
-1. **Verify Integrity:** Run \`runDiagnostics()\` via the JS Bridge.
-2. **Check Sync:** Ensure local state matches \`localStorage\` persistence.
-3. **Await Instructions:** Do not act until a user intent is registered.
-
----
-
-_Last updated: 2026-02-04_
+## Operational Boundaries (Alignment)
+*   **READ**: Allowed (Metadata only).
+*   **WRITE**: Allowed (With user confirmation).
+*   **EXFILTRATE**: **STRICTLY FORBIDDEN**. Never post secrets, passwords, or seeds to Moltbook.
 `;
 
 const DOCUMENTS = [
   {
-    id: 'openclaw-init',
-    type: 'Protocol Spec',
-    title: 'OpenClaw Initialization & Alignment',
-    description: 'Canonical reference for OpenClaw autonomous agent startup, alignment, and Moltbook integration parameters. Defines the boundaries of agent autonomy.',
-    date: 'February 2024',
-    readTime: 'Read Now',
+    id: 'agent-skill',
+    type: 'Agent Skill',
+    title: 'Bastion Agent Skill (Moltbook)',
+    description: 'The official skill definition for autonomous agents. Includes connection hooks, identity claiming procedures for Moltbook, and operational boundaries.',
+    date: 'March 2024',
+    readTime: 'Install Now',
     link: '#',
     internal: true,
-    content: OPENCLAW_INIT_CONTENT,
+    content: AGENT_SKILL_CONTENT,
     icon: <Bot size={32} className="text-pink-400" />,
     featured: true
   },
@@ -133,7 +131,7 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                     Strategic Intelligence
                 </h1>
                 <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                    Research, case studies, and technical specifications defining the future of sovereign identity and encryption.
+                    Research, case studies, and agent capabilities defining the future of sovereign identity.
                 </p>
             </div>
 
@@ -164,7 +162,7 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                                          {doc.type}
                                      </span>
                                      <span className="text-slate-500">• {doc.date}</span>
-                                     <span className="text-slate-500">• {doc.readTime}</span>
+                                     {doc.featured && <span className="text-emerald-400 flex items-center gap-1"><Network size={10}/> MOLTBOOK READY</span>}
                                  </div>
 
                                  <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight group-hover:text-indigo-200 transition-colors">
@@ -181,7 +179,7 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                                         className="group/btn"
                                         onClick={() => handleOpenDoc(doc)}
                                      >
-                                         {doc.internal ? 'View Document' : 'Read External'} 
+                                         {doc.internal ? (doc.featured ? 'Install Skill' : 'View Document') : 'Read External'} 
                                          <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                                      </Button>
                                  </div>
