@@ -147,13 +147,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)]">
                             Enter Vault <ArrowRight size={20} />
                         </Button>
+                        
+                        {/* Inspect Source: Soft Blue Gradient */}
                         <a 
                             href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" 
                             target="_blank" 
                             rel="noreferrer" 
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-lg rounded-xl font-semibold bg-slate-800/50 hover:bg-slate-800 text-slate-200 border border-slate-700/50 hover:border-slate-600 backdrop-blur-sm transition-all h-14"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-lg rounded-xl font-semibold bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent hover:from-blue-500/20 hover:to-indigo-500/20 text-blue-100 border border-blue-500/20 hover:border-blue-400/40 backdrop-blur-sm transition-all h-14 shadow-[0_0_20px_-10px_rgba(59,130,246,0.3)]"
                         >
-                           <Terminal size={20} /> Inspect Source
+                           <Terminal size={20} className="text-blue-300" /> Inspect Source
+                        </a>
+
+                        {/* Support Project: Soft White Gradient */}
+                        <a 
+                            href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-lg rounded-xl font-semibold bg-gradient-to-br from-white via-slate-100 to-slate-200 text-slate-900 border border-white hover:scale-[1.02] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.4)] transition-all h-14 shadow-xl"
+                        >
+                           <HeartHandshake size={20} className="text-rose-600" /> Support Project
                         </a>
                     </div>
                 </div>
@@ -406,7 +418,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 text-xl rounded-xl font-semibold bg-white text-slate-950 hover:bg-slate-200 shadow-xl transition-all h-16"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 text-xl rounded-xl font-semibold bg-white text-slate-950 hover:bg-slate-200 shadow-xl border-0"
                         >
                             Support Project
                         </a>
