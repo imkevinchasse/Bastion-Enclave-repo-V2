@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { Button } from './Button';
-import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail, Bot, X, Terminal, Share2, Network } from 'lucide-react';
+import { FileText, ExternalLink, ShieldAlert, BookOpen, Fingerprint, Microscope, FileCheck, ArrowRight, Mail, Bot, X, Terminal, Share2, Network, Github } from 'lucide-react';
 import { PublicPage } from '../types';
 
 interface DocumentsPageProps {
@@ -123,12 +123,6 @@ const DOCUMENTS = [
 export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
   const [viewingDoc, setViewingDoc] = useState<typeof DOCUMENTS[0] | null>(null);
   
-  const handleContact = () => {
-      const encoded = "cmVzZWFyY2hAYmFzdGlvbi5vcw==";
-      const email = atob(encoded);
-      window.location.href = `mailto:${email}?subject=Security%20Research%20Submission`;
-  };
-
   const handleOpenDoc = (doc: typeof DOCUMENTS[0]) => {
       if (doc.internal) {
           setViewingDoc(doc);
@@ -227,13 +221,18 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                         <Fingerprint size={24} className="text-slate-400" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-white text-lg">Submit Research</h3>
-                        <p className="text-slate-400 text-sm">Have a security finding? We participate in responsible disclosure.</p>
+                        <h3 className="font-bold text-white text-lg">Contribute</h3>
+                        <p className="text-slate-400 text-sm">Submit security findings, code improvements, or research.</p>
                     </div>
                 </div>
-                <Button variant="ghost" onClick={handleContact}>
-                    <Mail size={18} /> Submit via Email
-                </Button>
+                <a 
+                    href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
+                >
+                    <Github size={18} /> Submit Issue / Code
+                </a>
             </div>
         </div>
 

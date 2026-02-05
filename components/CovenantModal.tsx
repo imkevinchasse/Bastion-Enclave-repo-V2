@@ -31,9 +31,11 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
     if (tier === 'guardian') {
         // Redirect to Stripe for financial pledge
         window.open('https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00', '_blank');
-        
-        // We pause here to let the user complete the loop, but since we can't detect payment success in this offline app,
-        // we proceed with issuing the bond optimistically as a "Self-Attestation" of payment.
+    }
+    
+    if (tier === 'architect') {
+        // Redirect to GitHub for code pledge
+        window.open('https://github.com/imkevinchasse/Bastion-Enclave-repo-V2', '_blank');
     }
 
     try {

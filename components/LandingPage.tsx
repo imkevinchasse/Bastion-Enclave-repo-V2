@@ -147,10 +147,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)]">
                             Enter Vault <ArrowRight size={20} />
                         </Button>
-                        <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                           <Button variant="secondary" size="lg" className="w-full h-14 text-lg px-8">
-                               <Terminal size={20} /> Inspect Source
-                           </Button>
+                        <a 
+                            href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-lg rounded-xl font-semibold bg-slate-800/50 hover:bg-slate-800 text-slate-200 border border-slate-700/50 hover:border-slate-600 backdrop-blur-sm transition-all h-14"
+                        >
+                           <Terminal size={20} /> Inspect Source
                         </a>
                     </div>
                 </div>
@@ -399,10 +402,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         Become a founding member of the Bastion Protocol.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <a href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                            <Button size="lg" className="h-16 px-10 text-xl bg-white text-slate-950 hover:bg-slate-200 hover:text-slate-900 shadow-xl border-0 w-full">
-                                Support Project
-                            </Button>
+                        <a 
+                            href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 text-xl rounded-xl font-semibold bg-white text-slate-950 hover:bg-slate-200 shadow-xl transition-all h-16"
+                        >
+                            Support Project
                         </a>
                         <Button size="lg" variant="secondary" className="h-16 px-10 text-xl" onClick={() => onNavigate('auth')}>
                             Launch Web App
