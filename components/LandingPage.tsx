@@ -384,10 +384,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </p>
                     </div>
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
-                        <Scaling size={32} className="text-violet-400 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-3">Edge AI Analysis</h3>
+                        <Cpu size={32} className="text-violet-400 mb-6" />
+                        <h3 className="text-xl font-bold text-white mb-3">Zero-Trace Memory</h3>
                         <p className="text-slate-400 text-sm leading-relaxed">
-                            Our Neural Auditor runs via WebGPU on your local graphics card. We don't send your passwords to an AI server; we bring the AI model to you.
+                            Your vault exists only in Volatile RAM. Closing the tab triggers an instant cryptographic wipe. No temporary files, no cache, no traces left on the physical disk.
                         </p>
                     </div>
                     <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
@@ -418,7 +418,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 text-xl rounded-xl font-semibold bg-white text-slate-950 hover:bg-slate-200 shadow-xl border-0"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-lg rounded-xl font-semibold bg-gradient-to-br from-white via-slate-100 to-slate-200 text-slate-900 border border-white hover:scale-[1.02] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.4)] transition-all h-14 shadow-xl"
                         >
                             Support Project
                         </a>
