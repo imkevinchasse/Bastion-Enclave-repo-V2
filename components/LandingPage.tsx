@@ -399,9 +399,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         Become a founding member of the Bastion Protocol.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <Button size="lg" className="h-16 px-10 text-xl bg-white text-slate-950 hover:bg-slate-200 hover:text-slate-900 shadow-xl border-0">
-                            Support Project
-                        </Button>
+                        <a href="https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                            <Button size="lg" className="h-16 px-10 text-xl bg-white text-slate-950 hover:bg-slate-200 hover:text-slate-900 shadow-xl border-0 w-full">
+                                Support Project
+                            </Button>
+                        </a>
                         <Button size="lg" variant="secondary" className="h-16 px-10 text-xl" onClick={() => onNavigate('auth')}>
                             Launch Web App
                         </Button>

@@ -1,7 +1,7 @@
 
 export const JAVA_BASTION_SOURCE = `/**
  * BASTION SECURE ENCLAVE // JAVA RUNTIME
- * v3.5.1
+ * v3.5.2
  *
  * [MISSION]
  * "If the web disappears, Bastion still works."
@@ -59,9 +59,17 @@ public class Bastion extends JFrame {
     private JPanel mainPanel;
     private JPasswordField masterPasswordField; 
     private JTextArea vaultBlobArea;
+    
+    // VAULT DATA (In-Memory)
     private static String masterEntropy = null;
     private static List<Map<String, Object>> vaultConfigs = new ArrayList<>();
+    private static List<Map<String, Object>> vaultNotes = new ArrayList<>();
+    private static List<Map<String, Object>> vaultContacts = new ArrayList<>();
     private static List<Map<String, Object>> lockerEntries = new ArrayList<>();
+    private static Object vaultIdentity = null;
+    private static int vaultVersion = 1;
+    private static int vaultFlags = 0;
+    private static Object legacyOrigin = null;
     
     // GUI Lists
     private DefaultListModel<Map<String, Object>> vaultListModel;
@@ -72,7 +80,7 @@ public class Bastion extends JFrame {
             if (args[0].equals("shell") || args[0].equals("--cli")) {
                 new BastionCLI().run();
             } else if (args[0].equals("--version")) {
-                System.out.println("{\\"product\\": \\"Bastion\\", \\"version\\": \\"3.5.1\\", \\"protocol\\": \\"Sovereign-V3\\"}");
+                System.out.println("{\\"product\\": \\"Bastion\\", \\"version\\": \\"3.5.2\\", \\"protocol\\": \\"Sovereign-V3\\"}");
             } else {
                 System.out.println("Usage: java Bastion [shell|--version]");
             }
@@ -121,6 +129,7 @@ public class Bastion extends JFrame {
                         case "add": handleAdd(); break;
                         case "rm": handleRm(parts); break;
                         case "save": handleSave(); break;
+                        case "export": handleExport(); break;
                         default: System.out.println("Unknown command. Type 'help'.");
                     }
                 } catch (Exception e) {
@@ -130,7 +139,7 @@ public class Bastion extends JFrame {
         }
 
         private void printHeader() {
-            System.out.println("BASTION ENCLAVE // SHELL v3.5.1");
+            System.out.println("BASTION ENCLAVE // SHELL v3.5.2");
             System.out.println("Sovereign Protocol Active. Type 'help' for commands.");
         }
 
@@ -144,6 +153,7 @@ public class Bastion extends JFrame {
             System.out.println("  add           - Add new credential (Interactive)");
             System.out.println("  rm <id>       - Remove credential");
             System.out.println("  save          - Encrypt and export vault state");
+            System.out.println("  export        - DUMP FULL PLAINTEXT JSON (Agent Use Only)");
             System.out.println("  gen <s> <u>   - Generate ephemeral password (Service, User)");
             System.out.println("  exit          - Close session");
         }
@@ -174,6 +184,12 @@ public class Bastion extends JFrame {
             
             Bastion.masterEntropy = seed;
             Bastion.vaultConfigs.clear();
+            Bastion.vaultNotes.clear();
+            Bastion.vaultContacts.clear();
+            Bastion.lockerEntries.clear();
+            Bastion.vaultIdentity = null;
+            Bastion.vaultVersion = 1;
+            
             System.out.println("Identity Restored. Vault is empty (0 items). Use 'add' to populate.");
         }
 
@@ -181,11 +197,37 @@ public class Bastion extends JFrame {
             TinyJson parser = new TinyJson(json);
             Map<String, Object> root = (Map<String, Object>) parser.parse();
             Bastion.masterEntropy = (String) root.get("entropy");
+            
+            // Core Configs
             List<Object> rawConfigs = (List<Object>) root.get("configs");
             Bastion.vaultConfigs.clear();
             if (rawConfigs != null) {
                 for (Object o : rawConfigs) Bastion.vaultConfigs.add((Map<String, Object>) o);
             }
+            
+            // Preservation Fields (Important for Round-Trip Compatibility)
+            Bastion.vaultNotes.clear();
+            List<Object> rawNotes = (List<Object>) root.get("notes");
+            if (rawNotes != null) {
+                for (Object o : rawNotes) Bastion.vaultNotes.add((Map<String, Object>) o);
+            }
+            
+            Bastion.vaultContacts.clear();
+            List<Object> rawContacts = (List<Object>) root.get("contacts");
+            if (rawContacts != null) {
+                for (Object o : rawContacts) Bastion.vaultContacts.add((Map<String, Object>) o);
+            }
+            
+            Bastion.lockerEntries.clear();
+            List<Object> rawLocker = (List<Object>) root.get("locker");
+            if (rawLocker != null) {
+                for (Object o : rawLocker) Bastion.lockerEntries.add((Map<String, Object>) o);
+            }
+            
+            Bastion.vaultIdentity = root.get("identity");
+            Bastion.vaultVersion = getInt(root.get("version"), 1);
+            Bastion.vaultFlags = getInt(root.get("flags"), 0);
+            Bastion.legacyOrigin = root.get("legacyOrigin");
         }
 
         private void handleSave() throws Exception {
@@ -202,13 +244,7 @@ public class Bastion extends JFrame {
             
             if (pass.isEmpty()) { System.out.println("Password required."); return; }
 
-            // Construct State Map
-            Map<String, Object> state = new HashMap<>();
-            state.put("version", 1);
-            state.put("entropy", Bastion.masterEntropy);
-            state.put("configs", Bastion.vaultConfigs);
-            state.put("locker", new ArrayList<>()); // CLI doesn't handle files yet
-            state.put("lastModified", System.currentTimeMillis());
+            Map<String, Object> state = constructStateMap();
             
             String json = JsonWriter.toJson(state);
             String blob = ChaosEngine.encryptVault(json, pass);
@@ -220,6 +256,38 @@ public class Bastion extends JFrame {
             System.out.println("  \\"blob\\": \\"" + blob + "\\"");
             System.out.println("}");
             System.out.println("--- END STATE ---\\n");
+        }
+
+        private void handleExport() {
+            if (Bastion.masterEntropy == null) { System.out.println("Vault locked."); return; }
+            
+            System.out.println("\\n!!! WARNING: SENSITIVE DATA DUMP !!!");
+            System.out.println("This command outputs your unencrypted vault. Do not share.\\n");
+            
+            Map<String, Object> state = constructStateMap();
+            state.put("version", Bastion.vaultVersion); // Don't increment version for read-only export
+            
+            String json = JsonWriter.toJson(state);
+            System.out.println("--- BEGIN EXPORT ---");
+            System.out.println(json);
+            System.out.println("--- END EXPORT ---");
+        }
+
+        private Map<String, Object> constructStateMap() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("version", Bastion.vaultVersion + 1); 
+            state.put("entropy", Bastion.masterEntropy);
+            state.put("configs", Bastion.vaultConfigs);
+            state.put("locker", Bastion.lockerEntries);
+            state.put("notes", Bastion.vaultNotes);
+            state.put("contacts", Bastion.vaultContacts);
+            state.put("flags", Bastion.vaultFlags);
+            state.put("lastModified", System.currentTimeMillis());
+            
+            if (Bastion.vaultIdentity != null) state.put("identity", Bastion.vaultIdentity);
+            if (Bastion.legacyOrigin != null) state.put("legacyOrigin", Bastion.legacyOrigin);
+            
+            return state;
         }
 
         private void handleAdd() {
@@ -240,6 +308,7 @@ public class Bastion extends JFrame {
             config.put("length", 16);
             config.put("useSymbols", true);
             config.put("createdAt", System.currentTimeMillis());
+            config.put("category", "login");
             
             Bastion.vaultConfigs.add(config);
             System.out.println("Added. Run 'save' to persist.");
@@ -370,7 +439,7 @@ public class Bastion extends JFrame {
         title.setForeground(COL_TEXT);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JLabel subtitle = new JLabel("Sovereign Java Runtime v3.5.1");
+        JLabel subtitle = new JLabel("Sovereign Java Runtime v3.5.2");
         subtitle.setFont(FONT_MONO);
         subtitle.setForeground(COL_TEXT_DIM);
         subtitle.setHorizontalAlignment(SwingConstants.CENTER);
@@ -560,11 +629,36 @@ public class Bastion extends JFrame {
 
             masterEntropy = (String) root.get("entropy");
             
+            // Core Configs
             List<Object> rawConfigs = (List<Object>) root.get("configs");
             vaultConfigs.clear();
             if (rawConfigs != null) {
                 for (Object o : rawConfigs) vaultConfigs.add((Map<String, Object>) o);
             }
+            
+            // Populate Preservation Fields (Even if not used in GUI, we hold them)
+            vaultNotes.clear();
+            List<Object> rawNotes = (List<Object>) root.get("notes");
+            if (rawNotes != null) {
+                for (Object o : rawNotes) vaultNotes.add((Map<String, Object>) o);
+            }
+            
+            vaultContacts.clear();
+            List<Object> rawContacts = (List<Object>) root.get("contacts");
+            if (rawContacts != null) {
+                for (Object o : rawContacts) vaultContacts.add((Map<String, Object>) o);
+            }
+            
+            lockerEntries.clear();
+            List<Object> rawLocker = (List<Object>) root.get("locker");
+            if (rawLocker != null) {
+                for (Object o : rawLocker) lockerEntries.add((Map<String, Object>) o);
+            }
+            
+            vaultIdentity = root.get("identity");
+            vaultVersion = getInt(root.get("version"), 1);
+            vaultFlags = getInt(root.get("flags"), 0);
+            legacyOrigin = root.get("legacyOrigin");
 
             if (vaultListModel != null) {
                 vaultListModel.clear();
@@ -623,7 +717,8 @@ public class Bastion extends JFrame {
     private static int getInt(Object obj, int def) { if (obj instanceof Number) return ((Number) obj).intValue(); return def; }
     private static boolean getBool(Object obj, boolean def) { if (obj instanceof Boolean) return (Boolean) obj; return def; }
     private void lockSystem() {
-        masterEntropy = null; vaultConfigs.clear();
+        masterEntropy = null; vaultConfigs.clear(); vaultNotes.clear(); vaultContacts.clear(); lockerEntries.clear();
+        vaultIdentity = null;
         if (vaultListModel != null) vaultListModel.clear();
         cardLayout.show(mainPanel, "AUTH");
     }
@@ -811,7 +906,24 @@ public class Bastion extends JFrame {
             return sb.toString();
         }
         private static String escape(String s) {
-            return s.replace("\\\\", "\\\\\\\\").replace("\\"", "\\\\\\"");
+            if (s == null) return "";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                if (c == '\\"') sb.append("\\\\\\"");
+                else if (c == '\\\\') sb.append("\\\\\\\\");
+                else if (c == '\\b') sb.append("\\\\b");
+                else if (c == '\\f') sb.append("\\\\f");
+                else if (c == '\\n') sb.append("\\\\n");
+                else if (c == '\\r') sb.append("\\\\r");
+                else if (c == '\\t') sb.append("\\\\t");
+                else if (c < 32) {
+                    sb.append(String.format("\\\\u%04x", (int)c));
+                } else {
+                    sb.append(c);
+                }
+            }
+            return sb.toString();
         }
     }
 

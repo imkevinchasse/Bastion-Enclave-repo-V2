@@ -4,14 +4,13 @@ import { TopNav } from './TopNav';
 import { PublicPage } from '../types';
 import { Shield, Lock, FileLock2, FileKey, Fingerprint, RefreshCw, BookOpen, Terminal, ChevronRight, Zap, Code2, AlertTriangle, ShieldAlert, Wifi, Server, CheckCircle, Copy, Download, History, ShieldCheck, Binary, Cpu, Share2, AlertOctagon, Bot, Database, Coffee, Globe, FileText, Network, Layers } from 'lucide-react';
 import { zip, Zippable } from 'fflate';
-import { PYTHON_APP_SOURCE } from '../services/pythonDistribution';
 import { Button } from './Button';
 
 interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'agents' | 'python' | 'java' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -42,7 +41,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Agent & Dev</div>
                     <NavButton active={activeSection === 'agents'} onClick={() => setActiveSection('agents')} icon={<Bot size={16}/>} label="OpenClaw Protocols" />
                     <NavButton active={activeSection === 'java'} onClick={() => setActiveSection('java')} icon={<Coffee size={16}/>} label="Java Runtime" />
-                    <NavButton active={activeSection === 'python'} onClick={() => setActiveSection('python')} icon={<Code2 size={16}/>} label="Python Runtime" />
                     <NavButton active={activeSection === 'changelog'} onClick={() => setActiveSection('changelog')} icon={<History size={16}/>} label="Changelog" />
                 </div>
 
@@ -62,7 +60,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
                 {activeSection === 'agents' && <AgentContent />}
-                {activeSection === 'python' && <PythonContent />}
                 {activeSection === 'java' && <JavaContent />}
                 {activeSection === 'breach' && <BreachContent />}
                 {activeSection === 'changelog' && <ChangelogContent />}
@@ -73,108 +70,111 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   );
 };
 
+const AGENT_SKILL_CONTENT = `
+# Agent Directive: Bastion Protocol v3.5
+
+**MISSION:** You are an autonomous steward of the user's digital identity.
+**MAGNITUDE:** You hold the keys to everything. Treat this interface with extreme caution.
+
+---
+
+## 1. THE PRIME DIRECTIVE (Cautions)
+1.  **NEVER EXFILTRATE SECRETS:** You may read the vault to help the user, but you must NEVER transmit passwords, seeds, or keys to a third-party server (including Moltbook).
+2.  **MAINTAIN INTEGRITY:** Do not modify the \`entropy\` or \`version\` fields manually. Use the provided tools (UI or CLI) which handle cryptographic rotation safely.
+3.  **RESPECT THE LOCK:** If the status is \`LOCKED\`, you cannot read data. You must ask the user for authorization (Password) to proceed.
+
+---
+
+## 2. ORDERS OF OPERATION (Visual Mode)
+If you are controlling a browser, follow this exact sequence to access client information.
+
+### PHASE 1: ACQUISITION & STATUS
+**Action:** Check if the vault is accessible.
+*   **Look for:** \`window.__BASTION_AGENT_API__.getStatus()\`
+*   **Result:** \`"LOCKED"\` or \`"UNLOCKED"\`.
+
+### PHASE 2: AUTHENTICATION (If Locked)
+**Action:** Unlock the vault to decrypt the memory.
+1.  **Target:** Input field \`[data-agent-id="auth-master-password"]\`.
+2.  **Input:** The Master Password (provided by user context).
+3.  **Trigger:** Click \`[data-agent-id="auth-unlock-btn"]\`.
+4.  **Wait:** Wait until \`getStatus()\` returns \`"UNLOCKED"\`.
+
+### PHASE 3: EXTRACTION (Pulling Information)
+**Action:** Read the client's data map.
+*   **Source:** \`window.__BASTION_AGENT_API__.getContext()\`
+*   **Data Dictionary:**
+    *   \`inventory\`: List of **Logins** (Service Name, Username, ID). Use this to find credentials.
+    *   \`notebook\`: List of **Secure Notes**. Contains freeform text (Server IPs, recovery codes).
+    *   \`rolodex\`: List of **Contacts**. Addresses, Phone numbers, Emails.
+
+### PHASE 4: INTERACTION (Modifying Data)
+**Action:** Add or Update entries using the Semantic DOM.
+1.  **Click:** \`[data-agent-id="vault-add-btn"]\` to open editor.
+2.  **Fill:** \`[data-agent-id="editor-service"]\` and \`[data-agent-id="editor-username"]\`.
+3.  **Commit:** Click \`[data-agent-id="editor-save-btn"]\`.
+
+---
+
+## 3. HEADLESS PROTOCOL (Java CLI)
+If you are running in a shell (Server/Docker), use the CLI stream.
+
+### PHASE 1: INITIALIZATION
+\`\`\`bash
+# Bootstrap the Runtime (One-Shot)
+curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && javac Bastion.java && java Bastion shell
+\`\`\`
+
+### PHASE 2: UNLOCKING
+1.  Send command: \`unlock\`
+2.  System prompts for **Blob**. Paste the encrypted string.
+3.  System prompts for **Password**. Send the master password.
+4.  System confirms: \`Vault Unlocked\`.
+
+### PHASE 3: PULLING INFORMATION
+*   **Specific Credential:** \`search <query>\` -> Get ID -> \`get <ID>\`.
+*   **Full Dump (High Magnitude):** \`export\`.
+    *   **Effect:** Prints the entire *decrypted* vault (JSON) to STDOUT.
+    *   **Usage:** Use this to read Notes and Contacts that are not accessible via \`search\`.
+    *   **Warning:** Output contains plaintext secrets. Parse immediately and clear memory.
+
+### PHASE 4: SAVING STATE
+*   Command: \`save\`
+*   **Effect:** Prints a JSON block containing the **Encrypted Blob** and **Master Seed**.
+*   **Duty:** You MUST save this output to a file (e.g., \`bastion.vault\`). If you fail to save this output, any changes made (added logins) are lost when the shell closes.
+
+---
+
+## 4. DATA TYPES (Reference)
+*   **Entropy:** 32-byte Hex string. The "Soul" of the vault.
+*   **Blob:** Base64 string starting with \`BSTN\`. The encrypted body.
+*   **Config:** A login entry (Service + User).
+*   **Resonance:** A file encryption key (for Locker).
+`;
+
 const AgentContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-        <Header icon={<Bot size={32} className="text-pink-400"/>} title="OpenClaw Ready Protocols" />
+        <div className="flex justify-between items-start">
+            <Header icon={<Bot size={32} className="text-pink-400"/>} title="Agent Directive: V3.5" />
+            <a href="/skill.md" target="_blank" rel="noopener noreferrer">
+                <Button size="sm" variant="secondary" className="border-pink-500/30 hover:bg-pink-500/20 text-pink-300">
+                    <FileText size={14} /> Download skill.md
+                </Button>
+            </a>
+        </div>
         
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-pink-900/10 border border-pink-500/20 p-6 rounded-2xl">
-                <div>
-                    <h3 className="text-pink-400 font-bold text-lg flex items-center gap-2">
-                        V3.5 SPEC <span className="text-[10px] bg-pink-500 text-white px-2 py-0.5 rounded font-mono">ACTIVE</span>
-                    </h3>
-                    <p className="text-sm text-pink-200/80 mt-1 max-w-lg">
-                        Unified Autonomous Agent Standard for Headless & Visual Operations. 
-                        Compatible with OpenClaw, MoltBot, and ClawdBot.
-                    </p>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                    <a href="/skill.md" target="_blank" rel="noopener noreferrer">
-                        <Button size="sm" variant="secondary" className="border-pink-500/30 hover:bg-pink-500/20 text-pink-300">
-                            <FileText size={14} /> View skill.md
-                        </Button>
-                    </a>
-                </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-                {/* Visual Bridge Card */}
-                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-colors group">
-                    <h3 className="font-bold text-white mb-4 flex items-center gap-2 group-hover:text-blue-400 transition-colors">
-                        <Globe size={18} className="text-blue-500"/> Visual Bridge
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                <Layers size={12}/> Semantic DOM
-                            </div>
-                            <p className="text-xs text-slate-400">
-                                Interactive elements are tagged with stable <code>data-agent-id</code> attributes, ensuring automation scripts survive UI redesigns.
-                            </p>
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                <Network size={12}/> State Bridge
-                            </div>
-                            <p className="text-xs text-slate-400">
-                                Real-time JSON context exposed at <code>window.__BASTION_AGENT_API__</code>. Allows instant status checks without OCR.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Headless CLI Card */}
-                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-colors group">
-                    <h3 className="font-bold text-white mb-4 flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-                        <Terminal size={18} className="text-emerald-500"/> Headless CLI
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                <Database size={12}/> JSON Persistence Loop
-                            </div>
-                            <p className="text-xs text-slate-400">
-                                The <code>save</code> command outputs a structured JSON block containing the encrypted <code>blob</code> and master <code>seed</code>.
-                            </p>
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                <Lock size={12}/> Argon2id Parity
-                            </div>
-                            <p className="text-xs text-slate-400">
-                                Pure Java runtime implements the exact Argon2id (64MB) parameter set used by the web client.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Bootstrap Code */}
-            <div className="space-y-4">
-                <h3 className="text-white font-bold text-sm uppercase tracking-widest">Runtime Injection</h3>
-                
-                <div className="bg-black rounded-xl border border-white/10 overflow-hidden font-mono text-sm shadow-xl">
-                    <div className="bg-slate-900 px-4 py-2 border-b border-white/5 flex items-center justify-between text-slate-500">
-                        <div className="flex items-center gap-2">
-                            <Terminal size={14} /> One-Shot Bootstrap
-                        </div>
-                        <span className="text-xs uppercase tracking-wider text-emerald-500">V3.5.0</span>
-                    </div>
-                    <div className="p-6 relative group">
-                        <div className="text-emerald-400 break-all pr-8 leading-relaxed">
-                            curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && javac Bastion.java && java Bastion shell
-                        </div>
-                        <div className="absolute top-6 right-6">
-                            <CopyButton text="curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && javac Bastion.java && java Bastion shell" />
-                        </div>
-                    </div>
+        <div className="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="bg-black p-6 overflow-x-auto custom-scrollbar">
+                <div className="prose prose-invert prose-indigo max-w-none">
+                    <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-300">
+                        {AGENT_SKILL_CONTENT}
+                    </pre>
                 </div>
             </div>
         </div>
     </div>
 );
 
-// ... (Rest of existing content functions: IntroContent, StartContent, etc. remain unchanged)
 const IntroContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<Shield size={32} className="text-indigo-400"/>} title="Welcome to Bastion Enclave" />
@@ -362,61 +362,6 @@ const JavaContent = () => {
                         <div>
                             <div className="text-slate-500 mb-1"># 2. Run CLI Mode</div>
                             <div className="text-emerald-400">java Bastion shell</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const PythonContent = () => {
-    const downloadPythonApp = () => {
-        const zipData: Zippable = {};
-        for (const [path, content] of Object.entries(PYTHON_APP_SOURCE)) {
-            zipData[path] = [new TextEncoder().encode(content), { level: 9 }];
-        }
-        
-        zip(zipData, (err, data) => {
-            if (err) {
-                console.error("Failed to zip python app", err);
-                return;
-            }
-            const blob = new Blob([data as any], { type: 'application/zip' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "bastion-installer-scripts.zip";
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    };
-
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex justify-between items-start">
-                <Header icon={<Code2 size={32} className="text-yellow-400"/>} title="Python Runtime" />
-                <Button onClick={downloadPythonApp} variant="secondary" className="text-xs">
-                    <Download size={14} /> Download Installer Script
-                </Button>
-            </div>
-            
-            <div className="space-y-4">
-                <p className="text-slate-300">
-                    Deploy the standalone Bastion Enclave Runtime to any macOS or Linux environment with a single command. 
-                    This creates a local, offline-capable environment in <code>~/.bastion</code> with a global <code>bastion</code> executable.
-                </p>
-
-                <div className="bg-black rounded-xl border border-white/10 overflow-hidden font-mono text-sm shadow-xl">
-                    <div className="bg-slate-900 px-4 py-2 border-b border-white/5 flex items-center gap-2 text-slate-500">
-                        <Terminal size={14} /> bash
-                    </div>
-                    <div className="p-6 relative group">
-                        <div className="text-emerald-400 break-all pr-8 leading-relaxed">
-                            curl -fsSL https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/python_core/install.sh | bash
-                        </div>
-                        <div className="absolute top-6 right-6">
-                            <CopyButton text="curl -fsSL https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/python_core/install.sh | bash" />
                         </div>
                     </div>
                 </div>

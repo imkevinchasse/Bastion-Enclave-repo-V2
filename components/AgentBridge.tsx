@@ -34,6 +34,8 @@ export const AgentBridge: React.FC<AgentBridgeProps> = ({ state, status }) => {
 
   useEffect(() => {
     // 1. Construct Safe Context Payload
+    // Agents need "High Magnitude" access to help the user.
+    // We expose Inventory (Logins), Notebook (Notes), and Rolodex (Contacts).
     const contextData = {
       timestamp: Date.now(),
       status: status,
@@ -46,14 +48,29 @@ export const AgentBridge: React.FC<AgentBridgeProps> = ({ state, status }) => {
             ? `V${state.identity.veteran.version}` 
             : (state?.legacyOrigin ? `V${state.legacyOrigin}` : 'NONE')
       },
-      // We expose the Config IDs and Names, but NEVER the entropy or derived keys here.
-      // This allows bots to "see" the vault structure without compromising security.
+      // INVENTORY: Credentials
       inventory: state ? state.configs.map(c => ({
         id: c.id,
         name: c.name,
         username: c.username,
         version: c.version,
-        compromised: c.breachStats?.status === 'compromised'
+        compromised: c.breachStats?.status === 'compromised',
+        category: c.category
+      })) : [],
+      // NOTEBOOK: Secure Notes (Title + Preview)
+      notebook: state ? state.notes.map(n => ({
+        id: n.id,
+        title: n.title,
+        updated: n.updatedAt,
+        // Expose content to allow agents to "read" instructions or data for the user.
+        content_preview: n.content.substring(0, 200) + (n.content.length > 200 ? "..." : "")
+      })) : [],
+      // ROLODEX: Contacts
+      rolodex: state ? state.contacts.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email || null,
+        phone: c.phone || null
       })) : []
     };
 

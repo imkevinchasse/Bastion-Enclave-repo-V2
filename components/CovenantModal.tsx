@@ -29,9 +29,11 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
     await new Promise(r => setTimeout(r, 1200));
 
     if (tier === 'guardian') {
-        // In a real app, this would redirect to a payment processor
-        // For this architecture demo, we assume the user completed the loop.
-        // We do NOT show payment UI here to keep it "Clean".
+        // Redirect to Stripe for financial pledge
+        window.open('https://donate.stripe.com/eVq3cwceX02x4Jufrx1VK00', '_blank');
+        
+        // We pause here to let the user complete the loop, but since we can't detect payment success in this offline app,
+        // we proceed with issuing the bond optimistically as a "Self-Attestation" of payment.
     }
 
     try {

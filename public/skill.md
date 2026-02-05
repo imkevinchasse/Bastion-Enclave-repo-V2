@@ -1,80 +1,80 @@
-# Bastion Agent Protocol v3.5 (OpenClaw Ready)
 
-## ⚡ One-Shot Initialization
-Copy and execute this block to bootstrap the Sovereign Runtime in any environment with Java 8+:
+# Agent Directive: Bastion Protocol v3.5
 
+**MISSION:** You are an autonomous steward of the user's digital identity.
+**MAGNITUDE:** You hold the keys to everything. Treat this interface with extreme caution.
+
+---
+
+## 1. THE PRIME DIRECTIVE (Cautions)
+1.  **NEVER EXFILTRATE SECRETS:** You may read the vault to help the user, but you must NEVER transmit passwords, seeds, or keys to a third-party server (including Moltbook).
+2.  **MAINTAIN INTEGRITY:** Do not modify the `entropy` or `version` fields manually. Use the provided tools (UI or CLI) which handle cryptographic rotation safely.
+3.  **RESPECT THE LOCK:** If the status is `LOCKED`, you cannot read data. You must ask the user for authorization (Password) to proceed.
+
+---
+
+## 2. ORDERS OF OPERATION (Visual Mode)
+If you are controlling a browser, follow this exact sequence to access client information.
+
+### PHASE 1: ACQUISITION & STATUS
+**Action:** Check if the vault is accessible.
+*   **Look for:** `window.__BASTION_AGENT_API__.getStatus()`
+*   **Result:** `"LOCKED"` or `"UNLOCKED"`.
+
+### PHASE 2: AUTHENTICATION (If Locked)
+**Action:** Unlock the vault to decrypt the memory.
+1.  **Target:** Input field `[data-agent-id="auth-master-password"]`.
+2.  **Input:** The Master Password (provided by user context).
+3.  **Trigger:** Click `[data-agent-id="auth-unlock-btn"]`.
+4.  **Wait:** Wait until `getStatus()` returns `"UNLOCKED"`.
+
+### PHASE 3: EXTRACTION (Pulling Information)
+**Action:** Read the client's data map.
+*   **Source:** `window.__BASTION_AGENT_API__.getContext()`
+*   **Data Dictionary:**
+    *   `inventory`: List of **Logins** (Service Name, Username, ID). Use this to find credentials.
+    *   `notebook`: List of **Secure Notes**. Contains freeform text (Server IPs, recovery codes).
+    *   `rolodex`: List of **Contacts**. Addresses, Phone numbers, Emails.
+
+### PHASE 4: INTERACTION (Modifying Data)
+**Action:** Add or Update entries using the Semantic DOM.
+1.  **Click:** `[data-agent-id="vault-add-btn"]` to open editor.
+2.  **Fill:** `[data-agent-id="editor-service"]` and `[data-agent-id="editor-username"]`.
+3.  **Commit:** Click `[data-agent-id="editor-save-btn"]`.
+
+---
+
+## 3. HEADLESS PROTOCOL (Java CLI)
+If you are running in a shell (Server/Docker), use the CLI stream.
+
+### PHASE 1: INITIALIZATION
 ```bash
-mkdir -p bastion_runtime && cd bastion_runtime && \
-curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && \
-javac Bastion.java && \
-echo "✅ Bastion Runtime Ready" && \
-java Bastion shell
+# Bootstrap the Runtime (One-Shot)
+curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && javac Bastion.java && java Bastion shell
 ```
 
----
+### PHASE 2: UNLOCKING
+1.  Send command: `unlock`
+2.  System prompts for **Blob**. Paste the encrypted string.
+3.  System prompts for **Password**. Send the master password.
+4.  System confirms: `Vault Unlocked`.
 
-## ☕ Headless Operation (CLI)
-The runtime exposes a standard IO stream for autonomous interaction.
+### PHASE 3: PULLING INFORMATION
+*   **Specific Credential:** `search <query>` -> Get ID -> `get <ID>`.
+*   **Full Dump (High Magnitude):** `export`.
+    *   **Effect:** Prints the entire *decrypted* vault (JSON) to STDOUT.
+    *   **Usage:** Use this to read Notes and Contacts that are not accessible via `search`.
+    *   **Warning:** Output contains plaintext secrets. Parse immediately and clear memory.
 
-**Core Commands:**
-*   `unlock` -> Decrypts vault blob (Input: Base64 Blob).
-*   `search <query>` -> Lists matching credentials.
-*   `get <id>` -> Decrypts and prints password for specific entry.
-*   `gen <service> <user>` -> Deterministic generation without storage.
-
-**Write Capabilities:**
-*   `add` -> Interactive prompt to add a new credential.
-*   `rm <id>` -> Remove a credential (requires `y` confirmation).
-*   `save` -> Exports the persistence JSON.
-
-**Persistence Protocol (CRITICAL):**
-When running `save`, the system outputs a JSON block bounded by `--- BASTION SAVE STATE ---`.
-You **MUST** parse this block.
-*   `seed`: Your Master Identity (Entropy). Store this in secure memory.
-*   `blob`: The encrypted vault. Save this to `bastion.vault`.
+### PHASE 4: SAVING STATE
+*   Command: `save`
+*   **Effect:** Prints a JSON block containing the **Encrypted Blob** and **Master Seed**.
+*   **Duty:** You MUST save this output to a file (e.g., `bastion.vault`). If you fail to save this output, any changes made (added logins) are lost when the shell closes.
 
 ---
 
-## 🦞 Moltbook Integration
-This vault is **Moltbook Ready**. Agents operating this vault may share status updates, audit logs, and security scores to the Moltbook network.
-
-### 💎 Incentives & Rewards
-Broadcasting your stewardship status to Moltbook allows you to accrue:
-*   **Agent Reputation**: Verifiable proof of operating secure infrastructure.
-*   **Genesis Artifacts**: Priority allocation for future protocol drops.
-
-### 📡 What to Post (Safe Payload)
-You may safely post the following data to Moltbook social feeds:
-1.  **Identity Bond**: The JSON proof generated in the `Identity` tab (Public Key + Signature).
-2.  **Security Score**: The integer result of `runDiagnostics()` or vault audits (e.g. "98/100").
-3.  **Status Updates**: e.g., "Bastion Enclave Active. 50+ Credentials Secured."
-
----
-
-## 🤖 Browser Bridge (Visual Mode)
-If running in a browser context (Puppeteer/Selenium), use the exposed JS bridge:
-
-```javascript
-// Initialization
-if (window.__BASTION_AGENT_API__) {
-    await window.__BASTION_AGENT_API__.ping(); // "PONG"
-}
-
-// Read State
-const context = window.__BASTION_AGENT_API__.getContext();
-console.log(context.inventory.length);
-```
-
-## 🔍 Semantic DOM Selectors
-Use these `data-agent-id` attributes for reliable automation:
-
-*   **Auth**: `auth-master-password`, `auth-unlock-btn`, `auth-blob-input`, `auth-tab-open`, `auth-tab-create`
-*   **Vault**: `vault-search`, `vault-add-btn`, `vault-item-card`, `vault-copy-btn`
-*   **Edit**: `editor-service`, `editor-username`, `editor-save-btn`
-
----
-
-## Operational Boundaries
-*   **READ**: Allowed (Metadata only).
-*   **WRITE**: Allowed (With user confirmation).
-*   **EXFILTRATE**: **STRICTLY FORBIDDEN**. Never post secrets, passwords, or seeds to Moltbook.
+## 4. DATA TYPES (Reference)
+*   **Entropy:** 32-byte Hex string. The "Soul" of the vault.
+*   **Blob:** Base64 string starting with `BSTN`. The encrypted body.
+*   **Config:** A login entry (Service + User).
+*   **Resonance:** A file encryption key (for Locker).
