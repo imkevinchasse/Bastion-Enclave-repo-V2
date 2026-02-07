@@ -130,7 +130,7 @@ export class ChaosLock {
       ["deriveKey"]
     );
     return cryptoAPI.subtle.deriveKey(
-      { name: "PBKDF2", salt: finalSalt, iterations, hash: "SHA-256" },
+      { name: "PBKDF2", salt: toArrayBuffer(finalSalt), iterations, hash: "SHA-256" },
       material,
       { name: "AES-GCM", length: 256 },
       false,
@@ -361,7 +361,7 @@ export class ChaosEngine {
     );
     const bitsNeeded = length * 8; // now correct; remove arbitrary *4
     const bits = await cryptoAPI.subtle.deriveBits(
-      { name: "PBKDF2", salt: enc.encode(salt), iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST },
+      { name: "PBKDF2", salt: toArrayBuffer(enc.encode(salt)), iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST },
       baseKey,
       bitsNeeded
     );
