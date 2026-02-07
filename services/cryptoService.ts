@@ -124,7 +124,7 @@ export class ChaosLock {
     const finalSalt = useDomainSep ? this.concat(this.enc("BASTION_VAULT_V1::"), salt) : salt;
     const material = await cryptoAPI.subtle.importKey(
       "raw",
-      this.enc(password),
+      toArrayBuffer(this.enc(password)),
       { name: "PBKDF2" },
       false,
       ["deriveKey"]
@@ -145,7 +145,7 @@ export class ChaosLock {
     const encrypted = await cryptoAPI.subtle.encrypt(
       { name: "AES-GCM", iv },
       key,
-      data
+      toArrayBuffer(data)
     );
     return this.concat(HEADER_V3_5, salt, iv, new Uint8Array(encrypted));
   }
@@ -175,7 +175,11 @@ export class ChaosLock {
     for (const getKey of keyFallbacks) {
       try {
         const key = await getKey();
-        const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
+        const decrypted = await cryptoAPI.subtle.decrypt(
+            { name: "AES-GCM", iv }, 
+            key, 
+            toArrayBuffer(cipher)
+        );
         return { data: new Uint8Array(decrypted), version };
       } catch { /* continue fallback */ }
     }
@@ -203,8 +207,18 @@ export class SecretSharer {
   static async split(secretStr: string, shares: number, threshold: number): Promise<string[]> {
     const sessionKeyBytes = cryptoAPI.getRandomValues(new Uint8Array(32));
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
-    const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes, { name: "AES-GCM" }, false, ["encrypt"]);
-    const encryptedSecret = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(secretStr));
+    const key = await cryptoAPI.subtle.importKey(
+        "raw", 
+        toArrayBuffer(sessionKeyBytes), 
+        { name: "AES-GCM" }, 
+        false, 
+        ["encrypt"]
+    );
+    const encryptedSecret = await cryptoAPI.subtle.encrypt(
+        { name: "AES-GCM", iv }, 
+        key, 
+        toArrayBuffer(new TextEncoder().encode(secretStr))
+    );
     const payload = new Uint8Array(12 + encryptedSecret.byteLength);
     payload.set(iv, 0);
     payload.set(new Uint8Array(encryptedSecret), 12);
@@ -276,8 +290,18 @@ export class SecretSharer {
     const iv = payloadBytes.slice(0, 12);
     const cipher = payloadBytes.slice(12);
 
-    const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes, { name: "AES-GCM" }, false, ["decrypt"]);
-    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
+    const key = await cryptoAPI.subtle.importKey(
+        "raw", 
+        toArrayBuffer(sessionKeyBytes), 
+        { name: "AES-GCM" }, 
+        false, 
+        ["decrypt"]
+    );
+    const decrypted = await cryptoAPI.subtle.decrypt(
+        { name: "AES-GCM", iv }, 
+        key, 
+        toArrayBuffer(cipher)
+    );
     return new TextDecoder().decode(decrypted);
   }
 }
@@ -289,8 +313,18 @@ export class ResonanceEngine {
     const keyHex = await ChaosLock.generateKey();
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
     const hash = await ChaosLock.computeHash(data);
-    const key = await cryptoAPI.subtle.importKey("raw", ChaosLock.hex2buf(keyHex), { name: "AES-GCM" }, false, ["encrypt"]);
-    const encrypted = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
+    const key = await cryptoAPI.subtle.importKey(
+        "raw", 
+        toArrayBuffer(ChaosLock.hex2buf(keyHex)), 
+        { name: "AES-GCM" }, 
+        false, 
+        ["encrypt"]
+    );
+    const encrypted = await cryptoAPI.subtle.encrypt(
+        { name: "AES-GCM", iv }, 
+        key, 
+        toArrayBuffer(data)
+    );
     const header = ChaosLock.concat(MAGIC_BYTES, ChaosLock.enc(id.padEnd(36, " ")).slice(0, 36), iv);
     return { artifact: ChaosLock.concat(header, new Uint8Array(encrypted)), resonance: { id, label, size: data.byteLength, mime, key: keyHex, hash, timestamp: Date.now() } };
   }
@@ -298,8 +332,18 @@ export class ResonanceEngine {
   static async resolve(artifact: Uint8Array, res: Resonance): Promise<Uint8Array> {
     const iv = artifact.slice(44, 56);
     const cipher = artifact.slice(56);
-    const key = await cryptoAPI.subtle.importKey("raw", ChaosLock.hex2buf(res.key), { name: "AES-GCM" }, false, ["decrypt"]);
-    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
+    const key = await cryptoAPI.subtle.importKey(
+        "raw", 
+        toArrayBuffer(ChaosLock.hex2buf(res.key)), 
+        { name: "AES-GCM" }, 
+        false, 
+        ["decrypt"]
+    );
+    const decrypted = await cryptoAPI.subtle.decrypt(
+        { name: "AES-GCM", iv }, 
+        key, 
+        toArrayBuffer(cipher)
+    );
     return new Uint8Array(decrypted);
   }
 }
@@ -308,7 +352,13 @@ export class ResonanceEngine {
 export class ChaosEngine {
   private static async flux(entropy: string, salt: string, length: number): Promise<Uint8Array> {
     const enc = new TextEncoder();
-    const baseKey = await cryptoAPI.subtle.importKey("raw", enc.encode(entropy), { name: "PBKDF2" }, false, ["deriveBits"]);
+    const baseKey = await cryptoAPI.subtle.importKey(
+        "raw", 
+        toArrayBuffer(enc.encode(entropy)), 
+        { name: "PBKDF2" }, 
+        false, 
+        ["deriveBits"]
+    );
     const bitsNeeded = length * 8; // now correct; remove arbitrary *4
     const bits = await cryptoAPI.subtle.deriveBits(
       { name: "PBKDF2", salt: enc.encode(salt), iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST },
