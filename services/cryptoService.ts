@@ -1,3 +1,4 @@
+
 import { VaultState, Resonance, VaultConfig } from "../types";
 import { argon2id } from 'hash-wasm';
 import { BastionSerializer } from "./serializer";
@@ -31,7 +32,7 @@ const cryptoAPI = globalThis.crypto;
 /* ===================== HELPERS ===================== */
 function toArrayBuffer(view: ArrayBuffer | ArrayBufferView): ArrayBuffer {
   if (view instanceof ArrayBuffer) return view;
-  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
+  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
 }
 
 /* ===================== CHAOS LOCK ===================== */
