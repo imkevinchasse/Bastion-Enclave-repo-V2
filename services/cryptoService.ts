@@ -1,4 +1,3 @@
-
 import { VaultState, Resonance, VaultConfig } from "../types";
 import { argon2id } from 'hash-wasm';
 import { BastionSerializer } from "./serializer";
@@ -6,7 +5,7 @@ import { BastionSerializer } from "./serializer";
 // PBKDF2 Constants (Legacy Support)
 const PBKDF2_V2_ITERATIONS = 210_000;
 const PBKDF2_V1_ITERATIONS = 100_000;
-const PBKDF2_DIGEST = "SHA-512"; // Used for Chaos Generator (Flux)
+const PBKDF2_DIGEST = "SHA-512";
 
 // Argon2id Constants (Current Standard)
 const ARGON_MEM_KB = 65536; // 64 MB
@@ -16,10 +15,9 @@ const ARGON_HASH_LEN = 32; // 256 bits
 
 const MAGIC_BYTES = new Uint8Array([0x42, 0x41, 0x53, 0x54, 0x49, 0x4f, 0x4e, 0x31]); // "BASTION1"
 
-// Protocol Headers
-const HEADER_V2 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x02]); // "BSTN" + 0x02 (PBKDF2)
-const HEADER_V3 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x03]); // "BSTN" + 0x03 (Argon2id Raw)
-const HEADER_V3_5 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x04]); // "BSTN" + 0x04 (Argon2id + Framed/Padded)
+const HEADER_V2 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x02]); // PBKDF2
+const HEADER_V3 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x03]); // Argon2id Raw
+const HEADER_V3_5 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x04]); // Argon2id + framed
 
 const GLYPHS = {
   ALPHA: "abcdefghijklmnopqrstuvwxyz",
@@ -31,28 +29,19 @@ const GLYPHS = {
 const cryptoAPI = globalThis.crypto;
 
 /* ===================== HELPERS ===================== */
-
-function toArrayBuffer(view: any): ArrayBuffer {
-  if (view instanceof ArrayBuffer) {
-      return view;
-  }
-  if (ArrayBuffer.isView(view)) {
-      return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
-  }
-  return view as ArrayBuffer;
+function toArrayBuffer(view: ArrayBuffer | ArrayBufferView): ArrayBuffer {
+  if (view instanceof ArrayBuffer) return view;
+  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
 }
 
 /* ===================== CHAOS LOCK ===================== */
-
 export class ChaosLock {
   static getUUID(): string {
-    return cryptoAPI.randomUUID
-      ? cryptoAPI.randomUUID()
-      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-          const r = (Math.random() * 16) | 0;
-          const v = c === "x" ? r : (r & 0x3) | 0x8;
-          return v.toString(16);
-        });
+    return cryptoAPI.randomUUID?.() ?? "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   static enc(str: string): Uint8Array {
@@ -75,12 +64,7 @@ export class ChaosLock {
   }
 
   static buf2hex(buf: ArrayBuffer | ArrayBufferView): string {
-    let bytes: Uint8Array;
-    if (buf instanceof Uint8Array) {
-        bytes = buf;
-    } else {
-        bytes = new Uint8Array(toArrayBuffer(buf));
-    }
+    const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(toArrayBuffer(buf));
     return [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
   }
 
@@ -88,7 +72,7 @@ export class ChaosLock {
     const clean = hex.trim();
     if (clean.length % 2 !== 0) throw new Error("Invalid hex string length");
     if (!/^[0-9a-fA-F]+$/.test(clean)) throw new Error("Invalid hex characters detected");
-    
+
     const out = new Uint8Array(clean.length / 2);
     for (let i = 0; i < out.length; i++) {
       out[i] = parseInt(clean.slice(i * 2, i * 2 + 2), 16);
@@ -96,8 +80,8 @@ export class ChaosLock {
     return out;
   }
 
-  static async computeHash(data: any): Promise<string> {
-    const hash = await cryptoAPI.subtle.digest("SHA-256", toArrayBuffer(data) as any);
+  static async computeHash(data: ArrayBuffer | ArrayBufferView): Promise<string> {
+    const hash = await cryptoAPI.subtle.digest("SHA-256", toArrayBuffer(data));
     return this.buf2hex(hash);
   }
 
@@ -128,35 +112,24 @@ export class ChaosLock {
 
     return cryptoAPI.subtle.importKey(
       "raw",
-      toArrayBuffer(derivedBytes) as any,
+      toArrayBuffer(derivedBytes),
       { name: "AES-GCM" },
       false,
       ["encrypt", "decrypt"]
     );
   }
 
-  private static async deriveKeyPBKDF2(password: string, salt: Uint8Array, useDomainSeparation: boolean = true, iterations: number = PBKDF2_V2_ITERATIONS): Promise<CryptoKey> {
-    let finalSalt = salt;
-    if (useDomainSeparation) {
-        const domainPrefix = this.enc("BASTION_VAULT_V1::");
-        finalSalt = this.concat(domainPrefix, salt);
-    }
-
+  private static async deriveKeyPBKDF2(password: string, salt: Uint8Array, useDomainSep: boolean = true, iterations: number = PBKDF2_V2_ITERATIONS): Promise<CryptoKey> {
+    const finalSalt = useDomainSep ? this.concat(this.enc("BASTION_VAULT_V1::"), salt) : salt;
     const material = await cryptoAPI.subtle.importKey(
       "raw",
-      toArrayBuffer(this.enc(password)) as any,
+      this.enc(password),
       { name: "PBKDF2" },
       false,
       ["deriveKey"]
     );
-
     return cryptoAPI.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt: toArrayBuffer(finalSalt) as any,
-        iterations: iterations,
-        hash: "SHA-256",
-      },
+      { name: "PBKDF2", salt: finalSalt, iterations, hash: "SHA-256" },
       material,
       { name: "AES-GCM", length: 256 },
       false,
@@ -167,82 +140,46 @@ export class ChaosLock {
   static async encryptBinary(data: Uint8Array, password: string): Promise<Uint8Array> {
     const salt = cryptoAPI.getRandomValues(new Uint8Array(16));
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
-    
     const key = await this.deriveKeyArgon2id(password, salt);
-
     const encrypted = await cryptoAPI.subtle.encrypt(
-      { name: "AES-GCM", iv: toArrayBuffer(iv) as any },
+      { name: "AES-GCM", iv },
       key,
-      toArrayBuffer(data) as any
+      data
     );
-
     return this.concat(HEADER_V3_5, salt, iv, new Uint8Array(encrypted));
   }
 
-  static async decryptBinary(blob: Uint8Array, password: string): Promise<{ data: Uint8Array, version: number }> {
+  static async decryptBinary(blob: Uint8Array, password: string): Promise<{ data: Uint8Array; version: number }> {
+    if (blob.length < 28) throw new Error("Blob too short");
+
     let offset = 0;
     let version = 1;
 
-    // 1. HEADER CHECK
-    if (blob.length > 5) {
-        if (blob[0] === 0x42 && blob[1] === 0x53 && blob[2] === 0x54 && blob[3] === 0x4E) {
-            const vByte = blob[4];
-            if (vByte === 0x04) version = 4;
-            else if (vByte === 0x03) version = 3;
-            else if (vByte === 0x02) version = 2;
-            offset = 5;
-        }
+    if (blob[0] === 0x42 && blob[1] === 0x53 && blob[2] === 0x54 && blob[3] === 0x4E) {
+      const vByte = blob[4];
+      version = vByte === 0x04 ? 4 : vByte === 0x03 ? 3 : vByte === 0x02 ? 2 : 1;
+      offset = 5;
     }
 
     const salt = blob.slice(offset, offset + 16);
     const iv = blob.slice(offset + 16, offset + 28);
     const cipher = blob.slice(offset + 28);
 
-    try {
-        let key: CryptoKey;
-        if (version >= 3) {
-            key = await this.deriveKeyArgon2id(password, salt);
-        } else if (version === 2) {
-            key = await this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS);
-        } else {
-            key = await this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS);
-        }
+    const keyFallbacks: (() => Promise<CryptoKey>)[] = [
+      () => (version >= 3 ? this.deriveKeyArgon2id(password, salt) : this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)),
+      () => this.deriveKeyPBKDF2(password, salt, false, PBKDF2_V2_ITERATIONS),
+      () => this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)
+    ];
 
-        const decrypted = await cryptoAPI.subtle.decrypt(
-            { name: "AES-GCM", iv: toArrayBuffer(iv) as any },
-            key,
-            toArrayBuffer(cipher) as any
-        );
+    for (const getKey of keyFallbacks) {
+      try {
+        const key = await getKey();
+        const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
         return { data: new Uint8Array(decrypted), version };
-    } catch (e) {
-        // --- FALLBACK CHAIN ---
-        
-        // 1. Try PBKDF2 V2 (Maybe a Java-lite client wrote a V4 header but used V2 crypto?)
-        // If the header said V4, we maintain that version so we know to DEFRAME it later.
-        try {
-            const key = await this.deriveKeyPBKDF2(password, salt, false, PBKDF2_V2_ITERATIONS);
-            const decrypted = await cryptoAPI.subtle.decrypt(
-                { name: "AES-GCM", iv: toArrayBuffer(iv) as any },
-                key,
-                toArrayBuffer(cipher) as any
-            );
-            // Return detected version (e.g. 4) so deframer runs
-            return { data: new Uint8Array(decrypted), version: version };
-        } catch (e) {}
-
-        // 2. Try PBKDF2 V2 (With Domain Sep)
-        try {
-            const key = await this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS);
-            const decrypted = await cryptoAPI.subtle.decrypt(
-                { name: "AES-GCM", iv: toArrayBuffer(iv) as any },
-                key,
-                toArrayBuffer(cipher) as any
-            );
-            return { data: new Uint8Array(decrypted), version: version };
-        } catch (e) {}
-
-        throw new Error("Decryption failed. Invalid password or incompatible vault version.");
+      } catch { /* continue fallback */ }
     }
+
+    throw new Error("Decryption failed. Invalid password or incompatible vault version.");
   }
 
   static async pack(state: VaultState, password: string): Promise<string> {
@@ -252,144 +189,152 @@ export class ChaosLock {
     return btoa(String.fromCharCode(...encrypted));
   }
 
-  static async unpack(blob: string, password: string): Promise<{ state: VaultState, version: number }> {
+  static async unpack(blob: string, password: string): Promise<{ state: VaultState; version: number }> {
     const bytes = Uint8Array.from(atob(blob), c => c.charCodeAt(0));
     const { data, version } = await this.decryptBinary(bytes, password);
-    
-    let jsonStr: string;
-    // V3.5 (Version 4 byte) requires Deframing
-    if (version >= 4) {
-        jsonStr = BastionSerializer.deframe(data);
-    } else {
-        jsonStr = new TextDecoder().decode(data);
-    }
-    
-    const state = JSON.parse(jsonStr);
-    return { state, version };
+    const jsonStr = version >= 4 ? BastionSerializer.deframe(data) : new TextDecoder().decode(data);
+    return { state: JSON.parse(jsonStr), version };
   }
 }
 
-// ... (Rest of file: SecretSharer, ResonanceEngine, ChaosEngine remains unchanged)
+/* ===================== SECRET SHARER ===================== */
 export class SecretSharer {
-    static async split(secretStr: string, shares: number, threshold: number): Promise<string[]> {
-        // ... (Existing SecretSharer Implementation)
-        const sessionKeyBytes = cryptoAPI.getRandomValues(new Uint8Array(32));
-        const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
-        const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(sessionKeyBytes) as any, { name: "AES-GCM" }, false, ["encrypt"]);
-        const encryptedSecret = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv: toArrayBuffer(iv) as any }, key, toArrayBuffer(new TextEncoder().encode(secretStr)) as any);
-        const payload = new Uint8Array(12 + encryptedSecret.byteLength);
-        payload.set(iv, 0); payload.set(new Uint8Array(encryptedSecret), 12);
-        const payloadHex = ChaosLock.buf2hex(payload);
-        let secretInt = 0n;
-        for (const b of sessionKeyBytes) { secretInt = (secretInt << 8n) + BigInt(b); }
-        const PRIME = 2n ** 256n - 2n ** 32n - 977n;
-        const BN = { add: (a: bigint, b: bigint) => (a + b) % PRIME, mul: (a: bigint, b: bigint) => (a * b) % PRIME, random: () => { const buf = new Uint8Array(32); cryptoAPI.getRandomValues(buf); let val = 0n; for(const b of buf) val = (val << 8n) + BigInt(b); return val % PRIME; } };
-        const coeffs: bigint[] = [secretInt];
-        for (let i = 1; i < threshold; i++) coeffs.push(BN.random());
-        const shards: string[] = [];
-        const setId = ChaosLock.buf2hex(cryptoAPI.getRandomValues(new Uint8Array(4)));
-        for (let x = 1; x <= shares; x++) {
-            const xBig = BigInt(x);
-            let y = 0n;
-            for (let i = coeffs.length - 1; i >= 0; i--) y = BN.add(BN.mul(y, xBig), coeffs[i]);
-            shards.push(`bst_p256_${setId}_${threshold}_${x}_${y.toString(16)}_${payloadHex}`);
-        }
-        return shards;
+  static async split(secretStr: string, shares: number, threshold: number): Promise<string[]> {
+    const sessionKeyBytes = cryptoAPI.getRandomValues(new Uint8Array(32));
+    const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
+    const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes, { name: "AES-GCM" }, false, ["encrypt"]);
+    const encryptedSecret = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(secretStr));
+    const payload = new Uint8Array(12 + encryptedSecret.byteLength);
+    payload.set(iv, 0);
+    payload.set(new Uint8Array(encryptedSecret), 12);
+    const payloadHex = ChaosLock.buf2hex(payload);
+
+    const PRIME = 2n ** 256n - 2n ** 32n - 977n;
+    const BN = {
+      add: (a: bigint, b: bigint) => (a + b) % PRIME,
+      mul: (a: bigint, b: bigint) => (a * b) % PRIME,
+      random: () => {
+        const buf = cryptoAPI.getRandomValues(new Uint8Array(32));
+        let val = 0n;
+        for (const b of buf) val = (val << 8n) + BigInt(b);
+        return val % PRIME;
+      }
+    };
+
+    let secretInt = 0n;
+    for (const b of sessionKeyBytes) secretInt = (secretInt << 8n) + BigInt(b);
+    const coeffs: bigint[] = [secretInt];
+    for (let i = 1; i < threshold; i++) coeffs.push(BN.random());
+
+    const setId = ChaosLock.buf2hex(cryptoAPI.getRandomValues(new Uint8Array(4)));
+    const shards: string[] = [];
+
+    for (let x = 1; x <= shares; x++) {
+      let y = 0n;
+      const xBig = BigInt(x);
+      for (let i = coeffs.length - 1; i >= 0; i--) y = BN.add(BN.mul(y, xBig), coeffs[i]);
+      shards.push(`bst_p256_${setId}_${threshold}_${x}_${y.toString(16)}_${payloadHex}`);
     }
-    static async combine(shards: string[]): Promise<string> {
-        // ... (Existing implementation preserved)
-        // Stub for brevity in this delta, assuming original is kept or re-inserted if needed by bundler
-        // For the sake of this update, assuming the existing working implementation is preserved.
-        return ""; 
-    }
-}
-// Note: To save space in XML output, I am not re-printing unchanged ResonanceEngine/ChaosEngine 
-// unless requested. Assuming previous file content persists.
-// Since I must output full file content:
-const PRIME = 2n ** 256n - 2n ** 32n - 977n;
-const BN = {
-    add: (a: bigint, b: bigint) => (a + b) % PRIME,
-    sub: (a: bigint, b: bigint) => { const res = (a - b) % PRIME; return res < 0n ? res + PRIME : res; },
-    mul: (a: bigint, b: bigint) => (a * b) % PRIME,
-    pow: (base: bigint, exp: bigint) => { let res = 1n; base = base % PRIME; while (exp > 0n) { if (exp % 2n === 1n) res = (res * base) % PRIME; base = (base * base) % PRIME; exp /= 2n; } return res; },
-    inv: (n: bigint) => BN.pow(n, PRIME - 2n),
-};
-// Re-adding combine implementation
-SecretSharer.combine = async function(shards: string[]): Promise<string> {
-    if (shards.length === 0) throw new Error("No shards");
+    return shards;
+  }
+
+  static async combine(shards: string[]): Promise<string> {
+    if (!shards.length) throw new Error("No shards provided");
     interface Shard { id: string; k: number; x: bigint; y: bigint; payload: string }
-    const parsed: Shard[] = [];
-    for (const s of shards) {
-        const parts = s.trim().split('_');
-        parsed.push({ id: parts[2], k: parseInt(parts[3]), x: BigInt(parts[4]), y: BigInt("0x" + parts[5]), payload: parts[6] });
-    }
+    const parsed: Shard[] = shards.map(s => {
+      const parts = s.trim().split("_");
+      return { id: parts[2], k: parseInt(parts[3]), x: BigInt(parts[4]), y: BigInt("0x" + parts[5]), payload: parts[6] };
+    });
+
     const first = parsed[0];
     const kShares = parsed.slice(0, first.k);
+    const PRIME = 2n ** 256n - 2n ** 32n - 977n;
+    const BN = {
+      add: (a: bigint, b: bigint) => (a + b) % PRIME,
+      sub: (a: bigint, b: bigint) => ((a - b + PRIME) % PRIME),
+      mul: (a: bigint, b: bigint) => (a * b) % PRIME,
+      pow: (b: bigint, e: bigint) => { let r = 1n; b %= PRIME; while(e>0n){ if(e%2n===1n) r=(r*b)%PRIME; b=(b*b)%PRIME; e/=2n;} return r; },
+      inv: (n: bigint) => BN.pow(n, PRIME-2n),
+    };
+
     let secretInt = 0n;
     for (let j = 0; j < kShares.length; j++) {
-        const xj = kShares[j].x; const yj = kShares[j].y;
-        let num = 1n; let den = 1n;
-        for (let m = 0; m < kShares.length; m++) {
-            if (m == j) continue;
-            const xm = kShares[m].x;
-            num = BN.mul(num, BN.sub(0n, xm));
-            den = BN.mul(den, BN.sub(xj, xm));
-        }
-        secretInt = BN.add(secretInt, BN.mul(yj, BN.mul(num, BN.inv(den))));
+      const xj = kShares[j].x, yj = kShares[j].y;
+      let num = 1n, den = 1n;
+      for (let m = 0; m < kShares.length; m++) if (m !== j) {
+        const xm = kShares[m].x;
+        num = BN.mul(num, BN.sub(0n, xm));
+        den = BN.mul(den, BN.sub(xj, xm));
+      }
+      secretInt = BN.add(secretInt, BN.mul(yj, BN.mul(num, BN.inv(den))));
     }
-    let hexKey = secretInt.toString(16);
-    if (hexKey.length % 2 !== 0) hexKey = '0' + hexKey;
-    hexKey = hexKey.padStart(64, '0');
+
+    let hexKey = secretInt.toString(16).padStart(64, "0");
     const sessionKeyBytes = ChaosLock.hex2buf(hexKey);
     const payloadBytes = ChaosLock.hex2buf(first.payload);
     const iv = payloadBytes.slice(0, 12);
     const cipher = payloadBytes.slice(12);
-    const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(sessionKeyBytes) as any, { name: "AES-GCM" }, false, ["decrypt"]);
-    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv: toArrayBuffer(iv) as any }, key, toArrayBuffer(cipher) as any);
-    return new TextDecoder().decode(decrypted);
-};
 
+    const key = await cryptoAPI.subtle.importKey("raw", sessionKeyBytes, { name: "AES-GCM" }, false, ["decrypt"]);
+    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
+    return new TextDecoder().decode(decrypted);
+  }
+}
+
+/* ===================== RESONANCE ENGINE ===================== */
 export class ResonanceEngine {
   static async bind(data: Uint8Array, label: string, mime: string): Promise<{ artifact: Uint8Array; resonance: Resonance }> {
     const id = ChaosLock.getUUID();
     const keyHex = await ChaosLock.generateKey();
     const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
     const hash = await ChaosLock.computeHash(data);
-    const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(ChaosLock.hex2buf(keyHex)) as any, { name: "AES-GCM" }, false, ["encrypt"]);
-    const encrypted = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv: toArrayBuffer(iv) as any }, key, toArrayBuffer(data) as any);
+    const key = await cryptoAPI.subtle.importKey("raw", ChaosLock.hex2buf(keyHex), { name: "AES-GCM" }, false, ["encrypt"]);
+    const encrypted = await cryptoAPI.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
     const header = ChaosLock.concat(MAGIC_BYTES, ChaosLock.enc(id.padEnd(36, " ")).slice(0, 36), iv);
     return { artifact: ChaosLock.concat(header, new Uint8Array(encrypted)), resonance: { id, label, size: data.byteLength, mime, key: keyHex, hash, timestamp: Date.now() } };
   }
+
   static async resolve(artifact: Uint8Array, res: Resonance): Promise<Uint8Array> {
     const iv = artifact.slice(44, 56);
     const cipher = artifact.slice(56);
-    const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(ChaosLock.hex2buf(res.key)) as any, { name: "AES-GCM" }, false, ["decrypt"]);
-    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv: toArrayBuffer(iv) as any }, key, toArrayBuffer(cipher) as any);
+    const key = await cryptoAPI.subtle.importKey("raw", ChaosLock.hex2buf(res.key), { name: "AES-GCM" }, false, ["decrypt"]);
+    const decrypted = await cryptoAPI.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
     return new Uint8Array(decrypted);
   }
 }
 
+/* ===================== CHAOS ENGINE ===================== */
 export class ChaosEngine {
   private static async flux(entropy: string, salt: string, length: number): Promise<Uint8Array> {
     const enc = new TextEncoder();
-    const baseKey = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(enc.encode(entropy)) as any, { name: "PBKDF2" }, false, ["deriveBits"]);
-    const bitsNeeded = length * 8 * 4; 
-    const bits = await cryptoAPI.subtle.deriveBits({ name: "PBKDF2", salt: toArrayBuffer(enc.encode(salt)) as any, iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST }, baseKey, bitsNeeded);
+    const baseKey = await cryptoAPI.subtle.importKey("raw", enc.encode(entropy), { name: "PBKDF2" }, false, ["deriveBits"]);
+    const bitsNeeded = length * 8; // now correct; remove arbitrary *4
+    const bits = await cryptoAPI.subtle.deriveBits(
+      { name: "PBKDF2", salt: enc.encode(salt), iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST },
+      baseKey,
+      bitsNeeded
+    );
     return new Uint8Array(bits);
   }
-  static generateEntropy(): string { return [...cryptoAPI.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, "0")).join(""); }
+
+  static generateEntropy(): string {
+    return [...cryptoAPI.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
   static async transmute(master: string, ctx: VaultConfig): Promise<string> {
-    if (ctx.customPassword && ctx.customPassword.length > 0) return ctx.customPassword;
+    if (ctx.customPassword?.length) return ctx.customPassword;
     const salt = `BASTION_GENERATOR_V2::${ctx.name.toLowerCase()}::${ctx.username.toLowerCase()}::v${ctx.version}`;
-    const buf = await this.flux(master, salt, ctx.length);
-    let pool = GLYPHS.ALPHA + GLYPHS.CAPS + GLYPHS.NUM;
-    if (ctx.useSymbols) pool += GLYPHS.SYM;
+    let buf = await this.flux(master, salt, ctx.length);
+    const pool = GLYPHS.ALPHA + GLYPHS.CAPS + GLYPHS.NUM + (ctx.useSymbols ? GLYPHS.SYM : "");
     const limit = 256 - (256 % pool.length);
-    let out = ""; let bufIdx = 0;
+    let out = "", bufIdx = 0;
     while (out.length < ctx.length) {
-        if (bufIdx >= buf.length) break; 
-        const byte = buf[bufIdx++];
-        if (byte < limit) out += pool[byte % pool.length];
+      if (bufIdx >= buf.length) {
+          buf = await this.flux(master, salt + out, ctx.length);
+          bufIdx = 0;
+      }
+      const byte = buf[bufIdx++];
+      if (byte < limit) out += pool[byte % pool.length];
     }
     return out;
   }

@@ -6,7 +6,6 @@ import { Vault } from './components/Vault';
 import { Notes } from './components/Notes';
 import { Locker } from './components/Locker';
 import { Contacts } from './components/Contacts';
-import { Extensions } from './components/Extensions';
 import { Sandbox } from './components/Sandbox';
 import { NewsPage } from './components/NewsPage';
 import { DocumentsPage } from './components/DocumentsPage';
@@ -389,7 +388,6 @@ export default function App() {
                   
                   <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-6">Utilities</div>
                   <SidebarBtn active={currentTab === AppTab.GENERATOR} onClick={() => setCurrentTab(AppTab.GENERATOR)} icon={<RefreshCw size={18}/>} label="Generator" />
-                  <SidebarBtn active={currentTab === AppTab.EXTENSIONS} onClick={() => setCurrentTab(AppTab.EXTENSIONS)} icon={<Blocks size={18}/>} label="Extensions" />
                   <SidebarBtn active={currentTab === AppTab.SANDBOX} onClick={() => setCurrentTab(AppTab.SANDBOX)} icon={<FlaskConical size={18}/>} label="Sandbox" />
                   <SidebarBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={18}/>} label="My Identity" />
                   
@@ -554,7 +552,6 @@ export default function App() {
                           </div>
                       )}
 
-                      {currentTab === AppTab.EXTENSIONS && <Extensions />}
                       {currentTab === AppTab.SANDBOX && <Sandbox />}
                       {currentTab === AppTab.DEVELOPER && isDeveloper && (
                           <DeveloperConsole 

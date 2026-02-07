@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://bastion.os/sitemap.xml
+Sitemap: https://bastion-enclave.vercel.app/sitemap.xml
