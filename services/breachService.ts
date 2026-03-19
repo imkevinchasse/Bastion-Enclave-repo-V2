@@ -55,7 +55,7 @@ export class BreachService {
             if (e.name === 'AbortError') throw e;
             if (e.message === "CONGESTION") throw e;
             console.warn("Breach scan network error:", e);
-            throw new Error("NETWORK_ERROR");
+            throw new Error("NETWORK_ERROR", { cause: e });
         }
     }
 }

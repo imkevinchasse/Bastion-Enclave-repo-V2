@@ -224,7 +224,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
              <div className="flex justify-between items-end mb-2">
                  <div>
                     <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                        <Ghost size={24} className="text-indigo-400" /> Resonance Registry
+                        <Ghost size={24} className="text-amber-400" /> Resonance Registry
                     </h2>
                     <p className="text-slate-400 text-xs">Active Cryptographic Bindings</p>
                  </div>
@@ -233,7 +233,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
 
              <div className="relative">
                 <input 
-                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg py-2 pl-9 pr-3 text-sm focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all outline-none"
+                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-none py-2 pl-9 pr-3 text-sm focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all outline-none"
                     placeholder="Search bindings..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
@@ -241,7 +241,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar bg-slate-900/20 rounded-xl border border-white/5 p-2">
+            <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar bg-slate-900/20 rounded-none border border-white/5 p-2">
                 {filteredEntries.length === 0 ? (
                     <div className="text-center py-12 opacity-50">
                         <Fingerprint className="mx-auto text-slate-600 mb-2" size={32} />
@@ -255,7 +255,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                         return (
                             <div 
                                 key={entry.id} 
-                                className={`p-3 rounded-xl flex justify-between items-center group transition-all relative overflow-hidden ${confirmDeleteId === entry.id ? 'bg-red-900/20 border border-red-500/50' : isGhost ? 'bg-slate-900/40 border border-slate-800 opacity-70' : 'bg-slate-900/80 border border-white/5 hover:border-indigo-500/30'}`}
+                                className={`p-3 rounded-none flex justify-between items-center group transition-all relative overflow-hidden ${confirmDeleteId === entry.id ? 'bg-red-900/20 border border-red-500/50' : isGhost ? 'bg-slate-900/40 border border-slate-800 opacity-70' : 'bg-slate-900/80 border border-white/5 hover:border-amber-500/30'}`}
                             >
                                 <div className="min-w-0 z-10 flex-1">
                                     <div className={`font-bold text-sm truncate flex items-center gap-2 ${confirmDeleteId === entry.id ? 'text-red-300' : isGhost ? 'text-slate-500' : 'text-slate-200'}`}>
@@ -266,9 +266,9 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                                         <span>{formatSize(entry.size)}</span>
                                         <span>•</span>
                                         {isAvailable ? (
-                                            <span className="text-emerald-500 flex items-center gap-1 bg-emerald-500/10 px-1 rounded"><HardDrive size={8}/> LOCAL</span>
+                                            <span className="text-emerald-500 flex items-center gap-1 bg-emerald-500/10 px-1 rounded-none"><HardDrive size={8}/> LOCAL</span>
                                         ) : isGhost ? (
-                                            <span className="text-slate-500 flex items-center gap-1 border border-slate-700 px-1 rounded" title="File payload is on another device. Key is available."><Ghost size={8}/> GHOST</span>
+                                            <span className="text-slate-500 flex items-center gap-1 border border-slate-700 px-1 rounded-none" title="File payload is on another device. Key is available."><Ghost size={8}/> GHOST</span>
                                         ) : (
                                             <span className="text-amber-500 flex items-center gap-1"><Key size={8}/> KEY ONLY</span>
                                         )}
@@ -279,7 +279,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                                     {isAvailable && (
                                         <button 
                                             onClick={() => handleUnlockStored(entry)}
-                                            className="p-2 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                                            className="p-2 rounded-none text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                                             title="Decrypt from Local Storage"
                                         >
                                             <Play size={14} fill="currentColor" />
@@ -287,7 +287,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                                     )}
                                     <button 
                                         onClick={() => handleDeleteRequest(entry.id)}
-                                        className={`p-2 rounded-lg transition-all flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${confirmDeleteId === entry.id ? 'bg-red-500 text-white w-20 justify-center shadow-lg' : 'text-slate-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100'}`}
+                                        className={`p-2 rounded-none transition-all flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${confirmDeleteId === entry.id ? 'bg-red-500 text-white w-20 justify-center shadow-lg' : 'text-slate-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100'}`}
                                         title={isGhost ? "Clean Up Ghost Key" : "Sever Resonance"}
                                     >
                                         {confirmDeleteId === entry.id ? (
@@ -310,7 +310,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
 
         {/* RIGHT: Processing Core */}
         <div className="w-full lg:w-2/3 flex flex-col gap-4">
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 rounded-2xl flex-1 relative overflow-hidden flex flex-col p-8">
+            <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 rounded-none flex-1 relative overflow-hidden flex flex-col p-8">
                 
                 {/* Status Overlay */}
                 <div className="flex justify-between items-start mb-8">
@@ -319,8 +319,8 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                         <p className="text-sm text-slate-400">Drag & Drop assets to Bind or Resolve. <span className="text-amber-400/80">Keys are unique per file.</span></p>
                      </div>
                      {status !== 'idle' && (
-                         <div className={`bg-slate-950 border border-white/10 px-3 py-1 rounded-full text-[10px] font-mono uppercase animate-pulse flex items-center gap-2 ${status === 'compressing' || status === 'storing' ? 'text-amber-400' : 'text-indigo-400'}`}>
-                             <div className={`w-1.5 h-1.5 rounded-full ${status === 'compressing' || status === 'storing' ? 'bg-amber-500' : 'bg-indigo-500'}`} /> {status}
+                         <div className={`bg-slate-950 border border-white/10 px-3 py-1 rounded-none text-[10px] font-mono uppercase animate-pulse flex items-center gap-2 ${status === 'compressing' || status === 'storing' ? 'text-amber-400' : 'text-amber-400'}`}>
+                             <div className={`w-1.5 h-1.5 rounded-none ${status === 'compressing' || status === 'storing' ? 'bg-amber-500' : 'bg-amber-500'}`} /> {status}
                          </div>
                      )}
                 </div>
@@ -328,8 +328,8 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                 {successFile ? (
                     <div className="flex-1 flex flex-col items-center justify-center gap-6 animate-in zoom-in-95 duration-500">
                         <div className="relative">
-                            <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full animate-pulse" />
-                            <div className="w-24 h-24 rounded-2xl bg-slate-900 border border-emerald-500/50 flex items-center justify-center relative z-10 shadow-2xl">
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-none animate-pulse" />
+                            <div className="w-24 h-24 rounded-none bg-slate-900 border border-emerald-500/50 flex items-center justify-center relative z-10 shadow-2xl">
                                 <FileCheckIcon size={48} className="text-emerald-400" />
                             </div>
                         </div>
@@ -350,7 +350,7 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                     </div>
                 ) : error ? (
                     <div className="flex-1 flex flex-col items-center justify-center gap-6 animate-in zoom-in-95 duration-300">
-                         <div className="w-24 h-24 rounded-2xl bg-red-900/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                         <div className="w-24 h-24 rounded-none bg-red-900/10 border border-red-500/30 flex items-center justify-center text-red-400">
                              <AlertTriangle size={48} />
                          </div>
                          <div className="text-center max-w-md">
@@ -368,8 +368,8 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center gap-6">
                         <div className="relative group w-full max-w-md">
-                            <div className="absolute inset-0 bg-indigo-500/5 rounded-2xl blur-lg group-hover:bg-indigo-500/10 transition-all"></div>
-                            <div className="border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center justify-center gap-4 p-12 group-hover:border-indigo-500/50 group-hover:bg-indigo-500/5 transition-all relative z-10">
+                            <div className="absolute inset-0 bg-amber-500/5 rounded-none blur-lg group-hover:bg-amber-500/10 transition-all"></div>
+                            <div className="border-2 border-dashed border-slate-700/50 rounded-none flex flex-col items-center justify-center gap-4 p-12 group-hover:border-amber-500/50 group-hover:bg-amber-500/5 transition-all relative z-10">
                                 <input 
                                     ref={fileInputRef}
                                     type="file" 
@@ -377,11 +377,11 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
                                     onChange={handleFileChange}
                                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                 />
-                                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                                <div className="w-20 h-20 bg-slate-800 rounded-none flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                                     {isProcessing ? (
-                                        <Loader2 className="animate-spin text-indigo-400" size={32} />
+                                        <Loader2 className="animate-spin text-amber-400" size={32} />
                                     ) : (
-                                        <Upload className="text-slate-400 group-hover:text-indigo-400" size={32} />
+                                        <Upload className="text-slate-400 group-hover:text-amber-400" size={32} />
                                     )}
                                 </div>
                                 <div className="text-center">
@@ -393,10 +393,10 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
 
                         {/* Persistence Toggle */}
                         <div 
-                            className="flex items-center gap-3 p-3 rounded-lg border border-white/5 bg-slate-950/50 cursor-pointer hover:border-white/10"
+                            className="flex items-center gap-3 p-3 rounded-none border border-white/5 bg-slate-950/50 cursor-pointer hover:border-white/10"
                             onClick={() => setPersistFile(!persistFile)}
                         >
-                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${persistFile ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600 bg-slate-900'}`}>
+                            <div className={`w-5 h-5 rounded-none border flex items-center justify-center transition-colors ${persistFile ? 'bg-amber-500 border-amber-500' : 'border-slate-600 bg-slate-900'}`}>
                                 {persistFile && <CheckCircle size={14} className="text-white" />}
                             </div>
                             <div className="text-left">

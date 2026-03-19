@@ -28,8 +28,8 @@ const PROVENANCE_PUBLIC_KEY = {
 // --- 2. THE CLAIM (Build Metadata) ---
 export const BUILD_METADATA = {
     product: "Bastion Enclave",
-    version: "3.0.0",
-    protocol: "Sovereign-V3",
+    version: "4.0.0",
+    protocol: "Sovereign-V4",
     epoch: 1710979200, // Release Timestamp
     channel: "Source Distribution"
 };

@@ -25,7 +25,7 @@ interface ServiceState {
     }
 }
 
-let state: ServiceState = {
+const state: ServiceState = {
     llm: null,
     embedder: null,
     status: 'idle',
@@ -137,7 +137,7 @@ export const initLLM = async (onProgress: (text: string) => void): Promise<void>
 
         // 1. Attempt to load Layer 2 (Embeddings)
         try {
-            // @ts-ignore
+            // @ts-expect-error - Dynamic import of external URL
             const transformersMod = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2");
             const { pipeline, env } = transformersMod;
             
@@ -175,7 +175,7 @@ export const initLLM = async (onProgress: (text: string) => void): Promise<void>
         // 2. Attempt to load Layer 3 (LLM)
         try {
             onProgress("Initializing Neural Reasoner (GPU)...");
-            // @ts-ignore
+            // @ts-expect-error - Dynamic import of external URL
             const webLlmMod = await import(/* @vite-ignore */ "https://esm.sh/@mlc-ai/web-llm@0.2.72");
             const { CreateMLCEngine } = webLlmMod;
             
@@ -212,15 +212,13 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
 
     // --- STEP 2: Semantic Classification (Embedding - Layer 2) ---
     let semanticRisk = 0;
-    let threatSim = 0; 
-    let safeSim = 0;
 
     if (state.embedder && state.anchors) {
         const output = await state.embedder(text, { pooling: 'mean', normalize: true });
         const inputVec = Array.from(output.data) as number[];
 
-        threatSim = Math.max(...state.anchors.threat.map(anchor => cosineSimilarity(inputVec, anchor)));
-        safeSim = Math.max(...state.anchors.safe.map(anchor => cosineSimilarity(inputVec, anchor)));
+        const threatSim = Math.max(...state.anchors.threat.map(anchor => cosineSimilarity(inputVec, anchor)));
+        const safeSim = Math.max(...state.anchors.safe.map(anchor => cosineSimilarity(inputVec, anchor)));
         
         if (threatSim > safeSim) {
             semanticRisk = (threatSim - safeSim) * 100 * 2;
@@ -236,7 +234,7 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
     else if (hybridScore > 35) riskLevel = 'SUSPICIOUS';
 
     // --- STEP 3: Neural Explanation (Generative) ---
-    let analysis = "";
+    let analysis: string;
     
     if (state.llm) {
         const systemPrompt = `You are a security analyst.
@@ -288,7 +286,7 @@ export const runCredentialAudit = async (password: string, service?: string, use
     const suggestions = hasContext ? ["Remove service name from password"] : ["Increase length", "Use symbols"];
 
     // Reasoner
-    let analysis = "";
+    let analysis: string;
     if (state.llm) {
         const prompt = `Password Score: ${totalScore}/100.
 Context Leak: ${hasContext ? "YES" : "NO"}.

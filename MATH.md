@@ -1,7 +1,7 @@
 
 # Bastion Enclave :: Mathematical Proofs
 
-This document details the exact mathematical formulas and cryptographic primitives used in the **Sovereign-V3.5** protocol.
+This document details the exact mathematical formulas and cryptographic primitives used in the **Sovereign-V4** protocol.
 
 ---
 
@@ -52,7 +52,7 @@ This ensures every chosen index has exactly equal probability $\frac{1}{N}$.
 
 ---
 
-## 2. Sovereign-V3.5 Protocol (Vault Encryption)
+## 2. Sovereign-V4 Protocol (Vault Encryption)
 
 ### 2.1. Argon2id Key Derivation
 To protect the vault against GPU brute-force, we use memory-hard derivation.
@@ -64,12 +64,12 @@ $$
 *   $P$: User Password (UTF-8).
 *   $S$: 16-byte Random Salt.
 *   $t$: 3 Iterations.
-*   $m$: 64 MiB ($2^{16}$ KB).
-*   $p$: 1 Parallelism.
+*   $m$: 128 MiB ($2^{17}$ KB).
+*   $p$: 4 Parallelism.
 *   $K_{master}$: 32-byte (256-bit) AES Key.
 
-### 2.2. Deterministic Framing (Traffic Analysis Resistance)
-The plaintext JSON $J$ is wrapped in a binary frame $F$ aligned to 64-byte blocks.
+### 2.2. Deterministic Framing & Random Padding (Traffic Analysis Resistance)
+The plaintext JSON $J$ is wrapped in a binary frame $F$ with a length prefix and random padding to obscure the exact payload size.
 
 $$
 Len = \text{ByteLength}(J)
@@ -81,17 +81,17 @@ $$
 Total = 4 + Len
 $$
 $$
-Pad_{bytes} = (64 - (Total \pmod{64})) \pmod{64}
+Pad_{bytes} = \text{RandomInteger}(256, 2048)
 $$
 $$
-F = Header \parallel J \parallel \text{Zeros}(Pad_{bytes})
+F = Header \parallel J \parallel \text{RandomBytes}(Pad_{bytes})
 $$
 
 ### 2.3. Authenticated Encryption
 $$
 C, Tag = \text{AES-GCM}(K_{master}, IV, F)
 $$
-*   $IV$: 12-byte Random Initialization Vector.
+*   $IV$: 12-byte Deterministic/Counter-based Nonce (Guarantees uniqueness).
 *   $Tag$: 16-byte GCM Authentication Tag.
 
 ---
@@ -101,7 +101,7 @@ $$
 We use Shamir's Secret Sharing over a Prime Field $\mathbb{F}_p$.
 
 ### 3.1. The Field
-We use the secp256k1 order prime to prevent geometric attacks and ensure large keyspace coverage.
+We use a 256-bit prime field to ensure large keyspace coverage.
 
 $$
 p = 2^{256} - 2^{32} - 977

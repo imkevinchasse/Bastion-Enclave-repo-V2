@@ -137,8 +137,8 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
         {/* Shared Dynamic Background */}
         <div className="fixed inset-0 z-0 pointer-events-none">
             <div className="absolute inset-0 bg-grid opacity-20"></div>
-            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-blue-900/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-indigo-900/10 rounded-full blur-[100px]"></div>
+            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-blue-900/10 rounded-none blur-[120px] animate-pulse"></div>
+            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-amber-900/10 rounded-none blur-[100px]"></div>
             <div className="absolute inset-0 opacity-30" style={{background: 'radial-gradient(circle at center, transparent 0%, #020617 100%)'}}></div>
         </div>
 
@@ -148,14 +148,18 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
         <div className="relative z-10 flex-1 w-full max-w-6xl mx-auto p-6 pt-32 pb-12">
             
             {/* Page Hero */}
-            <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4">
-                <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]">
+            <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 relative">
+                <div className="absolute inset-0 -z-10 overflow-hidden rounded-3xl border border-white/5 opacity-30">
+                    <img src="https://picsum.photos/seed/cyberdocs/1200/400?blur=4" alt="Documents Background" referrerPolicy="no-referrer" className="w-full h-full object-cover mix-blend-luminosity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
+                </div>
+                <div className="w-16 h-16 bg-blue-500/10 rounded-none flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)] mt-8">
                     <BookOpen size={32} className="text-blue-400" />
                 </div>
                 <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
                     Strategic Intelligence
                 </h1>
-                <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed pb-8">
                     Research, case studies, and agent capabilities defining the future of sovereign identity.
                 </p>
             </div>
@@ -165,17 +169,17 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                 {DOCUMENTS.map((doc, index) => (
                     <div 
                         key={doc.id}
-                        className={`group relative overflow-hidden rounded-3xl border transition-all duration-300 ${doc.featured ? 'bg-slate-900/60 border-indigo-500/30 shadow-2xl shadow-indigo-500/10' : 'bg-slate-900/40 border-white/5 hover:border-white/10'}`}
+                        className={`group relative overflow-hidden rounded-none border transition-all duration-300 ${doc.featured ? 'bg-slate-900/60 border-amber-500/30 shadow-2xl shadow-amber-500/10' : 'bg-slate-900/40 border-white/5 hover:border-white/10'}`}
                     >
                          {/* Featured Highlight */}
                          {doc.featured && (
-                             <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                             <div className="absolute top-0 right-0 p-32 bg-amber-500/10 rounded-none blur-3xl -translate-y-1/2 translate-x-1/3"></div>
                          )}
 
                          <div className="flex flex-col md:flex-row gap-8 p-8 md:p-10 relative z-10">
                              {/* Icon Column */}
                              <div className="shrink-0">
-                                 <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border shadow-inner ${doc.featured ? 'bg-slate-800 border-white/10' : 'bg-slate-950 border-white/5'}`}>
+                                 <div className={`w-20 h-20 rounded-none flex items-center justify-center border shadow-inner ${doc.featured ? 'bg-slate-800 border-white/10' : 'bg-slate-950 border-white/5'}`}>
                                      {doc.icon}
                                  </div>
                              </div>
@@ -183,14 +187,14 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                              {/* Content Column */}
                              <div className="flex-1 space-y-4">
                                  <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest">
-                                     <span className={`px-3 py-1 rounded-full ${doc.featured ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                                     <span className={`px-3 py-1 rounded-none ${doc.featured ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
                                          {doc.type}
                                      </span>
                                      <span className="text-slate-500">• {doc.date}</span>
                                      {doc.featured && <span className="text-emerald-400 flex items-center gap-1"><Network size={10}/> MOLTBOOK READY</span>}
                                  </div>
 
-                                 <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight group-hover:text-indigo-200 transition-colors">
+                                 <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight group-hover:text-amber-200 transition-colors">
                                      {doc.title}
                                  </h2>
 
@@ -215,9 +219,9 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Submission CTA */}
-            <div className="mt-16 p-8 rounded-3xl bg-slate-900/30 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="mt-16 p-8 rounded-none bg-slate-900/30 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
-                    <div className="p-4 bg-slate-800 rounded-full">
+                    <div className="p-4 bg-slate-800 rounded-none">
                         <Fingerprint size={24} className="text-slate-400" />
                     </div>
                     <div>
@@ -229,7 +233,7 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                     href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-none bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
                 >
                     <Github size={18} /> Submit Issue / Code
                 </a>
@@ -240,12 +244,12 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
         {viewingDoc && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                 <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md animate-in fade-in" onClick={() => setViewingDoc(null)}></div>
-                <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-4xl h-[85vh] relative z-10 flex flex-col shadow-2xl animate-in zoom-in-95">
+                <div className="bg-slate-900 border border-white/10 rounded-none w-full max-w-4xl h-[85vh] relative z-10 flex flex-col shadow-2xl animate-in zoom-in-95">
                     
                     {/* Modal Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-white/5 bg-slate-950/50 rounded-t-2xl">
+                    <div className="flex items-center justify-between p-6 border-b border-white/5 bg-slate-950/50 rounded-none">
                         <div className="flex items-center gap-4">
-                            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 border border-indigo-500/20">
+                            <div className="p-2 bg-amber-500/10 rounded-none text-amber-400 border border-amber-500/20">
                                 <Bot size={20} />
                             </div>
                             <div>
@@ -255,14 +259,14 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => setViewingDoc(null)} className="p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                        <button onClick={() => setViewingDoc(null)} className="p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-none transition-colors">
                             <X size={20} />
                         </button>
                     </div>
 
                     {/* Modal Content */}
                     <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                        <div id="openclaw-readme" className="prose prose-invert prose-indigo max-w-none">
+                        <div id="openclaw-readme" className="prose prose-invert prose-amber max-w-none">
                             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-300">
                                 {viewingDoc.content}
                             </pre>
@@ -270,7 +274,7 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ onNavigate }) => {
                     </div>
 
                     {/* Modal Footer */}
-                    <div className="p-4 bg-slate-950/50 border-t border-white/5 rounded-b-2xl flex justify-between items-center text-xs text-slate-500 font-mono">
+                    <div className="p-4 bg-slate-950/50 border-t border-white/5 rounded-none flex justify-between items-center text-xs text-slate-500 font-mono">
                         <div>ALIGNMENT_HASH: VALID</div>
                         <div className="flex gap-4">
                             <span className="flex items-center gap-1 text-emerald-400"><Share2 size={10} /> MOLTBOOK_COMPATIBLE</span>

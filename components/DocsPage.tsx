@@ -44,15 +44,15 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <NavButton active={activeSection === 'changelog'} onClick={() => setActiveSection('changelog')} icon={<History size={16}/>} label="Changelog" />
                 </div>
 
-                <div className="p-4 bg-indigo-900/10 rounded-xl border border-indigo-500/20 mt-8">
-                    <h4 className="font-bold text-indigo-400 text-sm mb-2">Status: Operational</h4>
-                    <p className="text-xs text-indigo-200/80">Version 3.5.0<br/>Protocol: V3.5 (Active)</p>
+                <div className="p-4 bg-amber-900/10 rounded-none border border-amber-500/20 mt-8">
+                    <h4 className="font-bold text-amber-400 text-sm mb-2">Status: Operational</h4>
+                    <p className="text-xs text-amber-200/80">Version 4.0.0<br/>Protocol: V4 (Active)</p>
                 </div>
             </aside>
 
             {/* MAIN CONTENT AREA */}
-            <main className="flex-1 bg-slate-900/30 rounded-2xl border border-white/5 p-8 min-h-[80vh] relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-32 bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <main className="flex-1 bg-slate-900/30 rounded-none border border-white/5 p-8 min-h-[80vh] relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-32 bg-amber-500/5 rounded-none blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 {activeSection === 'intro' && <IntroContent />}
                 {activeSection === 'start' && <StartContent setSection={setActiveSection} />}
@@ -155,7 +155,7 @@ curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2
 const AgentContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <div className="flex justify-between items-start">
-            <Header icon={<Bot size={32} className="text-pink-400"/>} title="Agent Directive: V3.5" />
+            <Header icon={<Bot size={32} className="text-pink-400"/>} title="Agent Directive: V4" />
             <a href="/skill.md" target="_blank" rel="noopener noreferrer">
                 <Button size="sm" variant="secondary" className="border-pink-500/30 hover:bg-pink-500/20 text-pink-300">
                     <FileText size={14} /> Download skill.md
@@ -163,9 +163,9 @@ const AgentContent = () => (
             </a>
         </div>
         
-        <div className="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="bg-slate-900 border border-white/10 rounded-none overflow-hidden shadow-2xl">
             <div className="bg-black p-6 overflow-x-auto custom-scrollbar">
-                <div className="prose prose-invert prose-indigo max-w-none">
+                <div className="prose prose-invert prose-amber max-w-none">
                     <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-300">
                         {AGENT_SKILL_CONTENT}
                     </pre>
@@ -177,7 +177,7 @@ const AgentContent = () => (
 
 const IntroContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-        <Header icon={<Shield size={32} className="text-indigo-400"/>} title="Welcome to Bastion Enclave" />
+        <Header icon={<Shield size={32} className="text-amber-400"/>} title="Welcome to Bastion Enclave" />
         <p className="text-lg text-slate-300 leading-relaxed">
             Bastion Enclave is a <strong>Sovereign Digital Enclave</strong>. It is designed for individuals who do not trust cloud providers with their most sensitive data. 
             Unlike traditional password managers that store your secrets on a central server, Bastion Enclave keeps everything 
@@ -203,7 +203,7 @@ const StartContent = ({ setSection }: { setSection: (s: DocSection) => void }) =
         <Header icon={<Fingerprint size={32} className="text-emerald-400"/>} title="Getting Started" />
         
         {/* Agent Shortcut */}
-        <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl flex items-center justify-between">
+        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-none flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Bot size={24} className="text-pink-400" />
                 <div>
@@ -231,7 +231,7 @@ const StartContent = ({ setSection }: { setSection: (s: DocSection) => void }) =
 const RecoveryContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<FileKey size={32} className="text-blue-400"/>} title="Backup & Recovery" />
-        <div className="p-6 bg-red-900/10 border border-red-500/20 rounded-2xl">
+        <div className="p-6 bg-red-900/10 border border-red-500/20 rounded-none">
             <h3 className="font-bold text-red-400 mb-2 flex items-center gap-2"><AlertTriangle size={18} /> Critical Warning</h3>
             <p className="text-sm text-red-200/80 mb-4">
                 There is no "Forgot Password" link. If you lose your Master Password AND your Backup File, your data is mathematically unrecoverable.
@@ -252,7 +252,7 @@ const RecoveryContent = () => (
 const ChaosContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<RefreshCw size={32} className="text-violet-400"/>} title="Chaos Engine™" />
-        <div className="bg-slate-900/50 rounded-2xl border border-white/5 overflow-hidden">
+        <div className="bg-slate-900/50 rounded-none border border-white/5 overflow-hidden">
             <div className="p-6">
                 <h3 className="font-bold text-white text-lg mb-2">The Concept</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
@@ -261,13 +261,13 @@ const ChaosContent = () => (
                     <br/><br/>
                     Think of it like a mathematical recipe: 
                     <br/>
-                    <code className="text-indigo-300">Master Key + "Netflix" + "my@email.com" = "Xy7#b9..."</code>
+                    <code className="text-amber-300">Master Key + "Netflix" + "my@email.com" = "Xy7#b9..."</code>
                     <br/><br/>
                     Every time you need the password, we re-run the recipe. This means there is no password database to steal.
                 </p>
             </div>
             <div className="p-6 bg-black/20 border-t border-white/5">
-                <h3 className="font-bold text-indigo-400 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="font-bold text-amber-400 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
                     <Terminal size={14}/> Technical Specification (v2.8)
                 </h3>
                 <ul className="space-y-3 text-sm text-slate-500 font-mono">
@@ -302,7 +302,7 @@ const BreachContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<ShieldAlert size={32} className="text-red-400"/>} title="Vault Breach Scanner" />
         
-        <div className="p-6 bg-slate-800/50 rounded-xl border border-white/5">
+        <div className="p-6 bg-slate-800/50 rounded-none border border-white/5">
             <h3 className="font-bold text-white mb-4">Active Breach Defense</h3>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
                 Available exclusively within your secured vault, the Breach Scanner allows you to audit stored credentials against known data breaches (powered by HIBP). 
@@ -312,18 +312,18 @@ const BreachContent = () => (
             
             <h3 className="font-bold text-white mb-4 mt-8">k-Anonymity Protocol</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-900 p-4 rounded-lg border border-white/5">
-                    <div className="text-indigo-400 font-bold text-xs uppercase mb-2">Step 1</div>
+                <div className="bg-slate-900 p-4 rounded-none border border-white/5">
+                    <div className="text-amber-400 font-bold text-xs uppercase mb-2">Step 1</div>
                     <div className="text-white text-sm mb-1">Local Hashing</div>
                     <div className="text-slate-500 text-xs">Your browser computes the SHA-1 hash of your password.</div>
                 </div>
-                <div className="bg-slate-900 p-4 rounded-lg border border-white/5">
-                    <div className="text-indigo-400 font-bold text-xs uppercase mb-2">Step 2</div>
+                <div className="bg-slate-900 p-4 rounded-none border border-white/5">
+                    <div className="text-amber-400 font-bold text-xs uppercase mb-2">Step 2</div>
                     <div className="text-white text-sm mb-1">Prefix Query</div>
                     <div className="text-slate-500 text-xs">We send only the first 5 characters of the hash to the API.</div>
                 </div>
-                <div className="bg-slate-900 p-4 rounded-lg border border-white/5">
-                    <div className="text-indigo-400 font-bold text-xs uppercase mb-2">Step 3</div>
+                <div className="bg-slate-900 p-4 rounded-none border border-white/5">
+                    <div className="text-amber-400 font-bold text-xs uppercase mb-2">Step 3</div>
                     <div className="text-white text-sm mb-1">Local Match</div>
                     <div className="text-slate-500 text-xs">The API returns hundreds of partial matches. Your browser finds the needle in the haystack locally.</div>
                 </div>
@@ -349,7 +349,7 @@ const JavaContent = () => {
                     The <strong>Reference Implementation</strong> for offline agents. This single-file Java application runs anywhere, has zero external dependencies, and supports a full interactive CLI mode for headless operation.
                 </p>
 
-                <div className="bg-black rounded-xl border border-white/10 overflow-hidden font-mono text-sm shadow-xl">
+                <div className="bg-black rounded-none border border-white/10 overflow-hidden font-mono text-sm shadow-xl">
                     <div className="bg-slate-900 px-4 py-2 border-b border-white/5 flex items-center gap-2 text-slate-500">
                         <Terminal size={14} /> bash
                     </div>
@@ -375,11 +375,11 @@ const ChangelogContent = () => (
         <Header icon={<History size={32} className="text-slate-400"/>} title="Protocol Changelog" />
         
         <div className="space-y-8">
-            {/* V3.5 */}
-            <div className="relative border-l-2 border-indigo-500 pl-6 pb-2">
-                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 border-4 border-slate-950"></div>
+            {/* V4 */}
+            <div className="relative border-l-2 border-amber-500 pl-6 pb-2">
+                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-none bg-amber-500 border-4 border-slate-950"></div>
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-3">
-                    Bastion Protocol V3.5 <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">STABLE</span>
+                    Bastion Protocol V4 <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-none border border-amber-500/30">STABLE</span>
                 </h3>
                 <div className="text-xs text-slate-500 font-mono mb-4">Epoch: 2026-01-30 • Scope: Serialization & Format Discipline</div>
 
@@ -400,14 +400,14 @@ const ChangelogContent = () => (
 // --- HELPER COMPONENTS ---
 
 const NavButton = ({active, onClick, icon, label}: {active: boolean, onClick: () => void, icon: React.ReactNode, label: string}) => (
-    <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 w-full rounded-lg text-sm font-medium transition-all ${active ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'}`}>
+    <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 w-full rounded-none text-sm font-medium transition-all ${active ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'}`}>
         {icon} {label}
     </button>
 );
 
 const Header = ({ icon, title }: { icon: React.ReactNode, title: string }) => (
     <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-        <div className="p-3 bg-slate-900 rounded-xl border border-white/10">
+        <div className="p-3 bg-slate-900 rounded-none border border-white/10">
             {icon}
         </div>
         <h2 className="text-3xl font-bold text-white tracking-tight">{title}</h2>
@@ -415,9 +415,9 @@ const Header = ({ icon, title }: { icon: React.ReactNode, title: string }) => (
 );
 
 const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => (
-    <div className="bg-slate-900/50 p-6 rounded-xl border border-white/5">
+    <div className="bg-slate-900/50 p-6 rounded-none border border-white/5">
         <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-slate-800 rounded-lg">
+            <div className="p-2 bg-slate-800 rounded-none">
                 {icon}
             </div>
             <h3 className="font-bold text-white">{title}</h3>
@@ -429,10 +429,10 @@ const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: stri
 const Step = ({ number, title, children }: { number: number, title: string, children?: React.ReactNode }) => (
     <div className="flex gap-4">
         <div className="flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
+            <div className="w-8 h-8 rounded-none bg-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-amber-500/20">
                 {number}
             </div>
-            <div className="w-px h-full bg-indigo-500/20 my-2"></div>
+            <div className="w-px h-full bg-amber-500/20 my-2"></div>
         </div>
         <div className="pb-8">
             <h4 className="text-white font-bold mb-2 text-lg">{title}</h4>
@@ -455,7 +455,7 @@ const CopyButton = ({ text }: { text: string }) => {
     return (
         <button 
             onClick={handleCopy}
-            className="p-1.5 text-slate-500 hover:text-white transition-colors ml-auto bg-slate-900 rounded-lg border border-white/10"
+            className="p-1.5 text-slate-500 hover:text-white transition-colors ml-auto bg-slate-900 rounded-none border border-white/10"
             title="Copy to clipboard"
         >
             {copied ? <CheckCircle size={14} className="text-emerald-500" /> : <Copy size={14} />}

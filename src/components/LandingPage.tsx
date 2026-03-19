@@ -17,25 +17,25 @@ const DEMO_STAGES = {
         icon: <FileJson size={20} />,
         label: 'Raw Input',
         desc: 'Plaintext JSON object in volatile RAM',
-        color: 'text-indigo-400',
-        borderColor: 'border-indigo-500',
-        bg: 'bg-indigo-500/10',
+        color: 'text-amber-400',
+        borderColor: 'border-amber-500',
+        bg: 'bg-amber-500/10',
         code: `{
   "id": "vault_entry_8f92a",
   "service": "github.com",
   "username": "developer@bastion.os",
   "password": "correct-horse-battery-staple",
-  "protocol": "SOVEREIGN_V3"
+  "protocol": "SOVEREIGN_V4"
 }`
     },
     'process': {
         icon: <Binary size={20} />,
         label: 'Argon2id Transmutation',
-        desc: 'Memory-Hard Key Derivation (V3 Standard)',
+        desc: 'Memory-Hard Key Derivation (V4 Standard)',
         color: 'text-emerald-400',
         borderColor: 'border-emerald-500',
         bg: 'bg-emerald-500/10',
-        code: `// Sovereign-V3: Anti-ASIC Hardening
+        code: `// Sovereign-V4: Anti-ASIC Hardening
 const masterKey = await argon2id({
   password: userInput,
   salt: randomBytes(16),
@@ -79,7 +79,7 @@ while (out.length < length) {
 [0x42, 0x53, 0x54, 0x4E, 0x03]
 
 // Payload (AES-256-GCM)
-IV:  [12 bytes random]
+IV:  [12 bytes unique nonce]
 TAG: [16 bytes auth]
 CIPHER: [Encrypted Data]
 
@@ -114,8 +114,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         {/* Dynamic Space Background */}
         <div className="fixed inset-0 z-0 pointer-events-none">
             <div className="absolute inset-0 bg-grid opacity-20"></div>
-            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-indigo-900/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-emerald-900/10 rounded-full blur-[100px]"></div>
+            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-amber-900/10 rounded-none blur-[120px] animate-pulse"></div>
+            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-emerald-900/10 rounded-none blur-[100px]"></div>
             <div className="absolute inset-0 opacity-30" style={{background: 'radial-gradient(circle at center, transparent 0%, #020617 100%)'}}></div>
         </div>
 
@@ -126,14 +126,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 1. HERO SECTION */}
             <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
                 <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/50 border border-indigo-500/30 text-indigo-400 text-[10px] font-mono uppercase tracking-widest">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                        Protocol V3 Active
+                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-slate-900/50 border border-amber-500/30 text-amber-400 text-[10px] font-mono uppercase tracking-widest">
+                        <span className="w-1.5 h-1.5 rounded-none bg-amber-500 animate-pulse"></span>
+                        Protocol V4 Active
                     </div>
                     
                     <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1.1]">
                         The Cloud is Compromised. <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-emerald-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-violet-400 to-emerald-400">
                             Go Sovereign.
                         </span>
                     </h1>
@@ -155,10 +155,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000">
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full"></div>
-                        <BrandLogo size={320} animated={true} className="drop-shadow-[0_0_50px_rgba(99,102,241,0.3)] relative z-10" />
+                <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000 relative">
+                    <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(99,102,241,0.2)] group">
+                        <div className="absolute inset-0 bg-amber-500/20 blur-[80px] rounded-none z-0"></div>
+                        <img 
+                            src="https://picsum.photos/seed/cybervault/800/800?blur=2" 
+                            alt="Digital Vault" 
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover relative z-10 opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-20"></div>
+                        <div className="absolute inset-0 flex items-center justify-center z-30">
+                            <BrandLogo size={160} animated={true} className="drop-shadow-[0_0_30px_rgba(245,158,11,0.5)]" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,8 +181,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
             {/* 3. ARCHITECTURE & SECURITY */}
             <div className="max-w-7xl mx-auto px-6 py-24">
-                <div className="bg-slate-900 border border-white/10 rounded-3xl overflow-hidden relative">
-                    <div className="absolute top-0 right-0 p-32 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <div className="bg-slate-900 border border-white/10 rounded-none overflow-hidden relative">
+                    <div className="absolute top-0 right-0 p-32 bg-emerald-500/5 rounded-none blur-3xl"></div>
                     
                     <div className="grid lg:grid-cols-2 gap-12 p-8 lg:p-16 items-start">
                         <div className="space-y-8">
@@ -188,37 +197,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             <div className="flex flex-col gap-4">
                                 <button 
                                     onClick={() => setActiveStage('input')}
-                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'input' ? 'bg-indigo-500/10 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'input' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(99,102,241,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
                                 >
-                                    <div className={`p-3 rounded-lg ${activeStage === 'input' ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-none ${activeStage === 'input' ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
                                         <FileJson size={20}/>
                                     </div>
                                     <div>
                                         <h4 className={`font-bold ${activeStage === 'input' ? 'text-white' : 'text-slate-400'}`}>1. Volatile Input</h4>
                                         <p className="text-xs text-slate-500">Plaintext exists ONLY in RAM.</p>
                                     </div>
-                                    <ArrowRight className={`ml-auto ${activeStage === 'input' ? 'text-indigo-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                    <ArrowRight className={`ml-auto ${activeStage === 'input' ? 'text-amber-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
 
                                 <button 
                                     onClick={() => setActiveStage('process')}
-                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'process' ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'process' ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
                                 >
-                                    <div className={`p-3 rounded-lg ${activeStage === 'process' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-none ${activeStage === 'process' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
                                         <Zap size={20}/>
                                     </div>
                                     <div>
                                         <h4 className={`font-bold ${activeStage === 'process' ? 'text-white' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
-                                        <p className="text-xs text-slate-500">V3 Protocol: Memory-hard derivation.</p>
+                                        <p className="text-xs text-slate-500">V4 Protocol: Memory-hard derivation.</p>
                                     </div>
                                     <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-emerald-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
 
                                 <button 
                                     onClick={() => setActiveStage('chaos')}
-                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'chaos' ? 'bg-violet-500/10 border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'chaos' ? 'bg-violet-500/10 border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
                                 >
-                                    <div className={`p-3 rounded-lg ${activeStage === 'chaos' ? 'bg-violet-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-none ${activeStage === 'chaos' ? 'bg-violet-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
                                         <RefreshCw size={20}/>
                                     </div>
                                     <div>
@@ -230,9 +239,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                                 <button 
                                     onClick={() => setActiveStage('storage')}
-                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'storage' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'storage' ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'bg-slate-950 border-white/5 hover:border-white/20'}`}
                                 >
-                                    <div className={`p-3 rounded-lg ${activeStage === 'storage' ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-none ${activeStage === 'storage' ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
                                         <HardDrive size={20}/>
                                     </div>
                                     <div>
@@ -245,13 +254,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </div>
                         
                         {/* Interactive Code Display */}
-                        <div className="relative h-full min-h-[500px] flex flex-col bg-slate-950 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                        <div className="relative h-full min-h-[500px] flex flex-col bg-slate-950 rounded-none border border-white/10 overflow-hidden shadow-2xl">
                             {/* Window Header */}
                             <div className="flex items-center gap-2 px-4 py-3 bg-slate-900 border-b border-white/5">
                                 <div className="flex gap-1.5">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/50"></div>
+                                    <div className="w-3 h-3 rounded-none bg-red-500/20 border border-red-500/50"></div>
+                                    <div className="w-3 h-3 rounded-none bg-amber-500/20 border border-amber-500/50"></div>
+                                    <div className="w-3 h-3 rounded-none bg-emerald-500/20 border border-emerald-500/50"></div>
                                 </div>
                                 <div className="flex-1 text-center font-mono text-[10px] text-slate-500 uppercase">
                                     bastion_runtime_env
@@ -260,10 +269,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                             {/* Content */}
                             <div className="flex-1 p-6 font-mono text-sm overflow-auto custom-scrollbar relative">
-                                <div className={`absolute top-0 right-0 p-24 ${currentDemo.bg} blur-[80px] rounded-full opacity-20 transition-colors duration-500`}></div>
+                                <div className={`absolute top-0 right-0 p-24 ${currentDemo.bg} blur-[80px] rounded-none opacity-20 transition-colors duration-500`}></div>
                                 
                                 <div className="relative z-10 animate-in fade-in zoom-in-95 duration-300" key={activeStage}>
-                                    <div className={`inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full border ${currentDemo.borderColor} ${currentDemo.bg} ${currentDemo.color} text-xs font-bold uppercase tracking-wider`}>
+                                    <div className={`inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-none border ${currentDemo.borderColor} ${currentDemo.bg} ${currentDemo.color} text-xs font-bold uppercase tracking-wider`}>
                                         {currentDemo.icon} {currentDemo.label}
                                     </div>
                                     <div className="text-slate-500 mb-6 border-l-2 border-slate-800 pl-3 italic">
@@ -314,8 +323,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 5. COMPETITIVE LANDSCAPE */}
             <div className="max-w-7xl mx-auto px-6 py-24">
                 <div className="text-center mb-16 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/50 border border-white/10 text-slate-400 text-[10px] font-mono uppercase tracking-widest">
-                        <Database size={12} className="text-indigo-400" /> Architectural Audit
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-slate-900/50 border border-white/10 text-slate-400 text-[10px] font-mono uppercase tracking-widest">
+                        <Database size={12} className="text-amber-400" /> Architectural Audit
                     </div>
                     <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">The Sovereign Advantage</h2>
                     <p className="text-slate-400 max-w-2xl mx-auto text-lg">
@@ -327,7 +336,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     <div className="min-w-[1000px]">
                         <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 mb-4 px-4">
                             <div className="font-bold text-sm text-slate-500 uppercase tracking-wider py-4">Architecture</div>
-                            <div className="font-bold text-lg text-white py-2 flex flex-col items-center justify-center bg-indigo-600/20 border border-indigo-500/50 rounded-t-xl">
+                            <div className="font-bold text-lg text-white py-2 flex flex-col items-center justify-center bg-amber-600/20 border border-amber-500/50 rounded-none">
                                 <BrandLogo size={24} className="mb-2" />
                                 Bastion
                             </div>
@@ -339,11 +348,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                         <div className="space-y-2">
                             {COMPARISON_DATA.map((row, idx) => (
-                                <div key={idx} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 items-center p-4 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+                                <div key={idx} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 items-center p-4 rounded-none hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
                                     <div className="font-medium text-slate-300 text-sm">{row.feature}</div>
                                     
                                     {/* Bastion Column */}
-                                    <div className="text-center font-bold text-white text-xs bg-indigo-500/10 py-3 rounded-lg border border-indigo-500/20 shadow-[0_0_15px_-5px_rgba(99,102,241,0.2)]">
+                                    <div className="text-center font-bold text-white text-xs bg-amber-500/10 py-3 rounded-none border border-amber-500/20 shadow-[0_0_15px_-5px_rgba(99,102,241,0.2)]">
                                         {row.bastion}
                                     </div>
                                     
@@ -361,33 +370,51 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 6. INVESTOR CALLOUTS */}
             <div className="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
                 <div className="grid md:grid-cols-3 gap-8">
-                    <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
-                        <Anchor size={32} className="text-indigo-400 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-3">Anchored Data</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            Heavy files in the Locker are <strong>anchored</strong> to the specific device they were encrypted on. They do not sync automatically, preventing massive bandwidth usage or "surprise" downloads on mobile.
-                        </p>
+                    <div className="bg-slate-900/50 rounded-2xl border border-white/10 hover:border-amber-500/30 transition-colors overflow-hidden group">
+                        <div className="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/anchordata/600/400" alt="Anchored Data" referrerPolicy="no-referrer" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 mix-blend-luminosity group-hover:mix-blend-normal" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                            <Anchor size={32} className="text-amber-400 absolute bottom-4 left-6 drop-shadow-lg" />
+                        </div>
+                        <div className="p-6 pt-2">
+                            <h3 className="text-xl font-bold text-white mb-3">Anchored Data</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Heavy files in the Locker are <strong>anchored</strong> to the specific device they were encrypted on. They do not sync automatically, preventing massive bandwidth usage or "surprise" downloads on mobile.
+                            </p>
+                        </div>
                     </div>
-                    <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
-                        <Scaling size={32} className="text-violet-400 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-3">Edge AI Analysis</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            Our Neural Auditor runs via WebGPU on your local graphics card. We don't send your passwords to an AI server; we bring the AI model to you.
-                        </p>
+                    <div className="bg-slate-900/50 rounded-2xl border border-white/10 hover:border-violet-500/30 transition-colors overflow-hidden group">
+                        <div className="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/edgeai/600/400" alt="Edge AI" referrerPolicy="no-referrer" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 mix-blend-luminosity group-hover:mix-blend-normal" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                            <Scaling size={32} className="text-violet-400 absolute bottom-4 left-6 drop-shadow-lg" />
+                        </div>
+                        <div className="p-6 pt-2">
+                            <h3 className="text-xl font-bold text-white mb-3">Edge AI Analysis</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Our Neural Auditor runs via WebGPU on your local graphics card. We don't send your passwords to an AI server; we bring the AI model to you.
+                            </p>
+                        </div>
                     </div>
-                    <div className="bg-slate-900/50 p-8 rounded-2xl border border-white/10 hover:border-indigo-500/30 transition-colors">
-                        <Terminal size={32} className="text-emerald-400 mb-6" />
-                        <h3 className="text-xl font-bold text-white mb-3">Portable Identity</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            Your Identity (Passwords, Contacts, Notes, and File Keys) travels with your 5KB text backup. You can restore access on any device instantly, while heavy files remain on their origin device.
-                        </p>
+                    <div className="bg-slate-900/50 rounded-2xl border border-white/10 hover:border-emerald-500/30 transition-colors overflow-hidden group">
+                        <div className="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/portableid/600/400" alt="Portable Identity" referrerPolicy="no-referrer" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 mix-blend-luminosity group-hover:mix-blend-normal" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                            <Terminal size={32} className="text-emerald-400 absolute bottom-4 left-6 drop-shadow-lg" />
+                        </div>
+                        <div className="p-6 pt-2">
+                            <h3 className="text-xl font-bold text-white mb-3">Portable Identity</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed">
+                                Your Identity (Passwords, Contacts, Notes, and File Keys) travels with your 5KB text backup. You can restore access on any device instantly, while heavy files remain on their origin device.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* 7. CTA */}
             <div className="relative py-32 px-6 overflow-hidden">
-                <div className="absolute inset-0 bg-indigo-900/10"></div>
+                <div className="absolute inset-0 bg-amber-900/10"></div>
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950"></div>
                 
                 <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">

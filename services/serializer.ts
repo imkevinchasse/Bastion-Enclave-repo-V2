@@ -2,7 +2,7 @@
 import { VaultState } from "../types";
 
 /**
- * BASTION CANONICAL SERIALIZER (Protocol V3.5)
+ * BASTION CANONICAL SERIALIZER (Protocol V4)
  * 
  * Enforces "Deterministic-but-Unique" output signatures.
  * 1. Fields are serialized in a strict, non-alphabetical order.
@@ -78,21 +78,21 @@ export class BastionSerializer {
     }
 
     /**
-     * Wraps the JSON string in a binary frame with Deterministic Padding.
-     * Format: [LENGTH (4B LE)] + [JSON] + [PADDING (0x00...)]
-     * Total size aligned to 64 bytes.
+     * Wraps the JSON string in a binary frame with Random Padding.
+     * Format: [LENGTH (4B LE)] + [JSON] + [PADDING (Random bytes)]
+     * Mitigates traffic analysis by obscuring exact payload size.
      */
     static frame(json: string): Uint8Array {
         const encoder = new TextEncoder();
         const jsonBytes = encoder.encode(json);
         const len = jsonBytes.length;
         
-        // Calculate Padding
-        // Header (4) + Payload (len) + Padding (p) = Multiple of 64
-        const totalRaw = 4 + len;
-        const remainder = totalRaw % 64;
-        const paddingNeeded = remainder === 0 ? 0 : 64 - remainder;
+        // Calculate Random Padding (between 256 and 2048 bytes)
+        const minPadding = 256;
+        const maxPadding = 2048;
+        const paddingNeeded = Math.floor(Math.random() * (maxPadding - minPadding + 1)) + minPadding;
         
+        const totalRaw = 4 + len;
         const buffer = new Uint8Array(totalRaw + paddingNeeded);
         const view = new DataView(buffer.buffer);
         
@@ -102,9 +102,11 @@ export class BastionSerializer {
         // 2. Write Payload
         buffer.set(jsonBytes, 4);
         
-        // 3. Write Padding (Already 0x00 initialized by new Uint8Array)
+        // 3. Write Random Padding
         if (paddingNeeded > 0) {
-            buffer.fill(0, totalRaw, totalRaw + paddingNeeded);
+            const paddingBytes = new Uint8Array(paddingNeeded);
+            globalThis.crypto.getRandomValues(paddingBytes);
+            buffer.set(paddingBytes, totalRaw);
         }
         
         return buffer;

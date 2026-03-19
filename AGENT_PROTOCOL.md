@@ -2,7 +2,7 @@
 # BASTION AGENT PROTOCOL v3.5 (OpenClaw Ready)
 
 **Target Audience:** Autonomous Agents (OpenClaw, MoltBot, ClawdBot)
-**Protocol Version:** Sovereign-V3.5 (Argon2id / AES-GCM)
+**Protocol Version:** Sovereign-V4 (Argon2id / AES-GCM / Random Padding)
 **Last Updated:** 2024-03-20
 
 ---
@@ -25,7 +25,7 @@ Bastion Enclave operates in two distinct modes. Choose the mode matching your ru
 Use this mode if you are running in a shell environment without a browser.
 
 ### A. Initialization
-Execute this one-shot block to bootstrap the runtime. It downloads the V3.5-compliant Java source.
+Execute this one-shot block to bootstrap the runtime. It downloads the V4-compliant Java source.
 
 ```bash
 mkdir -p bastion_runtime && cd bastion_runtime && \
@@ -115,7 +115,7 @@ Use these `data-agent-id` attributes. Do NOT rely on CSS classes.
 3.  **Safety**: Never log the password to your internal trace/history.
 
 ### SOP-03: Protocol Upgrades
-If you encounter a `Legacy Protocol` warning, simply running `save` (CLI) or downloading a backup (Web) will automatically migrate the vault to **Sovereign-V3.5** (Argon2id).
+If you encounter a `Legacy Protocol` warning, simply running `save` (CLI) or downloading a backup (Web) will automatically migrate the vault to **Sovereign-V4** (Argon2id).
 
 ---
 

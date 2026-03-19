@@ -15,19 +15,19 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props 
 }) => {
-  const baseStyles = "relative rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group";
+  const baseStyles = "relative rounded-none font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group";
   
   const sizeStyles = {
-    sm: "px-3 py-1.5 text-sm",
+    sm: "px-3 py-1.5 text-xs",
     md: "px-5 py-2.5",
-    lg: "px-6 py-3 text-lg"
+    lg: "px-6 py-3 text-base"
   };
 
   const variants = {
-    primary: "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-[0_0_20px_-5px_rgba(79,70,229,0.5)] border border-white/10 hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.7)] hover:-translate-y-0.5",
-    secondary: "bg-slate-800/50 hover:bg-slate-800 text-slate-200 border border-slate-700/50 hover:border-slate-600 backdrop-blur-sm",
-    danger: "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40",
-    ghost: "bg-transparent hover:bg-white/5 text-slate-400 hover:text-white"
+    primary: "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]",
+    secondary: "bg-slate-800/50 hover:bg-slate-700/50 text-slate-200 border border-white/5 hover:border-white/10",
+    danger: "bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 hover:border-red-500/30",
+    ghost: "bg-transparent hover:bg-white/5 text-slate-400 hover:text-slate-200"
   };
 
   return (
@@ -36,11 +36,6 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || isLoading}
       {...props}
     >
-      {/* Shine effect on hover for primary */}
-      {variant === 'primary' && (
-        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent z-0" />
-      )}
-      
       <span className="relative z-10 flex items-center gap-2">
         {isLoading ? (
           <>

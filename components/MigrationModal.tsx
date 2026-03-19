@@ -13,16 +13,16 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onClick={() => {}} />
       
-      <div className="bg-slate-900 border border-indigo-500/50 rounded-2xl w-full max-w-2xl relative z-10 shadow-2xl shadow-indigo-500/20 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-slate-900 border border-amber-500/50 rounded-none w-full max-w-2xl relative z-10 shadow-2xl shadow-amber-500/20 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="bg-indigo-900/20 px-8 py-6 border-b border-indigo-500/20 flex items-start gap-4">
-            <div className="p-3 bg-indigo-500/20 rounded-xl border border-indigo-500/40 text-indigo-400">
+        <div className="bg-amber-900/20 px-8 py-6 border-b border-amber-500/20 flex items-start gap-4">
+            <div className="p-3 bg-amber-500/20 rounded-none border border-amber-500/40 text-amber-400">
                 <RefreshCw size={32} className="animate-[spin_3s_linear_infinite]" />
             </div>
             <div>
                 <h2 className="text-2xl font-bold text-white tracking-tight">Protocol Upgraded</h2>
-                <p className="text-indigo-200 text-sm mt-1">Your vault has been seamlessly migrated to Sovereign-V3.5.</p>
+                <p className="text-amber-200 text-sm mt-1">Your vault has been seamlessly migrated to Sovereign-V4.</p>
             </div>
         </div>
 
@@ -32,7 +32,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
             {/* The Benefit */}
             <div className="space-y-4">
                 <div className="flex gap-4">
-                    <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 h-fit"><ShieldCheck size={20}/></div>
+                    <div className="p-2 bg-emerald-500/10 rounded-none text-emerald-400 h-fit"><ShieldCheck size={20}/></div>
                     <div>
                         <h3 className="text-white font-bold text-sm">Traffic Analysis Resistance</h3>
                         <p className="text-slate-400 text-xs leading-relaxed mt-1">
@@ -43,7 +43,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
                 </div>
                 
                 <div className="flex gap-4">
-                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400 h-fit"><Binary size={20}/></div>
+                    <div className="p-2 bg-blue-500/10 rounded-none text-blue-400 h-fit"><Binary size={20}/></div>
                     <div>
                         <h3 className="text-white font-bold text-sm">Canonical Serialization</h3>
                         <p className="text-slate-400 text-xs leading-relaxed mt-1">
@@ -63,19 +63,19 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
                 
                 <div className="grid md:grid-cols-2 gap-4">
                     {/* Shard Warning */}
-                    <div className="bg-amber-950/20 border border-amber-500/20 p-4 rounded-xl">
+                    <div className="bg-amber-950/20 border border-amber-500/20 p-4 rounded-none">
                         <div className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
                             <Layers size={14} /> Shards Deprecated
                         </div>
                         <p className="text-slate-300 text-xs leading-relaxed mb-3">
-                            If you use Secret Shards, verify they are generated with the new V3 engine (Prime Field). 
-                            Legacy V1 shards are not compatible with V3.5 vaults.
+                            If you use Secret Shards, verify they are generated with the new V4 engine (Prime Field). 
+                            Legacy V1 shards are not compatible with V4 vaults.
                         </p>
                     </div>
 
                     {/* Backup Warning */}
-                    <div className="bg-slate-800/50 border border-white/10 p-4 rounded-xl">
-                        <div className="text-indigo-400 font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <div className="bg-slate-800/50 border border-white/10 p-4 rounded-none">
+                        <div className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
                             <Download size={14} /> Update Backup
                         </div>
                         <p className="text-slate-300 text-xs leading-relaxed mb-3">
@@ -90,9 +90,9 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
         {/* Footer */}
         <div className="p-6 bg-slate-950 border-t border-white/5 flex flex-col sm:flex-row justify-end gap-3">
             <Button variant="secondary" onClick={onDownloadBackup} className="w-full sm:w-auto">
-                <Download size={16} /> Download V3.5 Backup
+                <Download size={16} /> Download V4 Backup
             </Button>
-            <Button onClick={onDismiss} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500">
+            <Button onClick={onDismiss} className="w-full sm:w-auto bg-amber-600 hover:bg-amber-500">
                 I Understand <ArrowRight size={16} />
             </Button>
         </div>

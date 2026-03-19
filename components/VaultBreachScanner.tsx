@@ -131,9 +131,9 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
         </div>
 
         {/* Control Panel */}
-        <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+        <div className="bg-slate-900 border border-white/10 rounded-none p-6 relative overflow-hidden">
             {/* Background Pulse */}
-            {isScanning && <div className="absolute inset-0 bg-indigo-500/5 animate-pulse pointer-events-none"></div>}
+            {isScanning && <div className="absolute inset-0 bg-amber-500/5 animate-pulse pointer-events-none"></div>}
 
             <div className="flex flex-col md:flex-row gap-6 items-center relative z-10">
                 {/* Stats */}
@@ -142,14 +142,14 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
                         <span>Progress</span>
                         <span>{scannedCount} / {configs.length}</span>
                     </div>
-                    <div className="h-4 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                    <div className="h-4 bg-slate-800 rounded-none overflow-hidden border border-white/5">
                         <div 
-                            className={`h-full transition-all duration-300 ${isScanning ? 'bg-indigo-500' : 'bg-slate-600'}`} 
+                            className={`h-full transition-all duration-300 ${isScanning ? 'bg-amber-500' : 'bg-slate-600'}`} 
                             style={{width: `${progress}%`}}
                         ></div>
                     </div>
                     {isScanning ? (
-                        <div className="text-xs text-indigo-400 flex items-center gap-2 animate-pulse">
+                        <div className="text-xs text-amber-400 flex items-center gap-2 animate-pulse">
                             <Wifi size={12} /> Contacting k-Anonymity Relay...
                         </div>
                     ) : scanError ? (
@@ -181,7 +181,7 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     Scan Results 
-                    {results.length > 0 && <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{results.length} BREACHED</span>}
+                    {results.length > 0 && <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-none">{results.length} BREACHED</span>}
                 </h3>
                 {results.length > 0 && (
                     <div className="w-64">
@@ -196,7 +196,7 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
                 )}
             </div>
 
-            <div className="bg-slate-900/50 border border-white/5 rounded-2xl min-h-[300px] max-h-[500px] overflow-y-auto custom-scrollbar p-2">
+            <div className="bg-slate-900/50 border border-white/5 rounded-none min-h-[300px] max-h-[500px] overflow-y-auto custom-scrollbar p-2">
                 {scannedCount === 0 && results.length === 0 && !scanError ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-60 min-h-[280px]">
                         <Shield size={48} className="mb-4" />
@@ -206,9 +206,9 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
                 ) : filteredResults.length > 0 ? (
                     <div className="grid gap-3">
                         {filteredResults.map((res) => (
-                            <div key={res.configId} className="bg-red-950/20 border border-red-500/20 p-4 rounded-xl flex items-center justify-between hover:bg-red-950/30 transition-colors group">
+                            <div key={res.configId} className="bg-red-950/20 border border-red-500/20 p-4 rounded-none flex items-center justify-between hover:bg-red-950/30 transition-colors group">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+                                    <div className="w-10 h-10 rounded-none bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
                                         <AlertTriangle size={20} />
                                     </div>
                                     <div>
@@ -235,7 +235,7 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
                     </div>
                 ) : scannedCount > 0 && !isScanning && !scanError ? (
                     <div className="h-full flex flex-col items-center justify-center text-emerald-500 min-h-[280px]">
-                        <CheckCircle size={48} className="mb-4 shadow-[0_0_30px_rgba(16,185,129,0.4)] rounded-full" />
+                        <CheckCircle size={48} className="mb-4 shadow-[0_0_30px_rgba(16,185,129,0.4)] rounded-none" />
                         <h3 className="text-xl font-bold">All Clear</h3>
                         <p className="text-slate-400 text-sm mt-2">No breaches found in scanned credentials.</p>
                     </div>
@@ -247,7 +247,7 @@ export const VaultBreachScanner: React.FC<VaultBreachScannerProps> = ({ configs,
                     </div>
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-slate-500 min-h-[280px]">
-                        <Loader2 size={32} className="animate-spin mb-4 text-indigo-500" />
+                        <Loader2 size={32} className="animate-spin mb-4 text-amber-500" />
                         <p>Scanning...</p>
                     </div>
                 )}

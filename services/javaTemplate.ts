@@ -818,15 +818,17 @@ public class Bastion extends JFrame {
             cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LENGTH, iv));
             
             byte[] data = json.getBytes(StandardCharsets.UTF_8);
-            // Framing V3.5: [LEN 4B] [DATA] [PAD]
+            // Framing V4: [LEN 4B] [DATA] [PAD]
             int len = data.length;
+            int pad = 256 + new SecureRandom().nextInt(2048 - 256 + 1);
             int total = 4 + len;
-            int pad = (64 - (total % 64)) % 64;
             ByteBuffer buf = ByteBuffer.allocate(total + pad);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             buf.putInt(len);
             buf.put(data);
-            while(buf.hasRemaining()) buf.put((byte)0);
+            byte[] padBytes = new byte[pad];
+            new SecureRandom().nextBytes(padBytes);
+            buf.put(padBytes);
             
             byte[] ciphertext = cipher.doFinal(buf.array());
             

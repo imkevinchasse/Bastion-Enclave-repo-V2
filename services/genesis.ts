@@ -9,7 +9,7 @@ import { GenesisArtifact } from "../types";
  */
 
 // EPOCH CONFIGURATION
-const EPOCH_NAME = "V3.5_GENESIS";
+const EPOCH_NAME = "V4_GENESIS";
 // Set start date to roughly now (for demo purposes, assume launch was Jan 1 2024)
 // In a real scenario, this would be the actual release date.
 const EPOCH_START = new Date('2024-01-01T00:00:00Z').getTime(); 

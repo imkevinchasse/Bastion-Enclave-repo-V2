@@ -238,8 +238,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         
         {/* Simplified Auth UI logic remains the same, just handling new unpack return type internally */}
         <div className="fixed inset-0 z-0 pointer-events-none">
-            <div className="absolute inset-0 bg-grid opacity-20"></div>
-            <div className="absolute top-[20%] right-[10%] w-[60%] h-[60%] bg-indigo-900/10 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute inset-0 bg-grid opacity-[0.03]"></div>
+            <div className="absolute top-[20%] right-[10%] w-[60%] h-[60%] bg-amber-900/10 rounded-none blur-[120px] animate-pulse"></div>
         </div>
 
         <TopNav active="auth" onNavigate={onNavigate} />
@@ -247,47 +247,47 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full p-4 pt-24">
             
             <div className="w-full relative">
-                <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+                <div className="relative bg-slate-950/80 backdrop-blur-xl rounded-none border border-white/5 overflow-hidden shadow-2xl">
                     
                     {/* Integrity Banner */}
                     {integritySafe && (
-                        <div className="bg-emerald-900/10 border-b border-emerald-500/10 py-1.5 flex justify-center items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                        <div className="bg-emerald-950/50 border-b border-emerald-900/50 py-1.5 flex justify-center items-center gap-2 text-[10px] font-mono font-bold text-emerald-500 uppercase tracking-widest">
                             <ShieldCheck size={12} /> Execution Environment Verified
                         </div>
                     )}
 
-                    <div className="flex border-b border-white/5 bg-black/20">
+                    <div className="flex border-b border-white/5 bg-slate-900/30">
                         <button 
                             onClick={() => {setTab('open'); setError('');}}
                             data-agent-id="auth-tab-open"
-                            className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${tab === 'open' ? 'text-white bg-white/5' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex-1 py-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${tab === 'open' ? 'text-amber-400 bg-amber-500/5 border-b-2 border-amber-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                         >
                             <LogIn size={16} /> Unlock Vault
                         </button>
                         <button 
                             onClick={() => {setTab('create'); setError('');}}
                             data-agent-id="auth-tab-create"
-                            className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${tab === 'create' ? 'text-white bg-white/5' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex-1 py-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${tab === 'create' ? 'text-amber-400 bg-amber-500/5 border-b-2 border-amber-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                         >
                             <UserPlus size={16} /> Create New
                         </button>
                     </div>
 
-                    <div className="p-8">
-                        <button onClick={() => setShowHelp(!showHelp)} className="absolute top-20 right-4 text-slate-600 hover:text-white transition-colors">
-                            <HelpCircle size={18} />
+                    <div className="p-6">
+                        <button onClick={() => setShowHelp(!showHelp)} className="absolute top-16 right-4 text-slate-600 hover:text-amber-400 transition-colors">
+                            <HelpCircle size={16} />
                         </button>
 
                          {showHelp && (
                             <div className="absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md p-8 flex flex-col justify-center animate-in fade-in">
-                                <h3 className="font-bold text-white mb-4">About Bastion Enclave</h3>
-                                <ul className="space-y-3 text-sm text-slate-400">
-                                    <li>• <strong>Local Only:</strong> Data never leaves this device.</li>
-                                    <li>• <strong>No Cloud:</strong> We cannot reset your password.</li>
-                                    <li>• <strong>Backups:</strong> Download a backup file from the main menu.</li>
-                                    <li>• <strong>Dev Mode:</strong> Prefix password with <code>dev://</code> to initialize a Developer Vault (requires strong password).</li>
+                                <h3 className="font-mono font-bold text-amber-400 mb-4 uppercase tracking-wider text-sm">About Bastion Enclave</h3>
+                                <ul className="space-y-3 text-xs font-mono text-slate-400">
+                                    <li><span className="text-amber-500 mr-2">{'>'}</span><strong>Local Only:</strong> Data never leaves this device.</li>
+                                    <li><span className="text-amber-500 mr-2">{'>'}</span><strong>No Cloud:</strong> We cannot reset your password.</li>
+                                    <li><span className="text-amber-500 mr-2">{'>'}</span><strong>Backups:</strong> Download a backup file from the main menu.</li>
+                                    <li><span className="text-amber-500 mr-2">{'>'}</span><strong>Dev Mode:</strong> Prefix password with <code>dev://</code> to initialize a Developer Vault.</li>
                                 </ul>
-                                <Button size="sm" variant="secondary" onClick={() => setShowHelp(false)} className="mt-6 w-full">Got it</Button>
+                                <Button size="sm" variant="secondary" onClick={() => setShowHelp(false)} className="mt-6 w-full">Acknowledge</Button>
                             </div>
                         )}
 
@@ -295,46 +295,46 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                             <form onSubmit={handleOpen} className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                 <div className="text-center">
                                     {localVaultFound ? (
-                                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/10 text-indigo-400 mb-4 ring-1 ring-indigo-500/30">
-                                             <HardDrive size={28} />
+                                         <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-amber-500/10 text-amber-400 mb-4 border border-amber-500/20">
+                                             <HardDrive size={24} />
                                          </div>
                                     ) : (
-                                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 text-slate-500 mb-4">
-                                             <Scan size={28} />
+                                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-slate-900 border border-white/5 text-slate-500 mb-4">
+                                             <Scan size={24} />
                                          </div>
                                     )}
-                                    <h2 className="text-xl font-bold text-white">
+                                    <h2 className="text-xl font-semibold text-slate-200 tracking-tight">
                                         {localVaultFound ? 'Decrypt Vault' : 'Restore Vault'}
                                     </h2>
                                 </div>
 
                                 {!localVaultFound && (
                                     <>
-                                        <div className="bg-slate-800/40 p-4 rounded-xl border border-white/5 text-left animate-in slide-in-from-top-2">
-                                            <div className="flex items-center gap-2 text-indigo-300 font-bold text-xs uppercase tracking-wider mb-2">
-                                                <Info size={14} /> Recovery Options
+                                        <div className="bg-slate-900/50 p-4 rounded-none border border-white/5 text-left animate-in slide-in-from-top-2">
+                                            <div className="flex items-center gap-2 text-amber-400 font-mono font-bold text-[10px] uppercase tracking-wider mb-2">
+                                                <Info size={12} /> Recovery Options
                                             </div>
                                             <p className="text-xs text-slate-400 leading-relaxed">
-                                                <span className="text-indigo-400 font-bold">A:</span> Drag & drop your <strong>Backup File</strong> to restore your vault.<br/>
-                                                <span className="text-emerald-400 font-bold">B:</span> Paste your <strong>Master Seed</strong> to recover your vault.
+                                                <span className="text-amber-500 font-medium">A:</span> Drag & drop your <strong>Backup File</strong> to restore your vault.<br/>
+                                                <span className="text-emerald-500 font-medium">B:</span> Paste your <strong>Master Seed</strong> to recover your vault.
                                             </p>
                                         </div>
 
                                         <div 
-                                            className={`relative border-2 border-dashed rounded-xl transition-all group overflow-hidden ${
-                                                isDragging ? 'border-indigo-500 bg-indigo-500/10' : 
-                                                isSeed ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.2)]' :
-                                                isBackup ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_30px_rgba(99,102,241,0.2)]' :
-                                                'border-slate-700 hover:border-indigo-500/50 hover:bg-white/5 focus-within:border-indigo-500/50 focus-within:bg-white/5'
+                                            className={`relative border border-dashed rounded-none transition-all group overflow-hidden ${
+                                                isDragging ? 'border-amber-500 bg-amber-500/10' : 
+                                                isSeed ? 'border-emerald-500 bg-emerald-500/10' :
+                                                isBackup ? 'border-amber-500 bg-amber-500/10' :
+                                                'border-white/10 hover:border-amber-500/50 hover:bg-slate-900/50 focus-within:border-amber-500/50 focus-within:bg-slate-900/50'
                                             }`}
                                         >
                                             {!blob && (
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-4 opacity-50 group-focus-within:opacity-20 transition-opacity">
                                                     <div className="flex gap-3 text-slate-500 mb-2">
-                                                        <FileText size={20} />
-                                                        <Fingerprint size={20} />
+                                                        <FileText size={16} />
+                                                        <Fingerprint size={16} />
                                                     </div>
-                                                    <p className="text-xs font-bold text-slate-500 uppercase text-center">Drag Backup File<br/><span className="text-[10px] font-normal normal-case opacity-70">or paste Master Seed</span></p>
+                                                    <p className="text-[10px] font-mono font-bold text-slate-500 uppercase text-center tracking-wider">Drag Backup File<br/><span className="text-[9px] font-normal opacity-70">or paste Master Seed</span></p>
                                                 </div>
                                             )}
                                             
@@ -350,11 +350,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                             />
                                             
                                             {(isSeed || isBackup) && (
-                                                <div className="absolute bottom-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 bg-slate-900/80 backdrop-blur border border-white/10 shadow-lg z-20">
+                                                <div className="absolute bottom-2 right-2 px-2 py-1 rounded-none text-[9px] font-mono font-bold uppercase tracking-widest flex items-center gap-1 bg-slate-950 border border-white/5 z-20">
                                                     {isSeed ? (
-                                                        <span className="text-emerald-400 flex items-center gap-1"><Fingerprint size={10} /> VALID SEED</span>
+                                                        <span className="text-emerald-500 flex items-center gap-1"><Fingerprint size={10} /> VALID SEED</span>
                                                     ) : (
-                                                        <span className="text-indigo-400 flex items-center gap-1"><FileText size={10} /> BACKUP FILE</span>
+                                                        <span className="text-amber-500 flex items-center gap-1"><FileText size={10} /> BACKUP FILE</span>
                                                     )}
                                                 </div>
                                             )}
@@ -364,7 +364,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Master Password</label>
+                                        <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">Master Password</label>
                                         <div className="relative">
                                             <Input 
                                                 data-agent-id="auth-master-password"
@@ -378,28 +378,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                             <button 
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-amber-400"
                                             >
-                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                             </button>
                                         </div>
                                     </div>
 
                                     {error && (
-                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-400 text-xs font-bold">
-                                            <ShieldAlert size={14} /> {error}
+                                        <div className="p-3 bg-red-950/50 border border-red-900/50 rounded-none flex items-center gap-2 text-red-500 text-[10px] font-mono font-bold uppercase tracking-wider">
+                                            <ShieldAlert size={12} /> {error}
                                         </div>
                                     )}
 
                                     {showClearConfirm ? (
-                                        <div className="p-4 bg-red-950/30 border border-red-500/30 rounded-xl animate-in fade-in slide-in-from-bottom-2">
-                                            <div className="text-red-400 text-xs font-bold text-center mb-3">
+                                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-none animate-in fade-in slide-in-from-bottom-2">
+                                            <div className="text-red-500 text-xs font-semibold text-center mb-3">
                                                 Remove local vault from this device?
-                                                <div className="text-[10px] opacity-70 font-normal mt-1 text-slate-400">Ensure you have a backup. This cannot be undone.</div>
+                                                <div className="text-xs font-normal mt-1 text-slate-400">Ensure you have a backup. This cannot be undone.</div>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button type="button" variant="ghost" onClick={() => setShowClearConfirm(false)} className="flex-1 h-9 text-xs border border-white/5 bg-slate-900">Cancel</Button>
-                                                <Button type="button" variant="danger" onClick={confirmClearLocalVault} className="flex-1 h-9 text-xs">Yes, Remove</Button>
+                                                <Button type="button" variant="ghost" onClick={() => setShowClearConfirm(false)} className="flex-1 h-10">Cancel</Button>
+                                                <Button type="button" variant="danger" onClick={confirmClearLocalVault} className="flex-1 h-10">Yes, Remove</Button>
                                             </div>
                                         </div>
                                     ) : (
@@ -408,13 +408,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                                 <button 
                                                     type="button" 
                                                     onClick={() => setShowClearConfirm(true)}
-                                                    className="p-3 rounded-xl border border-white/10 text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                                    className="p-2.5 rounded-none border border-white/5 bg-slate-900/50 text-slate-500 hover:text-red-500 hover:border-red-500/30 transition-colors"
                                                     title="Clear local data"
                                                 >
                                                     <Trash2 size={20} />
                                                 </button>
                                             )}
-                                            <Button type="submit" data-agent-id="auth-unlock-btn" className={`w-full h-12 text-lg shadow-lg ${isSeed ? 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500' : 'shadow-indigo-500/20'}`} isLoading={loading}>
+                                            <Button type="submit" data-agent-id="auth-unlock-btn" className="w-full h-11" isLoading={loading}>
                                                 {isSeed ? 'Recover Vault' : 'Unlock Vault'}
                                             </Button>
                                         </div>
@@ -424,17 +424,17 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                         ) : (
                             <form onSubmit={handleCreate} className="space-y-6 animate-in fade-in slide-in-from-left-4">
                                 <div className="text-center mb-6">
-                                    <h2 className="text-xl font-bold text-white">Create New Vault</h2>
-                                    <p className="text-slate-400 text-sm mt-2">
+                                    <h2 className="text-xl font-semibold text-slate-200 tracking-tight">Create New Vault</h2>
+                                    <p className="text-slate-400 text-sm mt-2 leading-relaxed">
                                         Everything is encrypted locally. <br/>
-                                        <span className="text-amber-400/80 text-xs">If you forget this password, your data is lost forever.</span>
+                                        <span className="text-amber-500">If you forget this password, your data is lost forever.</span>
                                     </p>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                    <label className="flex justify-between items-center text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
                                         <span>Master Password</span>
-                                        <button type="button" onClick={handleRegeneratePassword} className="text-indigo-400 hover:text-white flex items-center gap-1">
+                                        <button type="button" onClick={handleRegeneratePassword} className="text-amber-500 hover:text-amber-400 flex items-center gap-1">
                                             <RefreshCw size={10} /> Generate
                                         </button>
                                     </label>
@@ -447,26 +447,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                             className={`pr-20 ${isDevModeTrigger ? 'border-amber-500/50 focus:border-amber-500' : ''}`}
                                         />
                                         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                                            <button type="button" onClick={handleCopyPassword} className="p-1.5 text-slate-400 hover:text-white rounded">
-                                                {copiedPassword ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                                            <button type="button" onClick={handleCopyPassword} className="p-1.5 text-slate-500 hover:text-amber-400 rounded-none">
+                                                {copiedPassword ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                                             </button>
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="p-1.5 text-slate-400 hover:text-white rounded">
-                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="p-1.5 text-slate-500 hover:text-amber-400 rounded-none">
+                                                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                             </button>
                                         </div>
                                     </div>
                                     {isDevModeTrigger && (
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-amber-400 mt-1 animate-in slide-in-from-top-1">
+                                        <div className="flex items-center gap-2 text-[9px] font-mono font-bold text-amber-500 mt-1 animate-in slide-in-from-top-1 uppercase tracking-widest">
                                             <Terminal size={10} /> DEVELOPER MODE FLAG SET
                                         </div>
                                     )}
                                 </div>
 
-                                <Button type="submit" data-agent-id="auth-create-btn" className={`w-full h-12 text-lg shadow-lg ${isDevModeTrigger ? 'shadow-amber-500/20 bg-amber-600 hover:bg-amber-500' : 'shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500'}`} isLoading={loading}>
+                                <Button type="submit" data-agent-id="auth-create-btn" className="w-full h-11" isLoading={loading}>
                                     {isDevModeTrigger ? 'Initialize Dev Vault' : 'Create Vault'}
                                 </Button>
                                 
-                                <p className="text-center text-[10px] text-slate-500 leading-relaxed">
+                                <p className="text-center text-xs text-slate-500 leading-relaxed">
                                     By creating a vault, you acknowledge that Bastion Enclave operates entirely offline. 
                                     You are responsible for downloading backups from the main menu.
                                 </p>

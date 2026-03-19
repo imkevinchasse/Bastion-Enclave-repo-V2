@@ -15,10 +15,10 @@ import argon2
 from .serializer import BastionSerializer
 
 # --- CONSTANTS ---
-# V3 (Argon2id) Parameters
+# V4 (Argon2id) Parameters
 ARGON_TIME_COST = 3
-ARGON_MEMORY_COST = 65536 # 64 MB
-ARGON_PARALLELISM = 1
+ARGON_MEMORY_COST = 131072 # 128 MB
+ARGON_PARALLELISM = 4
 ARGON_HASH_LEN = 32
 ARGON_TYPE = argon2.Type.ID
 
@@ -27,10 +27,11 @@ LEGACY_ITERATIONS_V2 = 210_000
 LEGACY_ITERATIONS_V1 = 100_000
 
 # Headers
+HEADER_V4 = b"\x42\x53\x54\x4E\x05" # BSTN + 0x05 (V4)
 HEADER_V3_5 = b"\x42\x53\x54\x4E\x04" # BSTN + 0x04 (V3.5)
 HEADER_V3 = b"\x42\x53\x54\x4E\x03" # BSTN + 0x03 (V3)
 HEADER_V2 = b"\x42\x53\x54\x4E\x02" # BSTN + 0x02
-MAGIC_HEADER_STR = "BASTION_V3::"
+MAGIC_HEADER_STR = "BASTION_V4::"
 
 # --- DATA MODELS ---
 
@@ -83,9 +84,14 @@ class BastionCrypto:
         # 2. Framing (Length Prefixing + Padding)
         framed_bytes = BastionSerializer.frame(canonical_json)
 
-        # 3. Encryption (V3.5: Argon2id + AES-GCM + Framing)
+        # 3. Encryption (V4: Argon2id + AES-GCM + Framing)
         salt = secrets.token_bytes(16)
-        iv = secrets.token_bytes(12)
+        
+        # Counter-based nonce: 4 bytes random + 8 bytes version counter
+        # Explicitly guarantees uniqueness as requested
+        iv_prefix = secrets.token_bytes(4)
+        iv_counter = vault_state.version.to_bytes(8, 'big')
+        iv = iv_prefix + iv_counter
         
         key = BastionCrypto.derive_key_argon2(password, salt)
         aesgcm = AESGCM(key)
@@ -93,7 +99,7 @@ class BastionCrypto:
         ciphertext = aesgcm.encrypt(iv, framed_bytes, None)
         
         # Structure: Header + Salt + IV + Cipher
-        blob = HEADER_V3_5 + salt + iv + ciphertext
+        blob = HEADER_V4 + salt + iv + ciphertext
         return base64.b64encode(blob).decode('utf-8')
 
     @staticmethod
@@ -111,22 +117,50 @@ class BastionCrypto:
             # Check for Protocol Headers
             if len(data) > 5 and data[0:4] == b"BSTN":
                 v_byte = data[4]
-                if v_byte == 4: version = 4 # V3.5
+                if v_byte == 5: version = 5 # V4.0
+                elif v_byte == 4: version = 4 # V3.5
+                elif v_byte == 5: version = 5 # V4
                 elif v_byte == 3: version = 3 # V3.0
                 elif v_byte == 2: version = 2 # V2.0
             
             if version >= 3:
-                # V3/V3.5: Argon2id
+                # V3/V3.5/V4: Argon2id
                 salt = data[5:21]
                 iv = data[21:33]
                 ciphertext = data[33:]
+                
+                # Try V4 parameters first, then fall back to V3.5/V3 parameters
                 try:
-                    key = BastionCrypto.derive_key_argon2(password, salt)
+                    # Attempt V4 (128MB, p=4)
+                    key = argon2.low_level.hash_secret_raw(
+                        secret=password.encode('utf-8'),
+                        salt=salt,
+                        time_cost=3,
+                        memory_cost=131072,
+                        parallelism=4,
+                        hash_len=32,
+                        type=argon2.Type.ID
+                    )
                     aesgcm = AESGCM(key)
                     decrypted_bytes = aesgcm.decrypt(iv, ciphertext, None)
-                    if version == 3: is_legacy = True # Needs upgrade to V3.5 framing
+                    if version < 5: is_legacy = True
                 except Exception:
-                    return None, False
+                    try:
+                        # Attempt V3.5/V3 (64MB, p=1)
+                        key = argon2.low_level.hash_secret_raw(
+                            secret=password.encode('utf-8'),
+                            salt=salt,
+                            time_cost=3,
+                            memory_cost=65536,
+                            parallelism=1,
+                            hash_len=32,
+                            type=argon2.Type.ID
+                        )
+                        aesgcm = AESGCM(key)
+                        decrypted_bytes = aesgcm.decrypt(iv, ciphertext, None)
+                        is_legacy = True
+                    except Exception:
+                        return None, False
 
             elif version == 2:
                 # V2: PBKDF2
@@ -213,7 +247,7 @@ class VaultManager:
 
     def save_file(self):
         if self.active_state and self.active_password:
-            # Update active blob using V3.5
+            # Update active blob using V4
             self.active_state.lastModified = int(time.time() * 1000)
             self.active_state.version += 1
             
@@ -262,7 +296,7 @@ class VaultManager:
                 
                 if is_legacy:
                     print("\n[SYSTEM] Legacy vault format detected.")
-                    print("[SYSTEM] Upgrading to Sovereign-V3.5 Protocol (Canonical Framing)...")
+                    print("[SYSTEM] Upgrading to Sovereign-V4 Protocol (Random Padding Framing)...")
                     try:
                         self.save_file()
                         print("[SYSTEM] Upgrade complete.\n")

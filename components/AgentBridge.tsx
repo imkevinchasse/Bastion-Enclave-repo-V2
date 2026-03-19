@@ -39,7 +39,7 @@ export const AgentBridge: React.FC<AgentBridgeProps> = ({ state, status }) => {
     const contextData = {
       timestamp: Date.now(),
       status: status,
-      protocol: "SOVEREIGN_V3.5",
+      protocol: "SOVEREIGN_V4",
       context: {
         item_count: state ? state.configs.length : 0,
         is_modified: state ? (state.lastModified > ((state as any)._lastBackup || 0)) : false,

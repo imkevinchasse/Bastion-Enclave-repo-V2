@@ -32,7 +32,7 @@ export const SecurityMonitor: React.FC = () => {
         <div className="fixed top-0 left-0 right-0 z-[100] animate-in slide-in-from-top duration-500">
             <div className="bg-red-950/95 border-b border-red-500 backdrop-blur-md p-4 shadow-2xl">
                 <div className="max-w-6xl mx-auto flex items-start gap-4">
-                    <div className="p-2 bg-red-900 rounded-lg animate-pulse text-red-200">
+                    <div className="p-2 bg-red-900 rounded-none animate-pulse text-red-200">
                         <ShieldAlert size={24} />
                     </div>
                     <div className="flex-1">

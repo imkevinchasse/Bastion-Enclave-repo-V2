@@ -118,7 +118,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ compact = false }) => {
                 <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
                     <div className="relative">
                         <Signal size={24} className="text-emerald-400" />
-                        <span className="absolute top-0 right-0 w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                        <span className="absolute top-0 right-0 w-2 h-2 bg-emerald-500 rounded-none animate-ping"></span>
                     </div>
                     Iron Ledger
                 </h2>
@@ -134,11 +134,11 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ compact = false }) => {
 
       {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-500">
-              <Loader2 size={32} className="animate-spin text-indigo-500 mb-4" />
+              <Loader2 size={32} className="animate-spin text-amber-500 mb-4" />
               <div className="font-mono text-xs uppercase tracking-widest">Establishing Secure Handshake...</div>
           </div>
       ) : error ? (
-          <div className="bg-red-950/20 border border-red-500/20 rounded-2xl p-8 text-center">
+          <div className="bg-red-950/20 border border-red-500/20 rounded-none p-8 text-center">
               <AlertTriangle size={32} className="mx-auto text-red-400 mb-4" />
               <h3 className="text-white font-bold mb-2">Connection Failed</h3>
               <p className="text-slate-400 text-sm">{error}</p>
@@ -152,10 +152,10 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ compact = false }) => {
                     href={post.link} 
                     target="_blank" 
                     rel="noreferrer"
-                    className={`group bg-slate-900/50 border border-white/5 rounded-2xl hover:border-indigo-500/30 hover:bg-slate-900/80 transition-all duration-300 relative overflow-hidden flex flex-col h-full ${compact ? 'p-4' : 'p-6'}`}
+                    className={`group bg-slate-900/50 border border-white/5 rounded-none hover:border-amber-500/30 hover:bg-slate-900/80 transition-all duration-300 relative overflow-hidden flex flex-col h-full ${compact ? 'p-4' : 'p-6'}`}
                   >
                       {/* Hover Decoration */}
-                      <div className="absolute top-0 right-0 p-16 bg-indigo-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute top-0 right-0 p-16 bg-amber-500/5 rounded-none blur-2xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       
                       <div className="flex-1">
                           <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-500 uppercase tracking-wider mb-2">
@@ -174,7 +174,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ compact = false }) => {
                           )}
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 mt-auto opacity-70 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-400 mt-auto opacity-70 group-hover:opacity-100 transition-opacity">
                           READ_ENTRY <ExternalLink size={12} />
                       </div>
                   </a>

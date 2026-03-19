@@ -60,15 +60,15 @@ export const Generator: React.FC = () => {
 
       {/* Hero Display */}
       <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
-          <div className="relative bg-slate-900 rounded-2xl border border-white/10 p-8 flex flex-col items-center justify-center gap-4 shadow-2xl">
+          <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-violet-500 rounded-none opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
+          <div className="relative bg-slate-900 rounded-none border border-white/10 p-8 flex flex-col items-center justify-center gap-4 shadow-2xl">
               
-              <div className="w-full font-mono text-3xl md:text-4xl text-center break-all text-white font-bold tracking-tight selection:bg-indigo-500/30">
+              <div className="w-full font-mono text-3xl md:text-4xl text-center break-all text-white font-bold tracking-tight selection:bg-amber-500/30">
                   {password}
               </div>
               
               <div className="flex items-center gap-3 mt-2">
-                   <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getStrengthColor()}`}>
+                   <div className={`flex items-center gap-2 px-3 py-1 rounded-none text-xs font-bold uppercase tracking-wider border ${getStrengthColor()}`}>
                        <ShieldCheck size={14} />
                        {length > 20 ? 'Bit-Rot Proof' : 'Secure'}
                    </div>
@@ -87,7 +87,7 @@ export const Generator: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/5">
+      <div className="glass-panel p-6 rounded-none border border-white/5">
         <div className="space-y-8">
             <div>
                 <div className="flex justify-between text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">
@@ -100,7 +100,7 @@ export const Generator: React.FC = () => {
                     max="64" 
                     value={length} 
                     onChange={(e) => setLength(parseInt(e.target.value))}
-                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    className="w-full h-2 bg-slate-800 rounded-none appearance-none cursor-pointer accent-amber-500"
                 />
             </div>
 
@@ -114,14 +114,14 @@ export const Generator: React.FC = () => {
                     <button 
                         key={i}
                         onClick={() => opt.setter(!opt.state)}
-                        className={`p-4 rounded-xl border font-bold text-sm transition-all duration-200 ${opt.state ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-300' : 'bg-slate-900/50 border-white/5 text-slate-500 hover:border-white/20'}`}
+                        className={`p-4 rounded-none border font-bold text-sm transition-all duration-200 ${opt.state ? 'bg-amber-600/10 border-amber-500/50 text-amber-300' : 'bg-slate-900/50 border-white/5 text-slate-500 hover:border-white/20'}`}
                     >
                         {opt.label}
                     </button>
                 ))}
             </div>
 
-            <Button onClick={generatePassword} className="w-full py-4 text-lg shadow-xl shadow-indigo-500/10">
+            <Button onClick={generatePassword} className="w-full py-4 text-lg shadow-xl shadow-amber-500/10">
                 <Zap className="w-5 h-5 fill-current" /> Regenerate Entropy
             </Button>
         </div>

@@ -15,8 +15,8 @@ export const GamePage: React.FC<GamePageProps> = ({ onNavigate }) => {
         {/* Shared Dynamic Background */}
         <div className="fixed inset-0 z-0 pointer-events-none">
             <div className="absolute inset-0 bg-grid opacity-20"></div>
-            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-indigo-900/10 rounded-full blur-[120px] animate-pulse"></div>
-            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-emerald-900/10 rounded-full blur-[100px]"></div>
+            <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-amber-900/10 rounded-none blur-[120px] animate-pulse"></div>
+            <div className="absolute top-[40%] right-[0%] w-[50%] h-[60%] bg-emerald-900/10 rounded-none blur-[100px]"></div>
             <div className="absolute inset-0 opacity-30" style={{background: 'radial-gradient(circle at center, transparent 0%, #020617 100%)'}}></div>
         </div>
 

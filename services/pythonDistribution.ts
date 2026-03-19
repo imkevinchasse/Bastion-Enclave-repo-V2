@@ -50,7 +50,7 @@ def main():
     # 1. Version Check
     if args.version:
         print("Bastion Enclave v3.5.0")
-        print("Protocol: Sovereign-V3.5 (Argon2id/AES-GCM)")
+        print("Protocol: Sovereign-V4 (Argon2id/AES-GCM/Random Padding)")
         sys.exit(0)
 
     # 2. GUI Mode
@@ -182,7 +182,7 @@ cat <<EOF > bastion_wrapper
 #!/bin/bash
 # Activate the isolated virtual environment and run the application
 source "$INSTALL_DIR/venv/bin/activate"
-exec python3 "$INSTALL_DIR/bastion.py" "\$@"
+exec python3 "$INSTALL_DIR/bastion.py" "$@"
 EOF
 
 chmod +x bastion_wrapper
@@ -201,13 +201,13 @@ ln -s "$INSTALL_DIR/bastion_wrapper" "$USER_BIN/bastion"
 # 9. Success & Path Check
 echo -e "\\033[0;32m[✓] Install Complete.\\033[0m"
 
-if [[ ":\$PATH:" == *":$USER_BIN:"* ]]; then
+if [[ ":$PATH:" == *":$USER_BIN:"* ]]; then
     echo -e "You can now type \\033[1mbastion\\033[0m to launch the enclave."
 else
     echo -e "\\033[0;33m[!] Warning: $USER_BIN is not currently in your PATH.\\033[0m"
     echo "To run 'bastion', add this to your shell profile (e.g. ~/.bashrc, ~/.zshrc):"
     echo ""
-    echo "  export PATH=\"\\\$PATH:$USER_BIN\""
+    echo "  export PATH=\"$PATH:$USER_BIN\""
     echo ""
     echo "Then restart your terminal and type 'bastion'."
 fi
@@ -334,19 +334,19 @@ class BastionSerializer:
     @staticmethod
     def frame(json_str: str) -> bytes:
         """
-        Wraps JSON with 4-byte Length Header + 0x00 Padding to 64-byte alignment.
+        Wraps JSON with 4-byte Length Header + Random Padding (256-2048 bytes).
         """
+        import random
+        import secrets
         data_bytes = json_str.encode('utf-8')
         length = len(data_bytes)
         
         # 1. Header
         header = struct.pack('<I', length)
         
-        # 2. Padding Calc
-        total_raw = 4 + length
-        remainder = total_raw % 64
-        padding_needed = 0 if remainder == 0 else 64 - remainder
-        padding = b'\\x00' * padding_needed
+        # 2. Random Padding (256 - 2048 bytes)
+        padding_needed = random.randint(256, 2048)
+        padding = secrets.token_bytes(padding_needed)
         
         return header + data_bytes + padding
 
@@ -385,10 +385,10 @@ import argon2
 from .serializer import BastionSerializer
 
 # --- CONSTANTS ---
-# V3 (Argon2id) Parameters
+# V4 (Argon2id) Parameters
 ARGON_TIME_COST = 3
-ARGON_MEMORY_COST = 65536 # 64 MB
-ARGON_PARALLELISM = 1
+ARGON_MEMORY_COST = 131072 # 128 MB
+ARGON_PARALLELISM = 4
 ARGON_HASH_LEN = 32
 ARGON_TYPE = argon2.Type.ID
 
@@ -397,7 +397,7 @@ LEGACY_ITERATIONS_V2 = 210_000
 LEGACY_ITERATIONS_V1 = 100_000
 
 # Headers
-HEADER_V3_5 = b"\\x42\\x53\\x54\\x4E\\x04" # BSTN + 0x04 (V3.5)
+HEADER_V4 = b"\\x42\\x53\\x54\\x4E\\x05" # BSTN + 0x05 (V4)
 HEADER_V3 = b"\\x42\\x53\\x54\\x4E\\x03" # BSTN + 0x03 (V3)
 HEADER_V2 = b"\\x42\\x53\\x54\\x4E\\x02" # BSTN + 0x02
 MAGIC_HEADER_STR = "BASTION_V3::"
@@ -453,9 +453,13 @@ class BastionCrypto:
         # 2. Framing (Length Prefixing + Padding)
         framed_bytes = BastionSerializer.frame(canonical_json)
 
-        # 3. Encryption (V3.5: Argon2id + AES-GCM + Framing)
+        # 3. Encryption (V4: Argon2id + AES-GCM + Framing)
         salt = secrets.token_bytes(16)
-        iv = secrets.token_bytes(12)
+        # Counter-based nonce: 4 bytes random + 8 bytes version counter
+        # Explicitly guarantees uniqueness as requested
+        iv_prefix = secrets.token_bytes(4)
+        iv_counter = vault_state.version.to_bytes(8, 'big')
+        iv = iv_prefix + iv_counter
         
         key = BastionCrypto.derive_key_argon2(password, salt)
         aesgcm = AESGCM(key)
@@ -463,15 +467,15 @@ class BastionCrypto:
         ciphertext = aesgcm.encrypt(iv, framed_bytes, None)
         
         # Structure: Header + Salt + IV + Cipher
-        blob = HEADER_V3_5 + salt + iv + ciphertext
+        blob = HEADER_V4 + salt + iv + ciphertext
         return base64.b64encode(blob).decode('utf-8')
 
     @staticmethod
     def decrypt_blob(blob_b64: str, password: str) -> Tuple[Optional[str], bool]:
-        \"\"\"
+        """
         Attempts decryption. Returns (json_str, is_legacy_format).
         Handles deframing automatically.
-        \"\"\"
+        """
         try:
             data = base64.b64decode(blob_b64)
             decrypted_bytes = None
@@ -481,22 +485,49 @@ class BastionCrypto:
             # Check for Protocol Headers
             if len(data) > 5 and data[0:4] == b"BSTN":
                 v_byte = data[4]
-                if v_byte == 4: version = 4 # V3.5
+                if v_byte == 5: version = 5 # V4
+                elif v_byte == 4: version = 4 # V3.5
                 elif v_byte == 3: version = 3 # V3.0
                 elif v_byte == 2: version = 2 # V2.0
             
             if version >= 3:
-                # V3/V3.5: Argon2id
+                # V3/V3.5/V4: Argon2id
                 salt = data[5:21]
                 iv = data[21:33]
                 ciphertext = data[33:]
+                
+                # Try V4 parameters first, then fall back to V3.5/V3 parameters
                 try:
-                    key = BastionCrypto.derive_key_argon2(password, salt)
+                    # Attempt V4 (128MB, p=4)
+                    key = argon2.low_level.hash_secret_raw(
+                        secret=password.encode('utf-8'),
+                        salt=salt,
+                        time_cost=3,
+                        memory_cost=131072,
+                        parallelism=4,
+                        hash_len=32,
+                        type=argon2.Type.ID
+                    )
                     aesgcm = AESGCM(key)
                     decrypted_bytes = aesgcm.decrypt(iv, ciphertext, None)
-                    if version == 3: is_legacy = True # Needs upgrade to V3.5 framing
+                    if version < 5: is_legacy = True
                 except Exception:
-                    return None, False
+                    try:
+                        # Attempt V3.5/V3 (64MB, p=1)
+                        key = argon2.low_level.hash_secret_raw(
+                            secret=password.encode('utf-8'),
+                            salt=salt,
+                            time_cost=3,
+                            memory_cost=65536,
+                            parallelism=1,
+                            hash_len=32,
+                            type=argon2.Type.ID
+                        )
+                        aesgcm = AESGCM(key)
+                        decrypted_bytes = aesgcm.decrypt(iv, ciphertext, None)
+                        is_legacy = True
+                    except Exception:
+                        return None, False
 
             elif version == 2:
                 # V2: PBKDF2
@@ -583,7 +614,7 @@ class VaultManager:
 
     def save_file(self):
         if self.active_state and self.active_password:
-            # Update active blob using V3.5
+            # Update active blob using V4
             self.active_state.lastModified = int(time.time() * 1000)
             self.active_state.version += 1
             
@@ -632,7 +663,7 @@ class VaultManager:
                 
                 if is_legacy:
                     print("\\n[SYSTEM] Legacy vault format detected.")
-                    print("[SYSTEM] Upgrading to Sovereign-V3.5 Protocol (Canonical Framing)...")
+                    print("[SYSTEM] Upgrading to Sovereign-V4 Protocol (Random Padding Framing)...")
                     try:
                         self.save_file()
                         print("[SYSTEM] Upgrade complete.\\n")

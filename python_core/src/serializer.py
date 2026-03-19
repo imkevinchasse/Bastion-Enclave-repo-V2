@@ -55,19 +55,19 @@ class BastionSerializer:
     @staticmethod
     def frame(json_str: str) -> bytes:
         """
-        Wraps JSON with 4-byte Length Header + 0x00 Padding to 64-byte alignment.
+        Wraps JSON with 4-byte Length Header + Random Padding (256-2048 bytes).
         """
+        import random
+        import secrets
         data_bytes = json_str.encode('utf-8')
         length = len(data_bytes)
         
-        # 1. Header
+        # 1. Header (Little Endian)
         header = struct.pack('<I', length)
         
-        # 2. Padding Calc
-        total_raw = 4 + length
-        remainder = total_raw % 64
-        padding_needed = 0 if remainder == 0 else 64 - remainder
-        padding = b'\x00' * padding_needed
+        # 2. Random Padding (256 - 2048 bytes)
+        padding_needed = random.randint(256, 2048)
+        padding = secrets.token_bytes(padding_needed)
         
         return header + data_bytes + padding
 

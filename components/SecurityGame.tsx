@@ -60,16 +60,16 @@ export const SecurityGame: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 p-4">
        {/* HUD */}
-       <div className="flex items-center justify-between mb-8 bg-slate-900/80 p-4 rounded-2xl border border-white/5 backdrop-blur-md relative overflow-hidden">
+       <div className="flex items-center justify-between mb-8 bg-slate-900/80 p-4 rounded-none border border-white/5 backdrop-blur-md relative overflow-hidden">
            <div className={`absolute top-0 left-0 w-1 h-full ${hardMode ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
            <div className="flex items-center gap-4">
-               <div className={`w-12 h-12 rounded-xl flex items-center justify-center border font-bold font-mono text-lg ${hardMode ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+               <div className={`w-12 h-12 rounded-none flex items-center justify-center border font-bold font-mono text-lg ${hardMode ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
                    0{currentLevelIdx + 1}
                </div>
                <div>
                    <h2 className="text-white font-bold font-mono uppercase tracking-wider flex items-center gap-2">
                        {currentLevel.title}
-                       {hardMode && <span className="text-[9px] bg-red-500 text-white px-1 rounded">HARD</span>}
+                       {hardMode && <span className="text-[9px] bg-red-500 text-white px-1 rounded-none">HARD</span>}
                    </h2>
                    <div className={`text-xs font-mono flex items-center gap-2 ${hardMode ? 'text-red-400' : 'text-emerald-400'}`}>
                        <Terminal size={10} /> {currentLevel.description}
@@ -83,7 +83,7 @@ export const SecurityGame: React.FC = () => {
        </div>
 
        {/* Level Container */}
-       <div className="bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-[450px] flex flex-col">
+       <div className="bg-slate-900 border border-white/10 rounded-none overflow-hidden shadow-2xl relative min-h-[450px] flex flex-col">
            <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
            
            <div className="flex-1 p-6 md:p-10 relative z-10 flex flex-col justify-center">
@@ -114,8 +114,8 @@ export const SecurityGame: React.FC = () => {
 
 const IntroScreen = ({ onStart, hardMode, setHardMode }: { onStart: () => void, hardMode: boolean, setHardMode: (v: boolean) => void }) => (
     <div className="max-w-2xl mx-auto text-center py-20 space-y-8 animate-in zoom-in-95">
-        <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative group">
-            <div className="absolute inset-0 bg-red-500/20 rounded-full animate-ping"></div>
+        <div className="w-24 h-24 bg-red-500/10 rounded-none flex items-center justify-center mx-auto mb-6 relative group">
+            <div className="absolute inset-0 bg-red-500/20 rounded-none animate-ping"></div>
             <Siren size={48} className="text-red-500 relative z-10 group-hover:scale-110 transition-transform" />
         </div>
         <div>
@@ -129,22 +129,22 @@ const IntroScreen = ({ onStart, hardMode, setHardMode }: { onStart: () => void, 
         <div className="flex justify-center gap-4">
             <button 
                 onClick={() => setHardMode(false)}
-                className={`px-6 py-3 rounded-xl border flex items-center gap-2 transition-all ${!hardMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 ring-2 ring-emerald-500/20' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
+                className={`px-6 py-3 rounded-none border flex items-center gap-2 transition-all ${!hardMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 ring-2 ring-emerald-500/20' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
             >
                 <ShieldCheck size={18} /> STANDARD
             </button>
             <button 
                 onClick={() => setHardMode(true)}
-                className={`px-6 py-3 rounded-xl border flex items-center gap-2 transition-all ${hardMode ? 'bg-red-500/20 border-red-500 text-red-400 ring-2 ring-red-500/20' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
+                className={`px-6 py-3 rounded-none border flex items-center gap-2 transition-all ${hardMode ? 'bg-red-500/20 border-red-500 text-red-400 ring-2 ring-red-500/20' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
             >
                 <Skull size={18} /> HARDCORE
             </button>
         </div>
 
         <div className="grid grid-cols-3 gap-4 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest max-w-lg mx-auto py-8">
-            <div className="p-4 bg-slate-900 rounded-xl border border-white/5">{LEVELS.length} Levels</div>
-            <div className="p-4 bg-slate-900 rounded-xl border border-white/5">AI Hunter</div>
-            <div className="p-4 bg-slate-900 rounded-xl border border-white/5">Perma-Fail</div>
+            <div className="p-4 bg-slate-900 rounded-none border border-white/5">{LEVELS.length} Levels</div>
+            <div className="p-4 bg-slate-900 rounded-none border border-white/5">AI Hunter</div>
+            <div className="p-4 bg-slate-900 rounded-none border border-white/5">Perma-Fail</div>
         </div>
         
         <Button size="lg" onClick={onStart} className={`px-12 py-4 text-lg shadow-[0_0_30px_rgba(16,185,129,0.4)] ${hardMode ? 'bg-red-600 hover:bg-red-500 shadow-red-500/40' : 'bg-emerald-600 hover:bg-emerald-500'}`}>
@@ -155,7 +155,7 @@ const IntroScreen = ({ onStart, hardMode, setHardMode }: { onStart: () => void, 
 
 const VictoryScreen = ({ score, onRestart, hardMode }: { score: number, onRestart: () => void, hardMode: boolean }) => (
     <div className="max-w-2xl mx-auto text-center py-20 space-y-8 animate-in zoom-in-95">
-        <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${hardMode ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+        <div className={`w-24 h-24 rounded-none flex items-center justify-center mx-auto mb-6 ${hardMode ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
             <Trophy size={48} />
         </div>
         <div>
@@ -164,7 +164,7 @@ const VictoryScreen = ({ score, onRestart, hardMode }: { score: number, onRestar
                 {hardMode ? 'ELITE OPERATOR STATUS' : 'THREAT ELIMINATED'}
             </p>
         </div>
-        <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/10 text-left space-y-6 max-w-lg mx-auto">
+        <div className="bg-slate-900/50 p-6 rounded-none border border-white/10 text-left space-y-6 max-w-lg mx-auto">
             <h3 className="font-bold text-white flex items-center gap-2 border-b border-white/10 pb-4">
                 <Terminal size={16}/> POST-INCIDENT REPORT
             </h3>
@@ -189,7 +189,7 @@ const VictoryScreen = ({ score, onRestart, hardMode }: { score: number, onRestar
 
 const FailScreen = ({ level, onRetry }: { level: LevelConfig, onRetry: () => void }) => (
     <div className="max-w-2xl mx-auto text-center py-20 space-y-8 animate-in zoom-in-95">
-        <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-24 h-24 bg-red-500/10 rounded-none flex items-center justify-center mx-auto mb-6">
             <Skull size={48} className="text-red-400" />
         </div>
         <div>
@@ -243,7 +243,7 @@ const LevelEntropy = ({ onComplete, onFail, hardMode }: any) => {
                 </div>
             </div>
 
-            <div className="space-y-6 bg-slate-950 p-6 rounded-xl border border-white/5">
+            <div className="space-y-6 bg-slate-950 p-6 rounded-none border border-white/5">
                 <div>
                     <label className="flex justify-between text-xs font-bold text-slate-500 mb-2">
                         <span>KEY LENGTH</span>
@@ -252,16 +252,16 @@ const LevelEntropy = ({ onComplete, onFail, hardMode }: any) => {
                     <input 
                         type="range" min="4" max="32" value={length} 
                         onChange={e => setLength(parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                        className="w-full h-2 bg-slate-800 rounded-none appearance-none cursor-pointer accent-emerald-500"
                     />
                 </div>
                 
-                <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-white/5 cursor-pointer hover:border-emerald-500/50 transition-colors">
-                    <input type="checkbox" checked={symbols} onChange={e => setSymbols(e.target.checked)} className="w-5 h-5 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500" />
+                <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-none border border-white/5 cursor-pointer hover:border-emerald-500/50 transition-colors">
+                    <input type="checkbox" checked={symbols} onChange={e => setSymbols(e.target.checked)} className="w-5 h-5 rounded-none bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-500" />
                     <span className="font-bold text-sm text-slate-300 font-mono">INJECT_SYMBOLS</span>
                 </label>
 
-                <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-slate-900 rounded-none overflow-hidden">
                     <div 
                         className={`h-full transition-all duration-500 ${isSecure ? 'bg-emerald-500' : 'bg-red-500'}`} 
                         style={{ width: `${Math.min(100, (bits/targetBits)*100)}%` }}
@@ -319,7 +319,7 @@ const LevelMatching = ({ onComplete, onFail, hardMode }: any) => {
 
             <div className="flex justify-center gap-4">
                  {targets.map((t, i) => (
-                     <div key={i} className={`w-16 h-16 rounded-sm border-2 flex items-center justify-center font-mono font-bold text-xl transition-all ${i < matches ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400' : 'border-slate-700 bg-slate-900 text-slate-600 border-dashed'}`}>
+                     <div key={i} className={`w-16 h-16 rounded-none border-2 flex items-center justify-center font-mono font-bold text-xl transition-all ${i < matches ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400' : 'border-slate-700 bg-slate-900 text-slate-600 border-dashed'}`}>
                          {i < matches ? 'OK' : 'ERR'}
                      </div>
                  ))}
@@ -332,7 +332,7 @@ const LevelMatching = ({ onComplete, onFail, hardMode }: any) => {
                     <button 
                         key={i}
                         onClick={(e) => { handleClick(opt); (e.target as HTMLButtonElement).disabled = true; (e.target as HTMLButtonElement).style.opacity = '0'; }}
-                        className="p-4 bg-slate-800 rounded-sm border border-white/5 hover:bg-emerald-600 hover:text-white transition-all font-mono disabled:cursor-default"
+                        className="p-4 bg-slate-800 rounded-none border border-white/5 hover:bg-emerald-600 hover:text-white transition-all font-mono disabled:cursor-default"
                     >
                         {opt}
                     </button>
@@ -456,16 +456,16 @@ const LevelMaze = ({ onComplete, onFail, hardMode }: any) => {
                             key={i}
                             disabled={!canMove && !isPlayer}
                             onClick={() => move(i)}
-                            className={`h-16 rounded-lg flex items-center justify-center border transition-all duration-300 relative
+                            className={`h-16 rounded-none flex items-center justify-center border transition-all duration-300 relative
                                 ${isPlayer ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)] z-20 scale-110' : ''}
-                                ${isGoal ? 'bg-indigo-900/30 border-indigo-500/50' : ''}
+                                ${isGoal ? 'bg-amber-900/30 border-amber-500/50' : ''}
                                 ${isCloud ? 'bg-red-900/10 border-red-500/10' : ''}
                                 ${!isPlayer && !isGoal && !isCloud ? 'bg-slate-900 border-slate-800' : ''}
                             `}
                         >
                             {isPlayer && <Database className="text-white animate-bounce w-5 h-5" />}
                             {isHunter && !isPlayer && <Skull className="text-red-500 w-6 h-6 animate-pulse absolute z-10" />}
-                            {!isPlayer && isGoal && <Server className="text-indigo-500 w-5 h-5" />}
+                            {!isPlayer && isGoal && <Server className="text-amber-500 w-5 h-5" />}
                             {!isPlayer && isCloud && <ShieldAlert className="text-red-500/20 w-4 h-4" />}
                         </button>
                     )
@@ -506,10 +506,10 @@ const LevelPhishing = ({ onComplete, onFail, hardMode }: any) => {
                     <button
                         key={i}
                         onClick={() => check(opt.safe)}
-                        className="w-full p-4 bg-black border border-slate-800 hover:border-emerald-500/50 rounded-sm transition-all group text-left font-mono"
+                        className="w-full p-4 bg-black border border-slate-800 hover:border-emerald-500/50 rounded-none transition-all group text-left font-mono"
                     >
                         <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                            <span className="text-indigo-400">{opt.method}</span>
+                            <span className="text-amber-400">{opt.method}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <div>
@@ -550,7 +550,7 @@ const LevelCode = ({ onComplete, onFail, hardMode }: any) => {
                     <button 
                         key={i}
                         onClick={() => handleSelect(s.safe)}
-                        className="w-full text-left p-4 bg-[#0d1117] border border-slate-800 rounded-lg hover:border-indigo-500 group transition-all font-mono text-xs overflow-x-auto"
+                        className="w-full text-left p-4 bg-[#0d1117] border border-slate-800 rounded-none hover:border-amber-500 group transition-all font-mono text-xs overflow-x-auto"
                     >
                         <div className="flex gap-4">
                             <span className="text-slate-600 select-none">{i+1}</span>
@@ -630,7 +630,7 @@ const LevelSequence = ({ onComplete, onFail, hardMode }: any) => {
                         key={i}
                         disabled={playing}
                         onClick={() => handleTap(i)}
-                        className={`h-32 rounded-lg border-2 transition-all duration-100 ${
+                        className={`h-32 rounded-none border-2 transition-all duration-100 ${
                             flash === i 
                                 ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.6)] scale-95' 
                                 : 'bg-slate-900 border-slate-800 hover:border-slate-600'
@@ -691,17 +691,17 @@ const LevelNeural = ({ onComplete, onFail, hardMode }: any) => {
                 </p>
             </div>
 
-            <div className="bg-black/40 p-6 rounded-xl border border-white/10 relative overflow-hidden">
+            <div className="bg-black/40 p-6 rounded-none border border-white/10 relative overflow-hidden">
                 {/* Visualizer */}
                 <div className="h-24 flex items-end justify-center gap-1 mb-6 border-b border-white/5 pb-6">
                     {[q, k, v].map((val, i) => (
-                        <div key={i} className="w-8 bg-indigo-500/50 transition-all duration-300 rounded-t" style={{height: `${Math.min(100, val)}%`}}></div>
+                        <div key={i} className="w-8 bg-amber-500/50 transition-all duration-300 rounded-none" style={{height: `${Math.min(100, val)}%`}}></div>
                     ))}
                     <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500/30 border-t border-dashed border-red-400" style={{top: `${100 - (target/3)}%`}}></div>
                 </div>
 
                 <div className="space-y-4">
-                    <input type="range" min="0" max="100" value={q} onChange={e => setQ(parseInt(e.target.value))} className="w-full accent-indigo-500" />
+                    <input type="range" min="0" max="100" value={q} onChange={e => setQ(parseInt(e.target.value))} className="w-full accent-amber-500" />
                     <input type="range" min="0" max="100" value={k} onChange={e => setK(parseInt(e.target.value))} className="w-full accent-violet-500" />
                     <input type="range" min="0" max="100" value={v} onChange={e => setV(parseInt(e.target.value))} className="w-full accent-emerald-500" />
                 </div>
@@ -770,10 +770,10 @@ const LevelDDoS = ({ onComplete, onFail, hardMode }: any) => {
     return (
         <div className="max-w-md mx-auto space-y-8">
             <div className="text-center">
-                <Globe className="mx-auto text-indigo-400 mb-2" size={32} />
+                <Globe className="mx-auto text-amber-400 mb-2" size={32} />
                 <h3 className="font-bold text-white text-xl">DDoS Scrubber</h3>
-                <div className="w-full bg-slate-800 h-2 rounded-full mt-4 overflow-hidden">
-                    <div className="bg-indigo-500 h-full transition-all" style={{width: `${(processed/target)*100}%`}}></div>
+                <div className="w-full bg-slate-800 h-2 rounded-none mt-4 overflow-hidden">
+                    <div className="bg-amber-500 h-full transition-all" style={{width: `${(processed/target)*100}%`}}></div>
                 </div>
             </div>
 
@@ -781,7 +781,7 @@ const LevelDDoS = ({ onComplete, onFail, hardMode }: any) => {
                 {queue.slice(0, 3).map((p, i) => (
                     <div 
                         key={p.id}
-                        className={`absolute w-64 p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-between
+                        className={`absolute w-64 p-4 rounded-none border-2 transition-all duration-300 flex items-center justify-between
                             ${i === 0 ? 'scale-100 z-20 bg-slate-900 border-white/20 translate-y-0 opacity-100' : ''}
                             ${i === 1 ? 'scale-90 z-10 bg-slate-950 border-white/10 translate-y-4 opacity-50' : ''}
                             ${i === 2 ? 'scale-80 z-0 bg-black border-white/5 translate-y-8 opacity-20' : ''}
@@ -794,7 +794,7 @@ const LevelDDoS = ({ onComplete, onFail, hardMode }: any) => {
                                 <div className="text-white">{p.ip}</div>
                             </div>
                         </div>
-                        <div className={`text-xs font-bold px-2 py-1 rounded ${p.type === 'bot' ? 'bg-red-900/50 text-red-400' : 'bg-emerald-900/50 text-emerald-400'}`}>
+                        <div className={`text-xs font-bold px-2 py-1 rounded-none ${p.type === 'bot' ? 'bg-red-900/50 text-red-400' : 'bg-emerald-900/50 text-emerald-400'}`}>
                             {p.type === 'bot' ? 'HIGH_RATE' : 'NORMAL'}
                         </div>
                     </div>
@@ -881,7 +881,7 @@ const LevelPorts = ({ onComplete, onFail, hardMode }: any) => {
                     <span>Exfiltration Risk</span>
                     <span className={risk > 80 ? 'text-red-500 animate-pulse' : 'text-slate-500'}>{Math.floor(risk)}%</span>
                 </div>
-                <div className="h-4 bg-slate-900 rounded-full overflow-hidden border border-white/10">
+                <div className="h-4 bg-slate-900 rounded-none overflow-hidden border border-white/10">
                     <div 
                         className={`h-full transition-all duration-100 ${risk > 80 ? 'bg-red-500' : risk > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`} 
                         style={{width: `${Math.min(100, risk)}%`}}
@@ -895,7 +895,7 @@ const LevelPorts = ({ onComplete, onFail, hardMode }: any) => {
                     <button
                         key={i}
                         onClick={() => closePort(i)}
-                        className={`h-24 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-200
+                        className={`h-24 rounded-none border-2 flex flex-col items-center justify-center transition-all duration-200
                             ${isOpen 
                                 ? 'bg-emerald-500/20 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-pulse' 
                                 : 'bg-slate-900 border-slate-800'

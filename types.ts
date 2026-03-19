@@ -50,7 +50,7 @@ export interface Contact {
  */
 export interface GenesisArtifact {
   id: string; // Hash of the artifact
-  epoch: string; // e.g., "V3.5_GENESIS"
+  epoch: string; // e.g., "V4_GENESIS"
   rank: number; // Calculated based on time-of-entry (lower is rarer)
   issuedAt: number;
   totalSlots: number; // The theoretical max slots for this epoch

@@ -93,12 +93,12 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
         
         {/* Header */}
         <div className="flex items-center gap-4 border-b border-amber-500/20 pb-6">
-            <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-amber-500">
+            <div className="p-3 bg-amber-500/10 rounded-none border border-amber-500/30 text-amber-500">
                 <Terminal size={32} />
             </div>
             <div>
                 <h2 className="text-3xl font-black text-white tracking-tight uppercase flex items-center gap-3">
-                    Developer Console <span className="text-xs bg-amber-500 text-black px-2 py-1 rounded font-bold">UNLOCKED</span>
+                    Developer Console <span className="text-xs bg-amber-500 text-black px-2 py-1 rounded-none font-bold">UNLOCKED</span>
                 </h2>
                 <p className="text-amber-500/60 font-mono text-sm mt-1">
                     ACCESS_LEVEL: ROOT • FLAG_BIT: 0x01
@@ -112,12 +112,12 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
             <div className="space-y-6">
                 
                 {/* Provenance Card */}
-                <div className="bg-slate-900 border border-white/10 rounded-xl p-6">
+                <div className="bg-slate-900 border border-white/10 rounded-none p-6">
                     <h3 className="text-white font-bold flex items-center gap-2 mb-4">
-                        <GitBranch size={18} className="text-blue-400" /> Build Provenance
+                        <GitBranch size={18} className="text-amber-400" /> Build Provenance
                     </h3>
                     {provenance ? (
-                        <div className={`p-4 rounded-lg border ${provenance.verified ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-amber-900/10 border-amber-500/30'}`}>
+                        <div className={`p-4 rounded-none border ${provenance.verified ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-amber-900/10 border-amber-500/30'}`}>
                             <div className="flex justify-between items-center mb-2">
                                 <span className={`text-xs font-bold uppercase ${provenance.verified ? 'text-emerald-400' : 'text-amber-400'}`}>
                                     {provenance.status}
@@ -135,7 +135,7 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
                 </div>
 
                 {/* API Key Gen */}
-                <div className="bg-slate-900 border border-white/10 rounded-xl p-6">
+                <div className="bg-slate-900 border border-white/10 rounded-none p-6">
                     <h3 className="text-white font-bold flex items-center gap-2 mb-4">
                         <Key size={18} className="text-emerald-400" /> API Access Control
                     </h3>
@@ -145,11 +145,11 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
                     </p>
                     
                     {apiKey ? (
-                        <div className="bg-black/50 border border-emerald-500/30 p-4 rounded-lg break-all font-mono text-emerald-400 text-xs relative group">
+                        <div className="bg-black/50 border border-emerald-500/30 p-4 rounded-none break-all font-mono text-emerald-400 text-xs relative group">
                             {apiKey}
                             <button 
                                 onClick={() => navigator.clipboard.writeText(apiKey)}
-                                className="absolute top-2 right-2 p-1 bg-slate-800 text-slate-400 rounded hover:text-white"
+                                className="absolute top-2 right-2 p-1 bg-slate-800 text-slate-400 rounded-none hover:text-white"
                             >
                                 <Code size={14} />
                             </button>
@@ -162,9 +162,9 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
                 </div>
 
                 {/* Data Operations */}
-                <div className="bg-slate-900 border border-white/10 rounded-xl p-6">
+                <div className="bg-slate-900 border border-white/10 rounded-none p-6">
                     <h3 className="text-white font-bold flex items-center gap-2 mb-4">
-                        <Database size={18} className="text-indigo-400" /> State Mutation
+                        <Database size={18} className="text-amber-400" /> State Mutation
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                         <Button variant="secondary" onClick={injectMockData} className="text-xs">
@@ -185,7 +185,7 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
             </div>
 
             {/* Terminal Output */}
-            <div className="bg-black rounded-xl border border-slate-800 p-4 font-mono text-xs h-[400px] overflow-y-auto flex flex-col shadow-inner">
+            <div className="bg-black rounded-none border border-slate-800 p-4 font-mono text-xs h-[400px] overflow-y-auto flex flex-col shadow-inner">
                 <div className="text-slate-500 mb-2 border-b border-slate-900 pb-2">Console Output Stream</div>
                 <div className="flex-1 space-y-1">
                     {logs.map((line, i) => (

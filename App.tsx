@@ -28,7 +28,7 @@ import { Button } from './components/Button';
 import { BrandLogo } from './components/BrandLogo';
 
 const MobileNavBtn = ({active, onClick, icon, label}: any) => (
-    <button onClick={onClick} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all ${active ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-500 hover:text-slate-300'}`}>
+    <button onClick={onClick} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all ${active ? 'text-amber-400 bg-amber-500/10' : 'text-slate-500 hover:text-slate-300'}`}>
         {icon}
         <span className="text-[9px] font-medium">{label}</span>
     </button>
@@ -37,15 +37,15 @@ const MobileNavBtn = ({active, onClick, icon, label}: any) => (
 const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
     <button 
         onClick={onClick}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium transition-all duration-200 group ${
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium transition-all duration-200 group ${
             active 
-                ? (activeClass || 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20') 
+                ? (activeClass || 'bg-amber-600 text-white shadow-lg shadow-amber-500/20') 
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
         }`}
     >
         <span className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>{icon}</span>
         {label}
-        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50"></span>}
+        {active && <span className="ml-auto w-1.5 h-1.5 rounded-none bg-white/50"></span>}
     </button>
 );
 
@@ -371,10 +371,10 @@ export default function App() {
               <div className="flex items-center gap-3 px-2 mb-8 mt-2 cursor-pointer group" onClick={() => setPublicPage('landing')}>
                   <BrandLogo size={32} className="drop-shadow-lg group-hover:brightness-125 transition-all" />
                   <div>
-                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-indigo-200 transition-colors">Bastion Enclave</h1>
+                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">Bastion Enclave</h1>
                       <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                          SECURE_V3.5
+                          <div className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></div>
+                          SECURE_V4
                       </div>
                   </div>
               </div>
@@ -403,14 +403,14 @@ export default function App() {
                   <button 
                       onClick={handleBackup}
                       data-agent-id="nav-backup-btn"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
                   >
                       <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" /> Backup Kit
-                      {vaultState.lastModified > lastBackupTime && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-auto"></span>}
+                      {vaultState.lastModified > lastBackupTime && <span className="w-2 h-2 rounded-none bg-amber-500 animate-pulse ml-auto"></span>}
                   </button>
                   <button 
                       onClick={handleLogout}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
                   >
                       <LogOut size={18} /> Lock Vault
                   </button>
@@ -436,7 +436,7 @@ export default function App() {
                   <div className="flex items-center gap-4 text-sm text-slate-500">
                       <button 
                           onClick={handleCopySeed}
-                          className={`flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-full border transition-all cursor-pointer group ${hasCopiedSeed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/5'}`}
+                          className={`flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-none border transition-all cursor-pointer group ${hasCopiedSeed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/5'}`}
                           title="Click to copy full Master Seed"
                       >
                           <Fingerprint size={12} className={hasCopiedSeed ? "text-emerald-400" : "text-slate-400"} />
@@ -451,7 +451,7 @@ export default function App() {
                       </button>
 
                       {rollbackAlert && (
-                          <div className="flex items-center gap-2 px-3 py-1 bg-red-900/30 text-red-400 rounded-full border border-red-500/30 animate-pulse font-bold">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-red-900/30 text-red-400 rounded-none border border-red-500/30 animate-pulse font-bold">
                               <AlertOctagon size={12} /> ROLLBACK DETECTED (v{rollbackAlert.current} vs v{rollbackAlert.known})
                           </div>
                       )}
@@ -468,7 +468,7 @@ export default function App() {
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 relative">
                   {/* Background Decor */}
-                  <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-900/10 to-transparent pointer-events-none -z-10"></div>
+                  <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-amber-900/10 to-transparent pointer-events-none -z-10"></div>
                   
                   <div className="max-w-6xl mx-auto">
                       {currentTab === AppTab.VAULT && (
@@ -520,7 +520,7 @@ export default function App() {
                       {currentTab === AppTab.GENERATOR && (
                           <div className="max-w-3xl mx-auto">
                                <Button variant="ghost" onClick={() => setCurrentTab(AppTab.VAULT)} className="mb-4"><Layers size={16}/> Return to Vault</Button>
-                               <div className="bg-slate-900/50 border border-white/5 rounded-2xl p-8 shadow-2xl">
+                               <div className="bg-slate-900/50 border border-white/5 rounded-none p-8 shadow-2xl">
                                   <div className="max-w-xl mx-auto">
                                       <Generator />
                                   </div>
@@ -544,7 +544,7 @@ export default function App() {
                                       </div>
                                   </div>
                               ) : (
-                                  <div className="text-center p-12 bg-slate-900/50 rounded-2xl border border-white/5">
+                                  <div className="text-center p-12 bg-slate-900/50 rounded-none border border-white/5">
                                       <p className="text-slate-400 mb-4">No identity proof found.</p>
                                       <Button onClick={() => setShowCovenant(true)}>Generate Identity</Button>
                                   </div>
@@ -568,7 +568,7 @@ export default function App() {
                   <MobileNavBtn active={currentTab === AppTab.VAULT} onClick={() => setCurrentTab(AppTab.VAULT)} icon={<Shield size={20}/>} label="Vault" />
                   <MobileNavBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={20}/>} label="Notes" />
                   <div className="relative -top-6">
-                      <button onClick={handleBackup} data-agent-id="nav-backup-btn" className="bg-indigo-600 text-white p-4 rounded-full shadow-lg shadow-indigo-500/40 border-4 border-slate-950 active:scale-95 transition-transform">
+                      <button onClick={handleBackup} data-agent-id="nav-backup-btn" className="bg-amber-600 text-white p-4 rounded-none shadow-lg shadow-amber-500/40 border-4 border-slate-950 active:scale-95 transition-transform">
                           <Download size={24} />
                       </button>
                   </div>
@@ -598,9 +598,9 @@ export default function App() {
           {/* Breach Report Modal */}
           {breachReport && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-                  <div className="bg-slate-900 border border-red-500/30 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95">
+                  <div className="bg-slate-900 border border-red-500/30 rounded-none shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95">
                       <div className="bg-red-900/20 p-6 border-b border-red-500/20 flex items-center gap-4">
-                          <div className="p-3 bg-red-500/20 rounded-full text-red-500">
+                          <div className="p-3 bg-red-500/20 rounded-none text-red-500">
                               <AlertOctagon size={32} />
                           </div>
                           <div>
@@ -616,13 +616,13 @@ export default function App() {
                                   <strong className="text-red-400 text-lg mx-1">{breachReport.count}</strong> 
                                   credentials appearing in known breaches.
                               </p>
-                              <div className="text-xs text-slate-500 bg-black/20 p-2 rounded">
+                              <div className="text-xs text-slate-500 bg-black/20 p-2 rounded-none">
                                   Affected: {breachReport.items.slice(0, 3).join(", ")}
                                   {breachReport.items.length > 3 && ` +${breachReport.items.length - 3} more`}
                               </div>
                           </div>
 
-                          <div className="p-4 bg-red-950/30 border border-red-500/20 rounded-xl text-xs text-red-200/80">
+                          <div className="p-4 bg-red-950/30 border border-red-500/20 rounded-none text-xs text-red-200/80">
                               <strong className="block text-red-400 mb-1 uppercase tracking-wider">Action Required</strong>
                               We cannot determine the specific breach source. Reuse of these passwords significantly increases your risk. Rotate them immediately.
                           </div>
@@ -640,8 +640,8 @@ export default function App() {
           {/* Exit Modal */}
           {showExitModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-                  <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
-                      <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mb-4 text-amber-500">
+                  <div className="bg-slate-900 border border-white/10 rounded-none p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+                      <div className="w-12 h-12 bg-amber-500/10 rounded-none flex items-center justify-center mb-4 text-amber-500">
                           <AlertTriangle size={24} />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2">Unsaved Changes</h3>

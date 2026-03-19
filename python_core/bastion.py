@@ -49,7 +49,7 @@ def main():
     # 1. Version Check
     if args.version:
         print("Bastion Enclave v3.5.0")
-        print("Protocol: Sovereign-V3.5 (Argon2id/AES-GCM)")
+        print("Protocol: Sovereign-V4 (Argon2id/AES-GCM/Random Padding)")
         sys.exit(0)
 
     # 2. GUI Mode

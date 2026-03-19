@@ -5,20 +5,23 @@ import { BastionSerializer } from "./serializer";
 
 // PBKDF2 Constants (Legacy Support)
 const PBKDF2_V2_ITERATIONS = 210_000;
-const PBKDF2_V1_ITERATIONS = 100_000;
 const PBKDF2_DIGEST = "SHA-512";
 
-// Argon2id Constants (Current Standard)
-const ARGON_MEM_KB = 65536; // 64 MB
-const ARGON_ITERATIONS = 3;
-const ARGON_PARALLELISM = 1;
+// Argon2id Constants (V4 Standard)
+const ARGON_MEM_KB_V4 = 131072; // 128 MB
+const ARGON_ITERATIONS_V4 = 3;
+const ARGON_PARALLELISM_V4 = 4;
+
+// Argon2id Constants (V3.5 Legacy)
+const ARGON_MEM_KB_V3 = 65536; // 64 MB
+const ARGON_ITERATIONS_V3 = 3;
+const ARGON_PARALLELISM_V3 = 1;
+
 const ARGON_HASH_LEN = 32; // 256 bits
 
 const MAGIC_BYTES = new Uint8Array([0x42, 0x41, 0x53, 0x54, 0x49, 0x4f, 0x4e, 0x31]); // "BASTION1"
 
-const HEADER_V2 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x02]); // PBKDF2
-const HEADER_V3 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x03]); // Argon2id Raw
-const HEADER_V3_5 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x04]); // Argon2id + framed
+const HEADER_V4 = new Uint8Array([0x42, 0x53, 0x54, 0x4E, 0x05]); // Argon2id V4 + random framed
 
 const GLYPHS = {
   ALPHA: "abcdefghijklmnopqrstuvwxyz",
@@ -100,13 +103,19 @@ export class ChaosLock {
     return this.dec(idBytes).trim();
   }
 
-  private static async deriveKeyArgon2id(password: string, salt: Uint8Array): Promise<CryptoKey> {
+  private static async deriveKeyArgon2id(
+    password: string, 
+    salt: Uint8Array,
+    memorySize: number = ARGON_MEM_KB_V4,
+    parallelism: number = ARGON_PARALLELISM_V4,
+    iterations: number = ARGON_ITERATIONS_V4
+  ): Promise<CryptoKey> {
     const derivedBytes = await argon2id({
       password,
       salt,
-      parallelism: ARGON_PARALLELISM,
-      iterations: ARGON_ITERATIONS,
-      memorySize: ARGON_MEM_KB,
+      parallelism,
+      iterations,
+      memorySize,
       hashLength: ARGON_HASH_LEN,
       outputType: 'binary'
     });
@@ -138,16 +147,27 @@ export class ChaosLock {
     );
   }
 
+  private static nonceCounter = 0;
+
+  static generateNonce(): Uint8Array {
+    const iv = new Uint8Array(12);
+    // Fill first 8 bytes with random data
+    cryptoAPI.getRandomValues(new Uint8Array(iv.buffer, 0, 8));
+    // Use a counter for the last 4 bytes to guarantee uniqueness within the session
+    new DataView(iv.buffer).setUint32(8, this.nonceCounter++);
+    return iv;
+  }
+
   static async encryptBinary(data: Uint8Array, password: string): Promise<Uint8Array> {
     const salt = cryptoAPI.getRandomValues(new Uint8Array(16));
-    const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
-    const key = await this.deriveKeyArgon2id(password, salt);
+    const iv = this.generateNonce();
+    const key = await this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4);
     const encrypted = await cryptoAPI.subtle.encrypt(
-      { name: "AES-GCM", iv },
+      { name: "AES-GCM", iv: toArrayBuffer(iv) },
       key,
       toArrayBuffer(data)
     );
-    return this.concat(HEADER_V3_5, salt, iv, new Uint8Array(encrypted));
+    return this.concat(HEADER_V4, salt, iv, new Uint8Array(encrypted));
   }
 
   static async decryptBinary(blob: Uint8Array, password: string): Promise<{ data: Uint8Array; version: number }> {
@@ -158,7 +178,7 @@ export class ChaosLock {
 
     if (blob[0] === 0x42 && blob[1] === 0x53 && blob[2] === 0x54 && blob[3] === 0x4E) {
       const vByte = blob[4];
-      version = vByte === 0x04 ? 4 : vByte === 0x03 ? 3 : vByte === 0x02 ? 2 : 1;
+      version = vByte === 0x05 ? 5 : vByte === 0x04 ? 4 : vByte === 0x03 ? 3 : vByte === 0x02 ? 2 : 1;
       offset = 5;
     }
 
@@ -167,7 +187,11 @@ export class ChaosLock {
     const cipher = blob.slice(offset + 28);
 
     const keyFallbacks: (() => Promise<CryptoKey>)[] = [
-      () => (version >= 3 ? this.deriveKeyArgon2id(password, salt) : this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)),
+      () => (version >= 5 ? this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4) :
+             version >= 3 ? this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V3, ARGON_PARALLELISM_V3, ARGON_ITERATIONS_V3) : 
+             this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)),
+      () => this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4),
+      () => this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V3, ARGON_PARALLELISM_V3, ARGON_ITERATIONS_V3),
       () => this.deriveKeyPBKDF2(password, salt, false, PBKDF2_V2_ITERATIONS),
       () => this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)
     ];
@@ -176,7 +200,7 @@ export class ChaosLock {
       try {
         const key = await getKey();
         const decrypted = await cryptoAPI.subtle.decrypt(
-            { name: "AES-GCM", iv }, 
+            { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
             key, 
             toArrayBuffer(cipher)
         );
@@ -206,7 +230,7 @@ export class ChaosLock {
 export class SecretSharer {
   static async split(secretStr: string, shares: number, threshold: number): Promise<string[]> {
     const sessionKeyBytes = cryptoAPI.getRandomValues(new Uint8Array(32));
-    const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
+    const iv = ChaosLock.generateNonce();
     const key = await cryptoAPI.subtle.importKey(
         "raw", 
         toArrayBuffer(sessionKeyBytes), 
@@ -215,7 +239,7 @@ export class SecretSharer {
         ["encrypt"]
     );
     const encryptedSecret = await cryptoAPI.subtle.encrypt(
-        { name: "AES-GCM", iv }, 
+        { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
         key, 
         toArrayBuffer(new TextEncoder().encode(secretStr))
     );
@@ -284,7 +308,7 @@ export class SecretSharer {
       secretInt = BN.add(secretInt, BN.mul(yj, BN.mul(num, BN.inv(den))));
     }
 
-    let hexKey = secretInt.toString(16).padStart(64, "0");
+    const hexKey = secretInt.toString(16).padStart(64, "0");
     const sessionKeyBytes = ChaosLock.hex2buf(hexKey);
     const payloadBytes = ChaosLock.hex2buf(first.payload);
     const iv = payloadBytes.slice(0, 12);
@@ -298,7 +322,7 @@ export class SecretSharer {
         ["decrypt"]
     );
     const decrypted = await cryptoAPI.subtle.decrypt(
-        { name: "AES-GCM", iv }, 
+        { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
         key, 
         toArrayBuffer(cipher)
     );
@@ -311,7 +335,7 @@ export class ResonanceEngine {
   static async bind(data: Uint8Array, label: string, mime: string): Promise<{ artifact: Uint8Array; resonance: Resonance }> {
     const id = ChaosLock.getUUID();
     const keyHex = await ChaosLock.generateKey();
-    const iv = cryptoAPI.getRandomValues(new Uint8Array(12));
+    const iv = ChaosLock.generateNonce();
     const hash = await ChaosLock.computeHash(data);
     const key = await cryptoAPI.subtle.importKey(
         "raw", 
@@ -321,7 +345,7 @@ export class ResonanceEngine {
         ["encrypt"]
     );
     const encrypted = await cryptoAPI.subtle.encrypt(
-        { name: "AES-GCM", iv }, 
+        { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
         key, 
         toArrayBuffer(data)
     );
@@ -340,7 +364,7 @@ export class ResonanceEngine {
         ["decrypt"]
     );
     const decrypted = await cryptoAPI.subtle.decrypt(
-        { name: "AES-GCM", iv }, 
+        { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
         key, 
         toArrayBuffer(cipher)
     );

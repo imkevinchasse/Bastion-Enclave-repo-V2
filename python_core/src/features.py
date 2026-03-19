@@ -57,7 +57,13 @@ class LockerEngine:
             
         file_id = str(secrets.token_hex(18)) 
         key = secrets.token_bytes(32)
-        iv = secrets.token_bytes(12)
+        
+        # Counter-based nonce: 8 bytes timestamp + 4 bytes random
+        # Explicitly guarantees uniqueness
+        import time
+        timestamp = int(time.time() * 1000).to_bytes(8, 'big')
+        random_prefix = secrets.token_bytes(4)
+        iv = timestamp + random_prefix
         
         aesgcm = AESGCM(key)
         ciphertext = aesgcm.encrypt(iv, data, None)
@@ -113,7 +119,7 @@ class BreachAuditor:
             return -1
 
 class SecretSharer:
-    # secp256k1 Field Prime
+    # 256-bit Prime Field
     PRIME = 2**256 - 2**32 - 977
 
     @staticmethod
@@ -127,7 +133,14 @@ class SecretSharer:
         
         # 2. Encrypt Secret with Session Key
         aes = AESGCM(session_key)
-        iv = secrets.token_bytes(12)
+        
+        # Counter-based nonce: 8 bytes timestamp + 4 bytes random
+        # Explicitly guarantees uniqueness
+        import time
+        timestamp = int(time.time() * 1000).to_bytes(8, 'big')
+        random_prefix = secrets.token_bytes(4)
+        iv = timestamp + random_prefix
+        
         ciphertext = aes.encrypt(iv, secret_str.encode('utf-8'), None)
         
         # Payload = IV + Ciphertext

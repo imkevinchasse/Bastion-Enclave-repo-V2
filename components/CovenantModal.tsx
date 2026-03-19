@@ -53,14 +53,14 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-700">
-      <div className="max-w-2xl w-full bg-slate-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-500">
+      <div className="max-w-2xl w-full bg-slate-900 border border-white/10 rounded-none shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-500">
         
         {/* Top Accent Line */}
-        <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${mode === 'sustenance' ? 'from-emerald-500 via-amber-500 to-indigo-500' : 'from-amber-500 via-indigo-500 to-emerald-500'}`}></div>
+        <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${mode === 'sustenance' ? 'from-emerald-500 via-amber-500 to-amber-500' : 'from-amber-500 via-amber-500 to-emerald-500'}`}></div>
         
         {isProcessing ? (
             <div className="p-20 flex flex-col items-center justify-center text-center">
-                <Loader2 size={48} className="animate-spin text-indigo-500 mb-6" />
+                <Loader2 size={48} className="animate-spin text-amber-500 mb-6" />
                 <h3 className="text-xl font-bold text-white mb-2">
                     {mode === 'sustenance' ? 'Recording Stewardship...' : 'Issuing Continuity Bond...'}
                 </h3>
@@ -71,7 +71,7 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
             
             {/* Header */}
             <div className="text-center space-y-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 border border-white/5 mb-4 shadow-xl">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-none bg-slate-800 border border-white/5 mb-4 shadow-xl">
                     {mode === 'sustenance' ? <Scale size={32} className="text-emerald-400" /> : <Landmark size={32} className="text-amber-400" />}
                 </div>
                 <div>
@@ -85,9 +85,9 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
                 
                 {/* Legacy Veteran Recognition */}
                 {legacyVersion && (
-                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 flex items-center justify-between max-w-md mx-auto">
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-none p-3 flex items-center justify-between max-w-md mx-auto">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-slate-700 rounded-lg text-slate-300">
+                            <div className="p-2 bg-slate-700 rounded-none text-slate-300">
                                 <Medal size={16} />
                             </div>
                             <div className="text-left">
@@ -96,26 +96,26 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-[10px] font-bold text-white px-2 py-1 bg-slate-700 rounded border border-slate-600">VETERAN STATUS</div>
+                            <div className="text-[10px] font-bold text-white px-2 py-1 bg-slate-700 rounded-none border border-slate-600">VETERAN STATUS</div>
                         </div>
                     </div>
                 )}
 
                 {/* Genesis Status Banner */}
                 {genesisStatus?.isOpen && mode === 'onboarding' && (
-                    <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-3 flex items-center justify-between max-w-md mx-auto">
+                    <div className="bg-amber-900/20 border border-amber-500/30 rounded-none p-3 flex items-center justify-between max-w-md mx-auto">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400">
+                            <div className="p-2 bg-amber-500/20 rounded-none text-amber-400">
                                 <Sparkles size={16} />
                             </div>
                             <div className="text-left">
-                                <div className="text-xs font-bold text-indigo-300 uppercase tracking-wider">Genesis Window Open</div>
-                                <div className="text-[10px] text-indigo-400/70">Epoch: {genesisStatus.name}</div>
+                                <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">Genesis Window Open</div>
+                                <div className="text-[10px] text-amber-400/70">Epoch: {genesisStatus.name}</div>
                             </div>
                         </div>
                         <div className="text-right">
                             <div className="text-xs font-mono font-bold text-white">{genesisStatus.daysRemaining} Days Left</div>
-                            <div className="text-[10px] text-indigo-400/70">Current Rank: #{genesisStatus.estimatedRank}</div>
+                            <div className="text-[10px] text-amber-400/70">Current Rank: #{genesisStatus.estimatedRank}</div>
                         </div>
                     </div>
                 )}
@@ -146,18 +146,18 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
 
             {/* Choices */}
             <div className="grid gap-3">
-                <button onClick={() => handleCommit('guardian')} className="group flex items-center gap-5 p-4 rounded-2xl border border-white/5 bg-white/0 hover:bg-white/5 hover:border-indigo-500/30 transition-all text-left">
-                    <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl group-hover:bg-indigo-500 group-hover:text-white transition-colors shrink-0">
+                <button onClick={() => handleCommit('guardian')} className="group flex items-center gap-5 p-4 rounded-none border border-white/5 bg-white/0 hover:bg-white/5 hover:border-amber-500/30 transition-all text-left">
+                    <div className="p-3 bg-amber-500/10 text-amber-400 rounded-none group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
                         <ShieldCheck size={24} />
                     </div>
                     <div>
                         <div className="font-bold text-slate-200 group-hover:text-white text-base">Issue Guardian Bond</div>
-                        <div className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">I pledge financial stewardship. <span className="text-indigo-400 font-bold ml-1">+ Genesis Artifact</span></div>
+                        <div className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors">I pledge financial stewardship. <span className="text-amber-400 font-bold ml-1">+ Genesis Artifact</span></div>
                     </div>
                 </button>
 
-                <button onClick={() => handleCommit('architect')} className="group flex items-center gap-5 p-4 rounded-2xl border border-white/5 bg-white/0 hover:bg-white/5 hover:border-emerald-500/30 transition-all text-left">
-                    <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl group-hover:bg-emerald-500 group-hover:text-white transition-colors shrink-0">
+                <button onClick={() => handleCommit('architect')} className="group flex items-center gap-5 p-4 rounded-none border border-white/5 bg-white/0 hover:bg-white/5 hover:border-emerald-500/30 transition-all text-left">
+                    <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-none group-hover:bg-emerald-500 group-hover:text-white transition-colors shrink-0">
                         <Code size={24} />
                     </div>
                     <div>
@@ -166,8 +166,8 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
                     </div>
                 </button>
 
-                <button onClick={() => handleCommit('advocate')} className="group flex items-center gap-5 p-4 rounded-2xl border border-white/5 bg-white/0 hover:bg-white/5 hover:border-amber-500/30 transition-all text-left">
-                    <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
+                <button onClick={() => handleCommit('advocate')} className="group flex items-center gap-5 p-4 rounded-none border border-white/5 bg-white/0 hover:bg-white/5 hover:border-amber-500/30 transition-all text-left">
+                    <div className="p-3 bg-amber-500/10 text-amber-400 rounded-none group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
                         <Share2 size={24} />
                     </div>
                     <div>
@@ -177,8 +177,8 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
                 </button>
 
                 {mode === 'onboarding' ? (
-                    <button onClick={() => handleCommit('sovereign')} className="group flex items-center gap-5 p-4 rounded-2xl border border-white/5 bg-white/0 hover:bg-white/5 hover:border-slate-500/30 transition-all text-left opacity-60 hover:opacity-100">
-                        <div className="p-3 bg-slate-800 text-slate-400 rounded-xl group-hover:bg-slate-700 group-hover:text-white transition-colors shrink-0">
+                    <button onClick={() => handleCommit('sovereign')} className="group flex items-center gap-5 p-4 rounded-none border border-white/5 bg-white/0 hover:bg-white/5 hover:border-slate-500/30 transition-all text-left opacity-60 hover:opacity-100">
+                        <div className="p-3 bg-slate-800 text-slate-400 rounded-none group-hover:bg-slate-700 group-hover:text-white transition-colors shrink-0">
                             <XCircle size={24} />
                         </div>
                         <div>
@@ -187,8 +187,8 @@ export const CovenantModal: React.FC<CovenantModalProps> = ({ onResolve, mode = 
                         </div>
                     </button>
                 ) : (
-                    <button onClick={onDismiss} className="group flex items-center gap-5 p-4 rounded-2xl border border-white/5 bg-white/0 hover:bg-white/5 hover:border-slate-500/30 transition-all text-left opacity-60 hover:opacity-100">
-                        <div className="p-3 bg-slate-800 text-slate-400 rounded-xl group-hover:bg-slate-700 group-hover:text-white transition-colors shrink-0">
+                    <button onClick={onDismiss} className="group flex items-center gap-5 p-4 rounded-none border border-white/5 bg-white/0 hover:bg-white/5 hover:border-slate-500/30 transition-all text-left opacity-60 hover:opacity-100">
+                        <div className="p-3 bg-slate-800 text-slate-400 rounded-none group-hover:bg-slate-700 group-hover:text-white transition-colors shrink-0">
                             <XCircle size={24} />
                         </div>
                         <div>
