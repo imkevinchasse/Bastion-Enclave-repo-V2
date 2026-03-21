@@ -207,7 +207,7 @@ else
     echo -e "\\033[0;33m[!] Warning: $USER_BIN is not currently in your PATH.\\033[0m"
     echo "To run 'bastion', add this to your shell profile (e.g. ~/.bashrc, ~/.zshrc):"
     echo ""
-    echo "  export PATH=\"$PATH:$USER_BIN\""
+    echo "  export PATH=\\"$PATH:$USER_BIN\\""
     echo ""
     echo "Then restart your terminal and type 'bastion'."
 fi

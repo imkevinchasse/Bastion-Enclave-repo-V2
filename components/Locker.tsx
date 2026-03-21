@@ -112,7 +112,9 @@ export const Locker: React.FC<LockerProps> = ({ entries, onLock, onDelete, onVal
             if (decoder.decode(header) === "BASTION1") {
                 isBastionFile = true;
             }
-        } catch(e) {}
+        } catch(e) {
+            // Ignore decoding errors
+        }
 
         if (isBastionFile) {
             await unlockFromBytes(bytes);

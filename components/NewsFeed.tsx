@@ -38,14 +38,14 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ compact = false }) => {
             }, 8000);
 
             const cleanup = () => {
-                // @ts-ignore
+                // @ts-expect-error - Dynamic global callback
                 delete window[callbackName];
                 if (document.head.contains(script)) document.head.removeChild(script);
                 clearTimeout(timeout);
             }
 
             // Register global callback
-            // @ts-ignore
+            // @ts-expect-error - Dynamic global callback
             window[callbackName] = (response) => {
                 cleanup();
                 resolve(response);

@@ -234,7 +234,7 @@ export const runPhishingAnalysis = async (text: string): Promise<PhishingResult>
     else if (hybridScore > 35) riskLevel = 'SUSPICIOUS';
 
     // --- STEP 3: Neural Explanation (Generative) ---
-    let analysis: string;
+    let analysis = "";
     
     if (state.llm) {
         const systemPrompt = `You are a security analyst.
@@ -286,7 +286,7 @@ export const runCredentialAudit = async (password: string, service?: string, use
     const suggestions = hasContext ? ["Remove service name from password"] : ["Increase length", "Use symbols"];
 
     // Reasoner
-    let analysis: string;
+    let analysis = "";
     if (state.llm) {
         const prompt = `Password Score: ${totalScore}/100.
 Context Leak: ${hasContext ? "YES" : "NO"}.
