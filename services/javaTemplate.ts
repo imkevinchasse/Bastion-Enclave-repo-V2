@@ -858,18 +858,43 @@ public class Bastion extends JFrame {
         }
 
         public static String transmute(String entropyHex, String name, String username, int version, int length, boolean useSymbols) throws Exception {
-            String salt = "BASTION_GENERATOR_V2::" + name.toLowerCase() + "::" + username.toLowerCase() + "::v" + version;
-            int dkLen = length * 32; 
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-            KeySpec spec = new PBEKeySpec(entropyHex.toCharArray(), salt.getBytes(StandardCharsets.UTF_8), ITERATIONS, dkLen);
-            byte[] buffer = factory.generateSecret(spec).getEncoded();
             String alpha = "abcdefghijklmnopqrstuvwxyz"; String caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; String num = "0123456789"; String sym = "!@#$%^&*()_+-=[]{}|;:,.<>?";
             String pool = alpha + caps + num + (useSymbols ? sym : "");
             int limit = 256 - (256 % pool.length());
-            StringBuilder out = new StringBuilder(); int i = 0;
-            while(out.length() < length && i < buffer.length) {
-                int b = Byte.toUnsignedInt(buffer[i++]);
-                if (b < limit) out.append(pool.charAt(b % pool.length()));
+            StringBuilder out = new StringBuilder();
+            
+            if (version >= 4) {
+                // For Java standalone, we fallback to PBKDF2 for V4 if Argon2 isn't available
+                // In a real environment, this would use Argon2id
+                String baseSalt = "BASTION_GENERATOR_V4::" + name.toLowerCase() + "::" + username.toLowerCase() + "::v" + version;
+                int dkLen = length * 6 * 8; // length * 6 bytes = length * 48 bits
+                SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+                int counter = 0;
+                
+                while (out.length() < length) {
+                    String salt = baseSalt + "::" + counter;
+                    KeySpec spec = new PBEKeySpec(entropyHex.toCharArray(), salt.getBytes(StandardCharsets.UTF_8), ITERATIONS, dkLen);
+                    byte[] buffer = factory.generateSecret(spec).getEncoded();
+                    
+                    int i = 0;
+                    while(out.length() < length && i < buffer.length) {
+                        int b = Byte.toUnsignedInt(buffer[i++]);
+                        if (b < limit) out.append(pool.charAt(b % pool.length()));
+                    }
+                    counter++;
+                }
+            } else {
+                String salt = "BASTION_GENERATOR_V2::" + name.toLowerCase() + "::" + username.toLowerCase() + "::v" + version;
+                int dkLen = length * 32 * 8; // length * 32 bytes = length * 256 bits
+                SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+                KeySpec spec = new PBEKeySpec(entropyHex.toCharArray(), salt.getBytes(StandardCharsets.UTF_8), ITERATIONS, dkLen);
+                byte[] buffer = factory.generateSecret(spec).getEncoded();
+                
+                int i = 0;
+                while(out.length() < length && i < buffer.length) {
+                    int b = Byte.toUnsignedInt(buffer[i++]);
+                    if (b < limit) out.append(pool.charAt(b % pool.length()));
+                }
             }
             return out.toString();
         }

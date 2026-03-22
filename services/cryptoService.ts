@@ -376,20 +376,15 @@ export class ResonanceEngine {
 export class ChaosEngine {
   private static async flux(entropy: string, salt: string, length: number): Promise<Uint8Array> {
     const enc = new TextEncoder();
-    const baseKey = await cryptoAPI.subtle.importKey(
-        "raw", 
-        toArrayBuffer(enc.encode(entropy)), 
-        { name: "PBKDF2" }, 
-        false, 
-        ["deriveBits"]
-    );
-    const bitsNeeded = length * 8; // now correct; remove arbitrary *4
-    const bits = await cryptoAPI.subtle.deriveBits(
-      { name: "PBKDF2", salt: toArrayBuffer(enc.encode(salt)), iterations: PBKDF2_V2_ITERATIONS, hash: PBKDF2_DIGEST },
-      baseKey,
-      bitsNeeded
-    );
-    return new Uint8Array(bits);
+    return argon2id({
+      password: entropy,
+      salt: enc.encode(salt),
+      parallelism: ARGON_PARALLELISM_V4,
+      iterations: ARGON_ITERATIONS_V4,
+      memorySize: ARGON_MEM_KB_V4,
+      hashLength: length * 6,
+      outputType: 'binary'
+    });
   }
 
   static generateEntropy(): string {
@@ -398,18 +393,21 @@ export class ChaosEngine {
 
   static async transmute(master: string, ctx: VaultConfig): Promise<string> {
     if (ctx.customPassword?.length) return ctx.customPassword;
-    const salt = `BASTION_GENERATOR_V2::${ctx.name.toLowerCase()}::${ctx.username.toLowerCase()}::v${ctx.version}`;
-    let buf = await this.flux(master, salt, ctx.length);
+    const baseSalt = `BASTION_GENERATOR_V4::${ctx.name.toLowerCase()}::${ctx.username.toLowerCase()}::v${ctx.version}`;
+    
     const pool = GLYPHS.ALPHA + GLYPHS.CAPS + GLYPHS.NUM + (ctx.useSymbols ? GLYPHS.SYM : "");
     const limit = 256 - (256 % pool.length);
-    let out = "", bufIdx = 0;
+    let out = "";
+    let counter = 0;
+    
     while (out.length < ctx.length) {
-      if (bufIdx >= buf.length) {
-          buf = await this.flux(master, salt + out, ctx.length);
-          bufIdx = 0;
+      const salt = `${baseSalt}::${counter}`;
+      const buf = await this.flux(master, salt, ctx.length);
+      for (let i = 0; i < buf.length && out.length < ctx.length; i++) {
+        const byte = buf[i];
+        if (byte < limit) out += pool[byte % pool.length];
       }
-      const byte = buf[bufIdx++];
-      if (byte < limit) out += pool[byte % pool.length];
+      counter++;
     }
     return out;
   }

@@ -87,9 +87,9 @@ export class BastionSerializer {
         const jsonBytes = encoder.encode(json);
         const len = jsonBytes.length;
         
-        // Calculate Random Padding (between 256 and 2048 bytes)
-        const minPadding = 256;
-        const maxPadding = 2048;
+        // Calculate Random Padding (between 128 and 4096 bytes)
+        const minPadding = 128;
+        const maxPadding = 4096;
         const paddingNeeded = Math.floor(Math.random() * (maxPadding - minPadding + 1)) + minPadding;
         
         const totalRaw = 4 + len;

@@ -334,7 +334,7 @@ class BastionSerializer:
     @staticmethod
     def frame(json_str: str) -> bytes:
         """
-        Wraps JSON with 4-byte Length Header + Random Padding (256-2048 bytes).
+        Wraps JSON with 4-byte Length Header + Random Padding (128-4096 bytes).
         """
         import random
         import secrets
@@ -344,8 +344,8 @@ class BastionSerializer:
         # 1. Header
         header = struct.pack('<I', length)
         
-        # 2. Random Padding (256 - 2048 bytes)
-        padding_needed = random.randint(256, 2048)
+        # 2. Random Padding (128 - 4096 bytes)
+        padding_needed = random.randint(128, 4096)
         padding = secrets.token_bytes(padding_needed)
         
         return header + data_bytes + padding

@@ -17,30 +17,59 @@ class ChaosEngine:
 
     @staticmethod
     def transmute(entropy: str, service: str, username: str, version: int = 1, length: int = 16, symbols: bool = True) -> str:
-        salt_str = f"BASTION_GENERATOR_V2::{service.lower()}::{username.lower()}::v{version}"
-        dk_len = length * 32 # Surplus for rejection sampling
-        
-        kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA512(),
-            length=dk_len, 
-            salt=salt_str.encode('utf-8'),
-            iterations=ITERATIONS,
-        )
-        flux_bytes = kdf.derive(entropy.encode('utf-8'))
+        import argon2
         
         pool = ChaosEngine.ALPHA + ChaosEngine.CAPS + ChaosEngine.NUM
         if symbols: pool += ChaosEngine.SYM
             
         limit = 256 - (256 % len(pool))
         password = []
-        buf_idx = 0
         
-        while len(password) < length and buf_idx < len(flux_bytes):
-            byte_val = flux_bytes[buf_idx]
-            buf_idx += 1
-            if byte_val < limit:
-                char_idx = byte_val % len(pool)
-                password.append(pool[char_idx])
+        if version >= 4:
+            base_salt = f"BASTION_GENERATOR_V4::{service.lower()}::{username.lower()}::v{version}"
+            dk_len = length * 6 # Headroom for rejection sampling
+            counter = 0
+            
+            while len(password) < length:
+                salt_str = f"{base_salt}::{counter}"
+                flux_bytes = argon2.low_level.hash_secret_raw(
+                    secret=entropy.encode('utf-8'),
+                    salt=salt_str.encode('utf-8'),
+                    time_cost=3,
+                    memory_cost=131072, # 128MB
+                    parallelism=4,
+                    hash_len=dk_len,
+                    type=argon2.Type.ID
+                )
+                
+                buf_idx = 0
+                while len(password) < length and buf_idx < len(flux_bytes):
+                    byte_val = flux_bytes[buf_idx]
+                    buf_idx += 1
+                    if byte_val < limit:
+                        char_idx = byte_val % len(pool)
+                        password.append(pool[char_idx])
+                
+                counter += 1
+        else:
+            salt_str = f"BASTION_GENERATOR_V2::{service.lower()}::{username.lower()}::v{version}"
+            dk_len = length * 32 # Surplus for rejection sampling
+            
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA512(),
+                length=dk_len, 
+                salt=salt_str.encode('utf-8'),
+                iterations=ITERATIONS,
+            )
+            flux_bytes = kdf.derive(entropy.encode('utf-8'))
+            
+            buf_idx = 0
+            while len(password) < length and buf_idx < len(flux_bytes):
+                byte_val = flux_bytes[buf_idx]
+                buf_idx += 1
+                if byte_val < limit:
+                    char_idx = byte_val % len(pool)
+                    password.append(pool[char_idx])
             
         return "".join(password)
 

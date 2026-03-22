@@ -10,16 +10,19 @@ This document details the exact mathematical formulas and cryptographic primitiv
 The Chaos Engine transforms a Master Seed and Context into a password without storage.
 
 ### 1.1. Key Derivation (Flux)
-We generate a pseudo-random stream of bytes ($Flux$) using PBKDF2-HMAC-SHA512.
+We generate independent memory-hard expansions indexed by a counter ($Flux$) using Argon2id to ensure memory-hardness and GPU resistance, matching the vault's security level.
 
 $$
-Flux = \text{PBKDF2}(PRF=\text{HMAC-SHA512}, P=E, S=Salt, c=210,000, dkLen=L \times 4)
+Flux_i = \text{Argon2id}(P=E, S=Salt \parallel i, t=3, m=128\text{ MiB}, p=4, dkLen=L \times 6)
 $$
 
 Where:
 *   $E$: Entropy (32-byte Hex String of Master Seed).
-*   $Salt$: $\text{"BASTION\_GENERATOR\_V2::"} \parallel S \parallel \text{"::"} \parallel U \parallel \text{"::v"} \parallel V$
-*   $dkLen$: Derived Key Length (4x the password length to allow for rejection sampling).
+*   $Salt$: $\text{"BASTION\_GENERATOR\_V4::"} \parallel S \parallel \text{"::"} \parallel U \parallel \text{"::v"} \parallel V$ (All components are UTF-8 encoded and delimiter-safe).
+*   $i$: Counter index ($0, 1, 2, \dots$) for deterministic reseeding.
+*   $dkLen$: Derived Key Length ($6 \times$ the target password length to provide headroom for rejection sampling).
+
+While Argon2id is not formally defined as a PRF, it is used here to enforce consistent memory-hardness across all derivations.
 
 ### 1.2. Unbiased Rejection Sampling
 Standard modulo arithmetic (`byte % N`) introduces bias if $256$ is not perfectly divisible by the character set size $N$. 
@@ -47,6 +50,8 @@ $$
 \text{Discard} & \text{if } b \ge L_{limit}
 \end{cases}
 $$
+
+If $Flux_i$ is exhausted before $L$ valid characters are generated, a new stream $Flux_{i+1}$ is derived by incrementing the counter $i$. This counter-based derivation ensures clean determinism without structural bias or feedback loops.
 
 This ensures every chosen index has exactly equal probability $\frac{1}{N}$.
 
@@ -81,7 +86,7 @@ $$
 Total = 4 + Len
 $$
 $$
-Pad_{bytes} = \text{RandomInteger}(256, 2048)
+Pad_{bytes} = \text{RandomInteger}(128, 4096)
 $$
 $$
 F = Header \parallel J \parallel \text{RandomBytes}(Pad_{bytes})
@@ -91,7 +96,7 @@ $$
 $$
 C, Tag = \text{AES-GCM}(K_{master}, IV, F)
 $$
-*   $IV$: 12-byte Deterministic/Counter-based Nonce (Guarantees uniqueness).
+*   $IV$: 12-byte Deterministic/Counter-based Nonce. Nonce is a monotonically increasing counter scoped to each encryption key (Guarantees uniqueness). The counter state is persisted alongside the key to prevent reuse across sessions.
 *   $Tag$: 16-byte GCM Authentication Tag.
 
 ---
@@ -101,7 +106,7 @@ $$
 We use Shamir's Secret Sharing over a Prime Field $\mathbb{F}_p$.
 
 ### 3.1. The Field
-We use a 256-bit prime field to ensure large keyspace coverage.
+We use a 256-bit prime field to ensure security against interpolation attacks and sufficient entropy capacity for secrets.
 
 $$
 p = 2^{256} - 2^{32} - 977
@@ -145,7 +150,9 @@ $$
 
 ## 4. k-Anonymity (Breach Scanner)
 
-To check a password without revealing it to the server.
+To check a password without revealing it to the server. 
+
+**Security Note:** SHA-1 is used strictly for indexing, not for cryptographic security. It is used as a fast, uniform distribution function to generate a 40-character index for k-anonymity bucket lookups against the HaveIBeenPwned API.
 
 1.  **Client-Side Hashing:**
     $$ H = \text{SHA-1}(Password) $$
