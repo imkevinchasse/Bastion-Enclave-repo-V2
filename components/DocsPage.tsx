@@ -2,15 +2,14 @@
 import React, { useState } from 'react';
 import { TopNav } from './TopNav';
 import { PublicPage } from '../types';
-import { Shield, Lock, FileLock2, FileKey, Fingerprint, RefreshCw, BookOpen, Terminal, ChevronRight, Zap, Code2, AlertTriangle, ShieldAlert, Wifi, Server, CheckCircle, Copy, Download, History, ShieldCheck, Binary, Cpu, Share2, AlertOctagon, Bot, Database, Coffee, Globe, FileText, Network, Layers } from 'lucide-react';
-import { zip, Zippable } from 'fflate';
+import { Shield, Lock, FileLock2, FileKey, Fingerprint, RefreshCw, BookOpen, Terminal, ChevronRight, Zap, AlertTriangle, ShieldAlert, Wifi, CheckCircle, Copy, Download, History, Binary, Bot, Coffee, FileText, Share2 } from 'lucide-react';
 import { Button } from './Button';
 
 interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'training' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -34,6 +33,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Core Modules</div>
                     <NavButton active={activeSection === 'chaos'} onClick={() => setActiveSection('chaos')} icon={<RefreshCw size={16}/>} label="Chaos Engine™" />
                     <NavButton active={activeSection === 'locker'} onClick={() => setActiveSection('locker')} icon={<FileLock2 size={16}/>} label="Bastion Locker" />
+                    <NavButton active={activeSection === 'identity'} onClick={() => setActiveSection('identity')} icon={<Fingerprint size={16}/>} label="Sovereign Identity" />
+                    <NavButton active={activeSection === 'training'} onClick={() => setActiveSection('training')} icon={<ShieldAlert size={16}/>} label="Active Defense" />
                     <NavButton active={activeSection === 'breach'} onClick={() => setActiveSection('breach')} icon={<ShieldAlert size={16}/>} label="Breach Scanner" />
                 </div>
 
@@ -59,6 +60,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 {activeSection === 'recovery' && <RecoveryContent />}
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
+                {activeSection === 'identity' && <IdentityContent />}
+                {activeSection === 'training' && <TrainingContent />}
                 {activeSection === 'agents' && <AgentContent />}
                 {activeSection === 'java' && <JavaContent />}
                 {activeSection === 'breach' && <BreachContent />}
@@ -71,7 +74,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
 };
 
 const AGENT_SKILL_CONTENT = `
-# Agent Directive: Bastion Protocol v3.5
+# Agent Directive: Bastion Protocol v4.0
 
 **MISSION:** You are an autonomous steward of the user's digital identity.
 **MAGNITUDE:** You hold the keys to everything. Treat this interface with extreme caution.
@@ -151,6 +154,93 @@ curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2
 *   **Config:** A login entry (Service + User).
 *   **Resonance:** A file encryption key (for Locker).
 `;
+
+const IdentityContent = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Sovereign Identity</h2>
+            <p className="text-lg text-slate-600 leading-relaxed">
+                Bastion Enclave introduces Covenantware—a binding agreement between the software and its steward. Your identity is cryptographically tied to your vault's Genesis Window.
+            </p>
+        </div>
+
+        <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                <Fingerprint size={20} />
+                The Continuity Bond
+            </h3>
+            <p className="text-emerald-800 leading-relaxed mb-4">
+                Unlike traditional SaaS models where you rent access to your data, Covenantware establishes a permanent bond. Your vault is your sovereign territory.
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-emerald-800">
+                <li><strong>Genesis Window:</strong> The exact cryptographic timestamp when your vault was first established. It cannot be forged.</li>
+                <li><strong>Sustenance:</strong> Periodic cryptographic check-ins that reinforce the Continuity Bond. By actively maintaining your vault, you strengthen your identity proof.</li>
+                <li><strong>Legacy Veteran Recognition:</strong> Long-term stewards unlock special recognition and features as their Continuity Bond matures.</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 className="text-xl font-bold text-slate-900 mb-4">Technical Implementation</h3>
+            <p className="text-slate-600 leading-relaxed mb-4">
+                Sovereign Identity is built on local attestation and cryptographic signatures. Your device generates a unique Ed25519 keypair during vault creation. This keypair signs your Genesis Window and subsequent Sustenance check-ins.
+            </p>
+            <div className="bg-slate-900 rounded-xl p-4 overflow-x-auto">
+                <pre className="text-emerald-400 font-mono text-sm">
+{`interface CovenantState {
+  genesisTimestamp: number;
+  lastSustenance: number;
+  sustenanceCount: number;
+  stewardName: string;
+  signature: string; // Ed25519 signature of the state
+}`}
+                </pre>
+            </div>
+        </div>
+    </div>
+);
+
+const TrainingContent = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Active Defense Training</h2>
+            <p className="text-lg text-slate-600 leading-relaxed">
+                Security is not a passive state; it's an active discipline. Bastion Enclave includes a built-in Security Monitor to train your threat recognition and incident response skills.
+            </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Threat Recognition</h3>
+                <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                    Learn to identify common attack vectors and anomalies in network traffic, system logs, and user behavior.
+                </p>
+                <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Phishing Detection</li>
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Port Scanning Analysis</li>
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Entropy Analysis</li>
+                </ul>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Incident Response</h3>
+                <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                    Practice mitigating active threats under pressure. Develop muscle memory for isolating compromised systems and blocking malicious traffic.
+                </p>
+                <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> DDoS Mitigation</li>
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> Sequence Matching</li>
+                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> Neural Network Defense</li>
+                </ul>
+            </div>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">The Security Monitor</h3>
+            <p className="text-slate-600 leading-relaxed">
+                Access the Security Monitor from the main dashboard. It provides a simulated environment where you can test your skills against various attack scenarios. Completing training modules improves your overall security posture and contributes to your Sovereign Identity.
+            </p>
+        </div>
+    </div>
+);
 
 const AgentContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -246,6 +336,23 @@ const RecoveryContent = () => (
                 </ol>
             </div>
         </div>
+
+        <div className="bg-slate-900/50 rounded-none border border-white/5 overflow-hidden">
+            <div className="p-6">
+                <h3 className="font-bold text-white text-lg mb-2 flex items-center gap-2">
+                    <Share2 size={20} className="text-emerald-400" />
+                    Prime Field Sharing (Sharding)
+                </h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                    Bastion Enclave supports Shamir's Secret Sharing over a 256-bit prime field. This allows you to split your Master Password into multiple "shards".
+                </p>
+                <ul className="list-disc pl-5 space-y-2 text-sm text-slate-400">
+                    <li><strong>Threshold Security:</strong> You can generate 5 shards and require any 3 to recover the password.</li>
+                    <li><strong>Information-Theoretic Security:</strong> Having 2 shards provides absolutely zero information about the secret. It is mathematically impossible to brute-force the missing shard.</li>
+                    <li><strong>Distribution:</strong> Give one shard to a trusted family member, put one in a safe deposit box, keep one on a secure USB drive, etc.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 );
 
@@ -268,12 +375,12 @@ const ChaosContent = () => (
             </div>
             <div className="p-6 bg-black/20 border-t border-white/5">
                 <h3 className="font-bold text-amber-400 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Terminal size={14}/> Technical Specification (v2.8)
+                    <Terminal size={14}/> Technical Specification (V4)
                 </h3>
                 <ul className="space-y-3 text-sm text-slate-500 font-mono">
-                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Algo: PBKDF2-HMAC-SHA512</span></li>
-                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Iterations: 210,000 (Computationally Expensive)</span></li>
-                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Salt: "BASTION_GENERATOR_V2::" + Context</span></li>
+                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Algo: Argon2id</span></li>
+                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Parameters: Time Cost: 3, Memory Cost: 128MB, Parallelism: 4</span></li>
+                    <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Salt: "BASTION_GENERATOR_V4::" + Context + Version + Counter</span></li>
                     <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Sampling: Unbiased Rejection Sampling</span></li>
                 </ul>
             </div>
@@ -381,14 +488,21 @@ const ChangelogContent = () => (
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-3">
                     Bastion Protocol V4 <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-none border border-amber-500/30">STABLE</span>
                 </h3>
-                <div className="text-xs text-slate-500 font-mono mb-4">Epoch: 2026-01-30 • Scope: Serialization & Format Discipline</div>
+                <div className="text-xs text-slate-500 font-mono mb-4">Epoch: 2026-03-23 • Scope: Argon2id & Developer Mode</div>
 
                 <div className="space-y-6 text-sm text-slate-400">
                     <div className="space-y-2">
-                        <h4 className="text-white font-bold flex items-center gap-2"><Binary size={14} className="text-blue-400"/> Canonical Serialization (New)</h4>
+                        <h4 className="text-white font-bold flex items-center gap-2"><Binary size={14} className="text-blue-400"/> Argon2id Key Derivation</h4>
                         <ul className="list-disc list-outside ml-4 space-y-1 text-slate-400 marker:text-slate-600">
-                            <li>Vault plaintext is now serialized using a strict, deterministic canonical format prior to encryption.</li>
-                            <li>Field ordering is fixed and versioned.</li>
+                            <li>Upgraded Chaos Engine to V4 using Argon2id for deterministic generation.</li>
+                            <li>Increased Argon2id memory cost to 128MB and parallelism to 4.</li>
+                        </ul>
+                    </div>
+                    <div className="space-y-2">
+                        <h4 className="text-white font-bold flex items-center gap-2"><Terminal size={14} className="text-emerald-400"/> Developer Mode</h4>
+                        <ul className="list-disc list-outside ml-4 space-y-1 text-slate-400 marker:text-slate-600">
+                            <li>Added Developer Mode via `dev://` prefix for advanced debugging and testing.</li>
+                            <li>Enhanced Python CLI with robust restore flow and improved password validation.</li>
                         </ul>
                     </div>
                 </div>
@@ -443,22 +557,4 @@ const Step = ({ number, title, children }: { number: number, title: string, chil
     </div>
 );
 
-const CopyButton = ({ text }: { text: string }) => {
-    const [copied, setCopied] = useState(false);
-    
-    const handleCopy = () => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
 
-    return (
-        <button 
-            onClick={handleCopy}
-            className="p-1.5 text-slate-500 hover:text-white transition-colors ml-auto bg-slate-900 rounded-none border border-white/10"
-            title="Copy to clipboard"
-        >
-            {copied ? <CheckCircle size={14} className="text-emerald-500" /> : <Copy size={14} />}
-        </button>
-    );
-};

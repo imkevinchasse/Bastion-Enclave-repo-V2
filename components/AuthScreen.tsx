@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import { TopNav } from './TopNav';
-import { RefreshCw, Copy, Check, Eye, EyeOff, ShieldAlert, KeyRound, Upload, Trash2, LogIn, UserPlus, HelpCircle, HardDrive, FileText, Scan, Fingerprint, Info, Terminal, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Copy, Check, Eye, EyeOff, ShieldAlert, Trash2, LogIn, UserPlus, HelpCircle, HardDrive, FileText, Scan, Fingerprint, Info, Terminal, ShieldCheck } from 'lucide-react';
 import { ChaosLock, ChaosEngine } from '../services/cryptoService';
 import { VaultState, PublicPage, VaultFlags } from '../types';
 import { track } from '@vercel/analytics';
@@ -84,6 +84,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         setPassword('');
         setShowPassword(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   const handleRegeneratePassword = () => {
@@ -152,7 +153,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
 
         // Pass isNew=true to trigger unsaved changes warning until backup
         onOpen(initialState, newBlob, finalPassword, true, 4); // 4 = Current Protocol
-    } catch (e) {
+    } catch (_e) {
         setError("Failed to create vault.");
     } finally {
         setLoading(false);
@@ -213,7 +214,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
             onOpen(state, inputData, finalPassword, false, version);
         }
 
-    } catch (e) {
+    } catch (_e) {
         await new Promise(r => setTimeout(r, 800));
         setError("Incorrect password or invalid file.");
     } finally {
@@ -239,7 +240,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                   setBlob(text.trim());
               }
               setLocalVaultFound(true); 
-          } catch(err) {
+          } catch(_err) {
               setError("Could not read file.");
           }
       }

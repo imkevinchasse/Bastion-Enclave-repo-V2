@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from './Button';
-import { ShieldCheck, Lock, Key, AlertTriangle, Fingerprint, Terminal, ArrowRight, RefreshCw, Server, ShieldAlert, CheckCircle, Database, Skull, MousePointer2, Trophy, Bug, Siren, Code, Cpu, Eye, Zap, Globe, Network, XCircle, Activity, Wifi } from 'lucide-react';
+import { ShieldCheck, Lock, Fingerprint, Terminal, Server, ShieldAlert, CheckCircle, Database, Skull, Trophy, Bug, Siren, Code, Cpu, Zap, Globe, Network, XCircle, Activity, Wifi } from 'lucide-react';
 
 // --- GAME STATE TYPES ---
 type GameState = 'intro' | 'playing' | 'victory' | 'failed';
@@ -32,18 +32,18 @@ export const SecurityGame: React.FC = () => {
   const [score, setScore] = useState(0);
   const [hardMode, setHardMode] = useState(false);
 
-  const handleLevelComplete = (points: number) => {
+  const handleLevelComplete = useCallback((points: number) => {
     setScore(prev => prev + (hardMode ? points * 1.5 : points));
     if (currentLevelIdx < LEVELS.length - 1) {
       setCurrentLevelIdx(prev => prev + 1);
     } else {
       setGameState('victory');
     }
-  };
+  }, [currentLevelIdx, hardMode]);
 
-  const handleLevelFail = () => {
+  const handleLevelFail = useCallback(() => {
     setGameState('failed');
-  };
+  }, []);
 
   const resetGame = () => {
     setGameState('playing');
@@ -224,6 +224,7 @@ const LevelEntropy = ({ onComplete, onFail, hardMode }: any) => {
             });
         }, 1000);
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSubmit = () => {
@@ -295,6 +296,7 @@ const LevelMatching = ({ onComplete, onFail, hardMode }: any) => {
             });
         }, 1000);
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleClick = (val: string) => {
@@ -342,7 +344,7 @@ const LevelMatching = ({ onComplete, onFail, hardMode }: any) => {
     );
 };
 
-const LevelMaze = ({ onComplete, onFail, hardMode }: any) => {
+const LevelMaze = ({ onComplete, onFail }: any) => {
     // 0 = Empty, 1 = Wall, 2 = Cloud (Death), 3 = Start, 4 = Goal
     // 4x4 Grid for increased difficulty
     const GRID_SIZE = 4;
@@ -525,7 +527,7 @@ const LevelPhishing = ({ onComplete, onFail, hardMode }: any) => {
     );
 };
 
-const LevelCode = ({ onComplete, onFail, hardMode }: any) => {
+const LevelCode = ({ onComplete, onFail }: any) => {
     const snippets = [
         { id: 1, code: 'const user = db.query(`SELECT * FROM users WHERE id = ${id}`);', safe: false }, // SQLi
         { id: 2, code: 'const hash = crypto.pbkdf2Sync(password, salt, 100000, 64);', safe: true },
@@ -578,6 +580,7 @@ const LevelSequence = ({ onComplete, onFail, hardMode }: any) => {
         const seq = Array.from({length: len}, () => Math.floor(Math.random() * 4));
         setSequence(seq);
         playSequence(seq);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const playSequence = async (seq: number[]) => {
@@ -666,6 +669,7 @@ const LevelNeural = ({ onComplete, onFail, hardMode }: any) => {
             if (hardMode) setDrift(Math.sin(Date.now() / 500) * 10);
         }, 1000);
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const verify = () => {
@@ -721,7 +725,7 @@ const LevelNeural = ({ onComplete, onFail, hardMode }: any) => {
     );
 };
 
-const LevelDDoS = ({ onComplete, onFail, hardMode }: any) => {
+const LevelDDoS = ({ onComplete, onFail, _hardMode }: any) => {
     // Traffic mitigation game. Identify and block bots.
     const [queue, setQueue] = useState<{id: number, type: 'user'|'bot', ip: string}[]>([]);
     const [processed, setProcessed] = useState(0);
@@ -855,6 +859,7 @@ const LevelPorts = ({ onComplete, onFail, hardMode }: any) => {
         }, 100);
 
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ports]);
 
     const closePort = (idx: number) => {

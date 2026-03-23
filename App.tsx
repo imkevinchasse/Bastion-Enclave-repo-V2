@@ -19,12 +19,12 @@ import { MigrationModal } from './components/MigrationModal';
 import { CovenantModal } from './components/CovenantModal';
 import { IdentityCard } from './components/IdentityCard';
 import { AgentBridge } from './components/AgentBridge'; // NEW IMPORT
-import { VaultConfig, AppTab, VaultState, PublicPage, VaultFlags, BreachStats, IdentityProof } from './types';
+import { AppTab, VaultState, PublicPage, VaultFlags, BreachStats, IdentityProof } from './types';
 import { ChaosLock, ChaosEngine } from './services/cryptoService';
 import { BreachService } from './services/breachService';
 import { SecurityService } from './services/securityService';
 import { Guardrail } from './services/guardrail';
-import { Shield, LogOut, Terminal, Copy, Check, Layers, Book, FileLock2, Users, Download, AlertTriangle, Blocks, Fingerprint, AlertOctagon, RefreshCw, FlaskConical, Award, RotateCcw } from 'lucide-react';
+import { Shield, LogOut, Terminal, Copy, Check, Layers, Book, FileLock2, Users, Download, AlertTriangle, Fingerprint, AlertOctagon, RefreshCw, FlaskConical, Award, RotateCcw } from 'lucide-react';
 import { Button } from './components/Button';
 import { BrandLogo } from './components/BrandLogo';
 
@@ -185,6 +185,7 @@ export default function App() {
       runAutoScan();
 
       return () => { isScanningRef.current = false; };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaultState?.entropy]);
 
   const handleOpenVault = (

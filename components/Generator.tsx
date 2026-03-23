@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
-import { Copy, RefreshCw, ShieldCheck, ShieldAlert, Shield, Zap } from 'lucide-react';
+import { Copy, ShieldCheck, Zap } from 'lucide-react';
 
 export const Generator: React.FC = () => {
   const [length, setLength] = useState(16);
@@ -33,6 +33,7 @@ export const Generator: React.FC = () => {
 
   useEffect(() => {
     generatePassword();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [length, useUppercase, useLowercase, useNumbers, useSymbols]);
 
   const copyToClipboard = () => {

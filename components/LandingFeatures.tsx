@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Archive, Atom, Activity, Lock, FileCode2, Zap, X, Terminal, ShieldCheck, Database, FileKey, Share2, Bot, Workflow } from 'lucide-react';
+import { Archive, Atom, Activity, Lock, FileCode2, Zap, X, Terminal, ShieldCheck, Database, FileKey, Share2, Bot, Workflow, Award } from 'lucide-react';
 
 // --- DATA STRUCTURES ---
 
@@ -18,6 +18,13 @@ const FEATURES = [
     title: "Bastion Locker",
     short: "Memory-hard encryption for sensitive assets using Sovereign-V4.",
     specs: ["ARGON2ID", "AES-256-GCM", "SPLIT-HORIZON"]
+  },
+  {
+    id: 'identity',
+    icon: <Award size={28} className="text-emerald-500" />,
+    title: "Sovereign Identity",
+    short: "Cryptographic proof of stewardship and continuity bonds.",
+    specs: ["COVENANTWARE", "GENESIS WINDOW", "SUSTENANCE"]
   },
   {
     id: 'sharding',
@@ -60,6 +67,18 @@ const GLOSSARY: Record<string, { title: string, body: string }> = {
         title: "Split-Horizon Storage",
         body: "The decryption key for a file is never stored with the file itself. The key is held in the Vault (Encrypted), while the payload is stored in the Browser Database (Encrypted). An attacker stealing the database gets only random noise without the separate vault key."
     },
+    "COVENANTWARE": {
+        title: "Covenantware",
+        body: "A paradigm where software is treated as a bond between the creator and the steward (user). It emphasizes long-term continuity, local sovereignty, and mutual respect over extractive SaaS models."
+    },
+    "GENESIS WINDOW": {
+        title: "Genesis Window",
+        body: "The exact cryptographic timestamp when your vault was first established. This serves as the foundation of your Sovereign Identity and cannot be forged."
+    },
+    "SUSTENANCE": {
+        title: "Sustenance",
+        body: "Periodic cryptographic check-ins that reinforce the Continuity Bond. By actively maintaining your vault, you strengthen your identity proof and unlock legacy veteran recognition."
+    },
     "SHAMIR SECRET SHARING": {
         title: "Shamir's Secret Sharing",
         body: "A form of 'Information-Theoretic Security'. We split your master secret into $n$ parts. You need $k$ parts to reconstruct it. With $k-1$ parts, it is mathematically impossible to reconstruct the secret, regardless of computing power."
@@ -98,6 +117,12 @@ const DEEP_DIVES: Record<string, { title: string, subtitle: string, desc: string
         subtitle: "Sovereign-V4 Protocol",
         desc: "We have upgraded our vault encryption to the Sovereign-V4 standard. This utilizes Argon2id with 128MB of memory hardness and dynamic parallelism. This makes brute-forcing your vault on consumer hardware computationally infeasible, and makes cloud-scale GPU cracking significantly more expensive for attackers.",
         technical: ["Argon2id (m=128MB, t=3)", "AES-256-GCM", "Random Padding"]
+    },
+    "identity": {
+        title: "Sovereign Identity",
+        subtitle: "Covenantware & Continuity",
+        desc: "Bastion Enclave introduces Covenantware—a binding agreement between the software and its steward. Your identity is cryptographically tied to your vault's Genesis Window. Through regular Sustenance and active stewardship, you build a Continuity Bond that proves your legacy and grants veteran recognition, all without a central server.",
+        technical: ["Ed25519 Signatures", "Genesis Timestamps", "Local Attestation"]
     },
     "sharding": {
         title: "Prime Field Sharing",

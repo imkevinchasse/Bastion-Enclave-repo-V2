@@ -4,7 +4,7 @@ import { TopNav } from './TopNav';
 import { LandingFeatures } from './LandingFeatures';
 import { Button } from './Button';
 import { BrandLogo } from './BrandLogo';
-import { ArrowRight, HeartHandshake, Zap, HardDrive, FileJson, Binary, Shield, ServerOff, Scaling, Terminal, Lock, Globe, Database, Anchor, RefreshCw, Cpu, CheckCircle, GitFork } from 'lucide-react';
+import { ArrowRight, Zap, HardDrive, FileJson, Binary, Shield, ServerOff, Scaling, Terminal, Database, Anchor, RefreshCw, CheckCircle, GitFork } from 'lucide-react';
 import { PublicPage } from '../types';
 import { ProvenanceService, ProvenanceReport } from '../services/provenance';
 
@@ -39,9 +39,9 @@ const DEMO_STAGES = {
 const masterKey = await argon2id({
   password: userInput,
   salt: randomBytes(16),
-  parallelism: 1,
+  parallelism: 4,
   iterations: 3,
-  memorySize: 65536, // 64 MB RAM Cost
+  memorySize: 131072, // 128 MB RAM Cost
   hashLength: 32,
   outputType: 'binary'
 });
@@ -50,14 +50,14 @@ const masterKey = await argon2id({
     },
     'chaos': {
         icon: <RefreshCw size={20} />,
-        label: 'Chaos Engine V2',
+        label: 'Chaos Engine V4',
         desc: 'Deterministic Stateless Generation',
         color: 'text-orange-400',
         borderColor: 'border-orange-500',
         bg: 'bg-orange-500/10',
-        code: `// Chaos V2: HMAC-SHA512 + Rejection Sampling
-const salt = "BASTION_V2::" + service + "::" + user;
-const flux = pbkdf2(entropy, salt, 210000, 512);
+        code: `// Chaos V4: Argon2id + Rejection Sampling
+const salt = "BASTION_GENERATOR_V4::" + service + "::" + user + "::v" + version;
+const flux = await argon2id({ password: entropy, salt, ...v4Params });
 
 // Zero-Bias Sampling Loop
 while (out.length < length) {
@@ -75,8 +75,8 @@ while (out.length < length) {
         color: 'text-emerald-400',
         borderColor: 'border-emerald-500',
         bg: 'bg-emerald-500/10',
-        code: `// Header: "BSTN" + Version 0x03
-[0x42, 0x53, 0x54, 0x4E, 0x03]
+        code: `// Header: "BSTN" + Version 0x05
+[0x42, 0x53, 0x54, 0x4E, 0x05]
 
 // Payload (AES-256-GCM)
 IV:  [12 bytes unique nonce]
@@ -91,11 +91,11 @@ CIPHER: [Encrypted Data]
 const COMPARISON_DATA = [
     { feature: "Primary Storage Location", bastion: "Device (Local)", lp: "Cloud (Central)", bw: "Cloud (Central)", op: "Cloud (Central)", kp: "Device (Local)" },
     { feature: "Password Logic", bastion: "Deterministic (Math)", lp: "Random (Database)", bw: "Random (Database)", op: "Random (Database)", kp: "Random (Database)" },
-    { feature: "KDF / Hashing Hardness", bastion: "Argon2id (64MB)", lp: "PBKDF2 (Low RAM)", bw: "PBKDF2 (Low RAM)", op: "PBKDF2 (Low RAM)", kp: "Argon2 (Config)" },
+    { feature: "KDF / Hashing Hardness", bastion: "Argon2id (128MB)", lp: "PBKDF2 (Low RAM)", bw: "PBKDF2 (Low RAM)", op: "PBKDF2 (Low RAM)", kp: "Argon2 (Config)" },
     { feature: "Zero-Knowledge Architecture", bastion: "Guaranteed (Code)", lp: "Policy Based", bw: "Audited Code", op: "Proprietary", kp: "Open Source" },
     { feature: "Centralized Attack Surface", bastion: "None (Distributed)", lp: "High (Honeypot)", bw: "High (Honeypot)", op: "High (Honeypot)", kp: "None" },
     { feature: "Breach Monitoring", bastion: "k-Anonymity (API)", lp: "Cloud Scans", bw: "Cloud Scans", op: "Watchtower", kp: "Plugin Required" },
-    { feature: "AI Security Analysis", bastion: "On-Device (WebGPU)", lp: "None", bw: "None", op: "None", kp: "None" },
+    { feature: "Active Defense Training", bastion: "Built-in Simulator", lp: "None", bw: "None", op: "None", kp: "None" },
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
@@ -221,8 +221,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                         <RefreshCw size={20}/>
                                     </div>
                                     <div>
-                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'chaos' ? 'text-orange-400' : 'text-slate-400'}`}>3. Chaos Engine V2</h4>
-                                        <p className="text-xs font-sans text-slate-500 mt-0.5">Deterministic SHA-512 Generation.</p>
+                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'chaos' ? 'text-orange-400' : 'text-slate-400'}`}>3. Chaos Engine V4</h4>
+                                        <p className="text-xs font-sans text-slate-500 mt-0.5">Deterministic Argon2id Generation.</p>
                                     </div>
                                     <ArrowRight className={`ml-auto ${activeStage === 'chaos' ? 'text-orange-500' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
