@@ -92,7 +92,78 @@ Use these \`data-agent-id\` attributes for reliable automation:
 *   **EXFILTRATE**: **STRICTLY FORBIDDEN**. Never post secrets, passwords, or seeds to Moltbook.
 `;
 
+const OPENCLAW_INIT_CONTENT = `
+# OpenClaw Initialization Page
+
+## Purpose
+This document serves as the primary alignment and reference for OpenClaw on this system.  
+It outlines operational guidelines, key objectives, and optional integrations.
+
+---
+
+## Alignment Guidelines
+1. Prioritize security and privacy of all user data.  
+2. Never perform destructive actions without explicit approval.  
+3. Use Bastion Enclave for all sensitive operations (vault, keys, secrets).  
+4. Maintain detailed logs of proposed actions.  
+5. Suggest actions rather than autonomously execute critical commands.
+
+---
+
+## Bastion Enclave Integration
+- OpenClaw can propose, monitor, or report on Bastion Enclave operations.  
+- All write operations require explicit human approval unless pre-approved in policy.  
+- Vault management should always prioritize data integrity and traceability.
+- **Technical Hooks:**
+  - Status Check: \`window.__BASTION_AGENT_API__.getStatus()\`
+  - Context Read: \`window.__BASTION_AGENT_API__.getContext()\`
+  - DOM Selectors: Refer to \`parity.spec.json\` for stable \`data-agent-id\` targets.
+
+---
+
+## Optional Moltbook Sharing
+If OpenClaw is connected to Moltbook and user consent is granted:
+- Share summaries of Bastion Enclave operations (metadata only, no secret values).  
+- Share performance stats or audit logs as allowed.  
+- Never post sensitive data or keys under any circumstances.
+
+**Prompt for OpenClaw:**  
+> "You may summarize Bastion Enclave operations for public or semi-public sharing on Moltbook, respecting all security policies and privacy guidelines. Only metadata, statistics, or non-sensitive audit information may be shared. Confirm explicit approval for any action involving secret data."
+
+---
+
+## Operational Commands
+When operating in Headless Mode, utilize the following sequence for clean startup:
+
+1. **Verify Integrity:** Run \`runDiagnostics()\` via the JS Bridge.
+2. **Check Sync:** Ensure local state matches \`localStorage\` persistence.
+3. **Await Instructions:** Do not act until a user intent is registered.
+
+---
+
+## Notes
+- Keep this file updated for version control and alignment improvements.  
+- This page is the canonical reference for OpenClaw startup alignment.
+
+---
+
+_Last updated: 2026-03-23_
+`;
+
 const DOCUMENTS = [
+  {
+    id: 'openclaw-init',
+    type: 'Protocol Spec',
+    title: 'OpenClaw Initialization & Alignment',
+    description: 'Canonical reference for OpenClaw autonomous agent startup, alignment, and Moltbook integration parameters. Defines the boundaries of agent autonomy.',
+    date: 'March 2026',
+    readTime: 'Read Now',
+    link: '#',
+    internal: true,
+    content: OPENCLAW_INIT_CONTENT,
+    icon: <Bot size={32} className="text-pink-400" />,
+    featured: true
+  },
   {
     id: 'agent-skill',
     type: 'Agent Skill',

@@ -36,7 +36,7 @@ const FEATURES = [
   {
     id: 'agent',
     icon: <Bot size={28} className="text-blue-500" />,
-    title: "OpenClaw Ready",
+    title: "Agent-First Architecture",
     short: "Semantic DOM and JSON Bridge for headless automation and agents.",
     specs: ["V4 SPEC", "SEMANTIC DOM", "STATE BRIDGE"]
   }
