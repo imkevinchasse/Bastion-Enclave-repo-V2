@@ -8,6 +8,7 @@ import { VaultBreachScanner } from './VaultBreachScanner';
 import { ChaosEngine, ChaosLock, SecretSharer } from '../services/cryptoService';
 import { expandSearchQuery, isModelReady } from '../services/llmService';
 import { useDebounce } from '../hooks/useDebounce';
+import { RecoverySetup } from './RecoverySetup';
 import { Trash2, Copy, Eye, EyeOff, Search, Plus, RotateCw, Wallet, Globe, ArrowLeft, ShieldCheck, KeyRound, Share2, Layers, Check, AlertTriangle, X, ShieldAlert, Edit2, AlertOctagon, Clock, Sparkles, Loader2, ArrowUp, ArrowDown, ListFilter, Calendar, BarChart2, Hash, Terminal } from 'lucide-react';
 
 interface VaultProps {
@@ -83,7 +84,7 @@ const ShardRecovery: React.FC = () => {
 };
 
 export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, onDeleteConfig, onUpdateConfig, onUpdateAllConfigs, onValueAction }) => {
-  const [view, setView] = useState<'list' | 'editor' | 'generator' | 'recover' | 'scanner'>('list');
+  const [view, setView] = useState<'list' | 'editor' | 'generator' | 'recover' | 'scanner' | 'recovery-setup'>('list');
   const [search, setSearch] = useState('');
   
   const debouncedSearch = useDebounce(search, 300);
@@ -321,6 +322,20 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
       )
   }
 
+  if (view === 'recovery-setup') {
+      return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+              <div className="flex items-center gap-4 mb-4">
+                  <Button variant="ghost" onClick={() => setView('list')} className="shrink-0">
+                      <ArrowLeft size={18} /> Back to Logins
+                  </Button>
+                  <h2 className="text-xl font-bold text-white">Recovery Setup</h2>
+              </div>
+              <RecoverySetup masterSeed={masterSeed} onComplete={() => setView('list')} />
+          </div>
+      )
+  }
+
   if (view === 'editor') {
     return (
         <div className="glass-panel p-8 rounded-none animate-in fade-in slide-in-from-right-8 border border-white/5 relative overflow-hidden">
@@ -464,11 +479,14 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                 <Button onClick={() => setView('scanner')} variant="secondary" className="shrink-0 h-10 text-red-400 border-red-500/20 hover:bg-red-500/10" title="Check for Breaches">
                     <ShieldAlert size={18} />
                 </Button>
+                <Button onClick={() => setView('recovery-setup')} variant="secondary" className="shrink-0 h-10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10" title="Setup Recovery">
+                    <ShieldCheck size={18} />
+                </Button>
                 <Button onClick={() => setView('recover')} variant="secondary" className="shrink-0 h-10" title="Assemble Shards">
                     <Layers size={18} />
                 </Button>
                 <Button onClick={() => setView('generator')} variant="secondary" className="shrink-0 h-10" title="Random Password Generator">
-                    <ShieldCheck size={18} />
+                    <KeyRound size={18} />
                 </Button>
                 <Button onClick={() => openEditor()} data-agent-id="vault-add-btn" className="shrink-0 h-10">
                     <Plus size={18} /> New

@@ -22,6 +22,7 @@ import { AgentBridge } from './components/AgentBridge'; // NEW IMPORT
 import { VaultConfig, AppTab, VaultState, PublicPage, VaultFlags, BreachStats, IdentityProof } from './types';
 import { ChaosLock, ChaosEngine } from './services/cryptoService';
 import { BreachService } from './services/breachService';
+import { SecurityService } from './services/securityService';
 import { Guardrail } from './services/guardrail';
 import { Shield, LogOut, Terminal, Copy, Check, Layers, Book, FileLock2, Users, Download, AlertTriangle, Blocks, Fingerprint, AlertOctagon, RefreshCw, FlaskConical, Award, RotateCcw } from 'lucide-react';
 import { Button } from './components/Button';
@@ -81,6 +82,20 @@ export default function App() {
 
   // Dev Mode Detection
   const isDeveloper = vaultState ? ((vaultState.flags || 0) & VaultFlags.DEVELOPER) === VaultFlags.DEVELOPER : false;
+
+  // --- EFFECT: Application Integrity Check ---
+  useEffect(() => {
+      const report = SecurityService.checkIntegrity();
+      if (report.compromised) {
+          console.error("[Bastion] Integrity Check Failed:", report.issues);
+      }
+      
+      const observer = SecurityService.startWatchdog((issue) => {
+          console.warn("[Bastion] Watchdog Alert:", issue);
+      });
+      
+      return () => observer.disconnect();
+  }, []);
 
   // --- EFFECT: Browser Close Protection ---
   useEffect(() => {

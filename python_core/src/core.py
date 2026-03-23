@@ -308,20 +308,32 @@ class VaultManager:
 
     def create_new(self, password: str):
         entropy = secrets.token_hex(32)
-        state = VaultState(entropy=entropy, lastModified=int(time.time()*1000))
+        flags = 0
+        final_password = password
+        if password.startswith("dev://"):
+            final_password = password[6:]
+            flags = 1 # VaultFlags.DEVELOPER
+        
+        state = VaultState(entropy=entropy, lastModified=int(time.time()*1000), flags=flags)
         self.blobs = []
         self.active_state = state
-        self.active_password = password
+        self.active_password = final_password
         self.active_blob_index = 0
         self.blobs.append("") 
         self.save_file()
 
     def restore_from_seed(self, entropy: str, password: str):
         """Restores a vault using an existing Hex Entropy Seed."""
-        state = VaultState(entropy=entropy, lastModified=int(time.time()*1000))
+        flags = 0
+        final_password = password
+        if password.startswith("dev://"):
+            final_password = password[6:]
+            flags = 1 # VaultFlags.DEVELOPER
+
+        state = VaultState(entropy=entropy, lastModified=int(time.time()*1000), flags=flags)
         self.blobs = []
         self.active_state = state
-        self.active_password = password
+        self.active_password = final_password
         self.active_blob_index = 0
         self.blobs.append("") 
         self.save_file()

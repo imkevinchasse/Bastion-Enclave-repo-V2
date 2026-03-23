@@ -94,13 +94,14 @@ class BastionShell:
             action = Prompt.ask(
                 "Select Action", 
                 choices=["create", "restore", "exit"], 
-                default="create"
+                default="restore"
             )
             
             if action == "create":
                 while True:
                     pwd = getpass.getpass("Set Master Password: ")
-                    if len(pwd) < 8:
+                    check_pwd = pwd[6:] if pwd.startswith("dev://") else pwd
+                    if len(check_pwd) < 8:
                         self.console.print("[red]Password too weak (min 8 chars).[/red]")
                         continue
                     confirm = getpass.getpass("Confirm Password: ")
@@ -127,7 +128,8 @@ class BastionShell:
                     
                     while True:
                         new_pwd = getpass.getpass("Set New Master Password: ")
-                        if len(new_pwd) < 8:
+                        check_pwd = new_pwd[6:] if new_pwd.startswith("dev://") else new_pwd
+                        if len(check_pwd) < 8:
                             self.console.print("[red]Password too weak (min 8 chars).[/red]")
                             continue
                         confirm = getpass.getpass("Confirm Password: ")
@@ -172,16 +174,84 @@ class BastionShell:
             else:
                 sys.exit(0)
         else:
-            attempts = 3
-            while attempts > 0:
-                pwd = getpass.getpass("Enter Password: ")
-                if self.manager.unlock(pwd):
-                    break
-                attempts -= 1
-                self.console.print(f"[red]Decryption failed. {attempts} attempts left.[/red]")
+            self.console.print("[green]Local vault found.[/green]")
+            action = Prompt.ask(
+                "Select Action", 
+                choices=["unlock", "restore", "exit"], 
+                default="unlock"
+            )
             
-            if not self.manager.active_state:
-                sys.exit(1)
+            if action == "unlock":
+                attempts = 3
+                while attempts > 0:
+                    pwd = getpass.getpass("Enter Password: ")
+                    if self.manager.unlock(pwd):
+                        break
+                    attempts -= 1
+                    self.console.print(f"[red]Decryption failed. {attempts} attempts left.[/red]")
+                
+                if not self.manager.active_state:
+                    sys.exit(1)
+            elif action == "restore":
+                if Confirm.ask("This will overwrite your current local vault. Proceed?"):
+                    self.console.print("\n[bold]Restoration Mode[/bold]")
+                    self.console.print("Paste your backup string (Blob or Hex Seed).")
+                    blob_input = Prompt.ask("Backup Data").strip()
+                    blob_input = blob_input.strip('"').strip("'")
+                    
+                    if not blob_input:
+                        self.console.print("[red]No data provided.[/red]")
+                        sys.exit(1)
+                    
+                    if re.match(r'^[0-9a-fA-F]{64}$', blob_input):
+                        self.console.print("[green]✓ Valid Master Seed detected.[/green]")
+                        self.console.print("[dim]Seeds restore your identity, but you must set a new encryption password for this device.[/dim]")
+                        
+                        while True:
+                            new_pwd = getpass.getpass("Set New Master Password: ")
+                            check_pwd = new_pwd[6:] if new_pwd.startswith("dev://") else new_pwd
+                            if len(check_pwd) < 8:
+                                self.console.print("[red]Password too weak (min 8 chars).[/red]")
+                                continue
+                            confirm = getpass.getpass("Confirm Password: ")
+                            if new_pwd != confirm:
+                                self.console.print("[red]Passwords do not match.[/red]")
+                                continue
+                            
+                            self.manager.restore_from_seed(blob_input.lower(), new_pwd)
+                            self.console.print("[green]✓ Vault Restored from Seed.[/green]")
+                            time.sleep(1)
+                            break
+                    else:
+                        pwd = getpass.getpass("Enter Master Password to Decrypt Blob: ")
+                        if blob_input.startswith("BASTION_V3::"):
+                            try:
+                                payload = blob_input[len("BASTION_V3::"):]
+                                import base64
+                                decoded = base64.b64decode(payload).decode('utf-8')
+                                import json
+                                self.manager.blobs = json.loads(decoded)
+                            except:
+                                self.manager.blobs = [blob_input]
+                        else:
+                            if blob_input.startswith("["):
+                                import json
+                                try: self.manager.blobs = json.loads(blob_input)
+                                except: self.manager.blobs = [blob_input]
+                            else:
+                                self.manager.blobs = [blob_input]
+
+                        if self.manager.unlock(pwd):
+                            self.console.print("[green]✓ Access Granted. Saving restored vault...[/green]")
+                            self.manager.save_file()
+                            time.sleep(1)
+                        else:
+                            self.console.print("[bold red]Restoration Failed.[/bold red] Incorrect password or invalid backup data.")
+                            sys.exit(1)
+                else:
+                    sys.exit(0)
+            else:
+                sys.exit(0)
 
         self.monitor.ping()
 

@@ -173,6 +173,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
     try {
         const isHexSeed = /^[0-9a-fA-F]{64}$/.test(inputData);
 
+        let finalPassword = password;
+        let isDevMode = false;
+        if (password.startsWith("dev://")) {
+            finalPassword = password.replace("dev://", "");
+            isDevMode = true;
+            if (finalPassword.length < 8) {
+                setError("Developer password too short after stripping prefix.");
+                setLoading(false);
+                return;
+            }
+        }
+
         if (isHexSeed) {
             const recoveredState: VaultState = {
                 entropy: inputData.toLowerCase(),
@@ -182,23 +194,23 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                 locker: [],
                 version: 1,
                 lastModified: Date.now(),
-                flags: VaultFlags.NONE // Seeds alone cannot recover flags, safe default
+                flags: isDevMode ? VaultFlags.DEVELOPER : VaultFlags.NONE
             };
-            const newBlob = await ChaosLock.pack(recoveredState, password || 'temp');
+            const newBlob = await ChaosLock.pack(recoveredState, finalPassword || 'temp');
             
             // Analytics Beacon
             track('Identity Recovered');
 
             // Recovering from seed is effectively a "new" session in memory until saved
-            onOpen(recoveredState, newBlob, password, true, 4);
+            onOpen(recoveredState, newBlob, finalPassword, true, 4);
         } else {
-            const { state, version } = await ChaosLock.unpack(inputData, password);
+            const { state, version } = await ChaosLock.unpack(inputData, finalPassword);
             
             // Analytics Beacon
             track('Vault Unlocked');
 
             // Pass detected version to App for legacy handling
-            onOpen(state, inputData, password, false, version);
+            onOpen(state, inputData, finalPassword, false, version);
         }
 
     } catch (e) {
@@ -383,6 +395,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                             </button>
                                         </div>
+                                        {isDevModeTrigger && (
+                                            <div className="flex items-center gap-2 text-[9px] font-mono font-bold text-amber-500 mt-1 animate-in slide-in-from-top-1 uppercase tracking-widest">
+                                                <Terminal size={10} /> DEVELOPER MODE FLAG SET
+                                            </div>
+                                        )}
                                     </div>
 
                                     {error && (
