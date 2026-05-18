@@ -31,7 +31,9 @@ window.onerror = function(msg, url, line, col, error) {
 // Trusted Types
 if ((window as any).trustedTypes && (window as any).trustedTypes.createPolicy) {
   (window as any).trustedTypes.createPolicy('default', {
-    createHTML: (string: string) => string
+    createHTML: (string: string) => { 
+        throw new Error('Insecure HTML string creation blocked.');
+    }
   });
 }
 
