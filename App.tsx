@@ -352,36 +352,116 @@ export default function App() {
     if (!vaultState) return <>{bridge}<AuthScreen onOpen={handleOpenVault} onNavigate={setPublicPage} /></>;
 
     return (
-      <div className="min-h-screen bg-[#050506] text-slate-300 overflow-hidden">
-        {/* Background subtle grid */}
-        <div className="fixed inset-0 bg-[radial-gradient(#1e2937_0.8px,transparent_1px)] [background-size:40px_40px] opacity-40 pointer-events-none"></div>
-    
-        <div className="relative min-h-screen flex flex-col">
-          {/* Top Bar */}
-          <header className="glass-card border-b border-slate-800 px-6 py-4 flex items-center justify-between z-50">
-            <div className="flex items-center gap-4">
-              <BrandLogo size={24} />
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tighter text-white">BASTION ENCLAVE</h1>
-                <p className="text-xs text-slate-500 font-mono">SOVEREIGN-V4 • OFFLINE</p>
+      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
+          
+          <SecurityMonitor />
+          {bridge}
+
+          {/* Desktop Sidebar */}
+          <aside className="hidden md:flex w-64 bg-slate-900 border-r border-white/5 flex-col p-4 shrink-0 z-30">
+              <div className="flex items-center gap-3 px-2 mb-8 mt-2 cursor-pointer group" onClick={() => setPublicPage('landing')}>
+                  <BrandLogo size={32} className="drop-shadow-lg group-hover:brightness-125 transition-all" />
+                  <div>
+                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">Bastion Enclave</h1>
+                      <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></div>
+                          SECURE_V4
+                      </div>
+                  </div>
               </div>
-            </div>
-            
-            {vaultState && (
-              <div className="flex items-center gap-3">
-                <button onClick={handleBackup} className="glass-card px-4 py-2 text-sm hover:bg-slate-800 transition-colors">
-                  BACKUP
-                </button>
-                <button onClick={handleLogout} className="glass-card px-6 py-2 text-sm text-red-400 hover:bg-red-950/50 transition-colors">
-                  LOCK ENCLAVE
-                </button>
+
+              <div className="space-y-1 flex-1">
+                  <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-4">Vault Access</div>
+                  <SidebarBtn active={currentTab === AppTab.VAULT} onClick={() => setCurrentTab(AppTab.VAULT)} icon={<Shield size={18}/>} label="Logins" />
+                  <SidebarBtn active={currentTab === AppTab.CONTACTS} onClick={() => setCurrentTab(AppTab.CONTACTS)} icon={<Users size={18}/>} label="People" />
+                  <SidebarBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={18}/>} label="Notes" />
+                  <SidebarBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={18}/>} label="Locker" />
+                  
+                  {/* <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-6">Utilities</div>
+                  <SidebarBtn active={currentTab === AppTab.GENERATOR} onClick={() => setCurrentTab(AppTab.GENERATOR)} icon={<RefreshCw size={18}/>} label="Generator" />
+                  <SidebarBtn active={currentTab === AppTab.SANDBOX} onClick={() => setCurrentTab(AppTab.SANDBOX)} icon={<FlaskConical size={18}/>} label="Sandbox" />
+                  <SidebarBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={18}/>} label="My Bond" /> */}
+                  
+                  {isDeveloper && (
+                      <>
+                          <div className="text-xs font-bold text-amber-600 uppercase tracking-widest px-3 mb-2 mt-6">Root Access</div>
+                          <SidebarBtn active={currentTab === AppTab.DEVELOPER} onClick={() => setCurrentTab(AppTab.DEVELOPER)} icon={<Terminal size={18}/>} label="Console" activeClass="bg-amber-900/20 text-amber-400 border-amber-500/20" />
+                      </>
+                  )}
               </div>
-            )}
-          </header>
-    
-          {/* Main Content Area */}
-          <main className="flex-1 flex items-start justify-center p-6 pt-12">
-            <div className="w-full max-w-5xl">
+
+              <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
+                  <button 
+                      onClick={handleBackup}
+                      data-agent-id="nav-backup-btn"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
+                  >
+                      <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" /> Backup Kit
+                      {vaultState.lastModified > lastBackupTime && <span className="w-2 h-2 rounded-none bg-amber-500 animate-pulse ml-auto"></span>}
+                  </button>
+                  <button 
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                  >
+                      <LogOut size={18} /> Lock Vault
+                  </button>
+              </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+              
+              {/* Mobile Header */}
+              <header className="md:hidden bg-slate-900/90 backdrop-blur-md border-b border-white/5 h-16 flex items-center justify-between px-4 sticky top-0 z-20">
+                  <div className="flex items-center gap-3">
+                      <BrandLogo size={24} />
+                      <span className="font-bold text-white tracking-tight">Bastion Enclave</span>
+                  </div>
+                  <button onClick={handleLogout} className="text-slate-400 hover:text-white">
+                      <LogOut size={20} />
+                  </button>
+              </header>
+
+              {/* Desktop Header */}
+              <header className="hidden md:flex bg-slate-900/50 backdrop-blur-md border-b border-white/5 h-16 items-center justify-between px-6 sticky top-0 z-20">
+                  <div className="flex items-center gap-4 text-sm text-slate-500">
+                      <button 
+                          onClick={handleCopySeed}
+                          className={`flex items-center gap-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-none border transition-all cursor-pointer group ${hasCopiedSeed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/5'}`}
+                          title="Click to copy full Master Seed"
+                      >
+                          <Fingerprint size={12} className={hasCopiedSeed ? "text-emerald-400" : "text-slate-400"} />
+                          <span className={`font-mono transition-colors ${hasCopiedSeed ? "text-emerald-100" : "text-slate-400"}`}>
+                              {vaultState.entropy.substring(0, 12)}...
+                          </span>
+                          {hasCopiedSeed ? (
+                              <Check size={12} className="text-emerald-400" />
+                          ) : (
+                              <Copy size={12} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" />
+                          )}
+                      </button>
+
+                      {rollbackAlert && (
+                          <div className="flex items-center gap-2 px-3 py-1 bg-red-900/30 text-red-400 rounded-none border border-red-500/30 animate-pulse font-bold">
+                              <AlertOctagon size={12} /> ROLLBACK DETECTED (v{rollbackAlert.current} vs v{rollbackAlert.known})
+                          </div>
+                      )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                      {/* Status Indicators */}
+                      {(vaultState.lastModified > lastBackupTime && !hasCopiedSeed) && (
+                          <span className="text-xs text-amber-500 font-bold flex items-center gap-1 mr-4 animate-in fade-in">
+                              <AlertTriangle size={12} /> Unsaved Changes
+                          </span>
+                      )}
+                  </div>
+              </header>
+
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 relative">
+                  {/* Background Decor */}
+                  <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-amber-900/10 to-transparent pointer-events-none -z-10"></div>
+                  
+                  <div className="max-w-6xl mx-auto">
                       {currentTab === AppTab.VAULT && (
                           <Vault 
                               configs={vaultState.configs} 
@@ -470,6 +550,7 @@ export default function App() {
                           />
                       )}
                   </div>
+              </div>
 
               {/* Mobile Bottom Nav */}
               <div className="md:hidden bg-slate-900 border-t border-white/5 px-6 py-3 flex justify-between items-center z-30 pb-safe">
@@ -483,7 +564,6 @@ export default function App() {
                   <MobileNavBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={20}/>} label="Locker" />
               </div>
           </main>
-          </div>
 
           {/* Notifications & Modals */}
           {showMigrationModal && (

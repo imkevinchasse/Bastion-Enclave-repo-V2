@@ -122,27 +122,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         <div className="relative z-10 flex-1 w-full overflow-y-auto">
             
             {/* 1. HERO SECTION */}
-            <div className="pt-32 pb-20 px-6">
-                <div className="glass-card p-12 rounded-3xl text-center max-w-2xl mx-auto border border-slate-800">
-                  <div className="flex justify-center mb-8">
-                    {/* Your SVG with size control */}
-                    <div className="w-48 h-48">
-                        <BrandLogo size={192} animated={true} className="text-indigo-500" />
+            <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
+                <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/20 text-indigo-400 text-[11px] font-mono uppercase tracking-widest backdrop-blur-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
+                        Protocol V4 Active
                     </div>
-                  </div>
-                  <h1 className="text-6xl font-bold tracking-tighter mb-4 text-white">BASTION</h1>
-                  <p className="text-xl text-slate-400 mb-10">Sovereign Credential Enclave</p>
-                  
-                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center pt-4">
-                      <Button size="lg" onClick={() => onNavigate('auth')} className="h-12 text-sm px-8 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold border-none rounded-lg glow-indigo">
-                          Enter Vault <ArrowRight size={16} />
-                      </Button>
-                      <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer">
-                         <Button variant="secondary" size="lg" className="h-12 text-sm px-8 rounded-lg border-slate-700 hover:bg-slate-800 text-slate-300">
-                             <Terminal size={16} /> Inspect Source
-                         </Button>
-                      </a>
-                  </div>
+                    
+                    <h1 className="text-5xl md:text-7xl font-sans font-bold text-slate-100 tracking-tight leading-[1.05]">
+                        The Cloud is Compromised. <br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-600">
+                            Go Sovereign.
+                        </span>
+                    </h1>
+                    
+                    <p className="text-lg text-slate-400 font-sans leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        Bastion Enclave replaces centralized trust with verifiable cryptography.
+                        Every credential is derived on demand using memory-hard functions and deterministic context.
+                        Execution is local. Keys are never transmitted.
+                        There is no central vault to breach.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
+                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-12 text-sm px-8 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold border-none rounded-lg">
+                            Enter Vault <ArrowRight size={16} />
+                        </Button>
+                        <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+                           <Button variant="secondary" size="lg" className="w-full h-12 text-sm px-8 rounded-lg border-slate-700 hover:bg-slate-800 text-slate-300">
+                               <Terminal size={16} /> Inspect Source
+                           </Button>
+                        </a>
+                    </div>
+                </div>
+
+                <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000">
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full"></div>
+                        <BrandLogo size={320} animated={true} className="text-indigo-500 relative z-10" />
+                    </div>
                 </div>
             </div>
 
