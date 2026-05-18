@@ -111,3 +111,15 @@
   color: var(--color-slate-400);
 }
 
+@layer utilities {
+  .glass-card {
+    background: rgba(15, 17, 21, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(129, 140, 248, 0.15);
+  }
+  
+  .hero-container {
+    background: linear-gradient(145deg, rgba(15,17,21,0.9), rgba(5,5,6,0.95));
+  }
+}
+
