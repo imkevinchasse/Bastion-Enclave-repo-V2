@@ -91,11 +91,9 @@ CIPHER: [Encrypted Data]
 const COMPARISON_DATA = [
     { feature: "Primary Storage Location", bastion: "Device (Local)", lp: "Cloud (Central)", bw: "Cloud (Central)", op: "Cloud (Central)", kp: "Device (Local)" },
     { feature: "Password Logic", bastion: "Deterministic (Math)", lp: "Random (Database)", bw: "Random (Database)", op: "Random (Database)", kp: "Random (Database)" },
-    { feature: "KDF / Hashing Hardness", bastion: "Argon2id (128MB)", lp: "PBKDF2 (Low RAM)", bw: "PBKDF2 (Low RAM)", op: "PBKDF2 (Low RAM)", kp: "Argon2 (Config)" },
-    { feature: "Zero-Knowledge Architecture", bastion: "Guaranteed (Code)", lp: "Policy Based", bw: "Audited Code", op: "Proprietary", kp: "Open Source" },
-    { feature: "Centralized Attack Surface", bastion: "None (Distributed)", lp: "High (Honeypot)", bw: "High (Honeypot)", op: "High (Honeypot)", kp: "None" },
-    { feature: "Breach Monitoring", bastion: "k-Anonymity (API)", lp: "Cloud Scans", bw: "Cloud Scans", op: "Watchtower", kp: "Plugin Required" },
-    { feature: "Active Defense Training", bastion: "Built-in Simulator", lp: "None", bw: "None", op: "None", kp: "None" },
+    { feature: "KDF / Hashing Hardness", bastion: "Argon2id (128MB)", lp: "PBKDF2 (Low RAM)", bw: "PBKDF2 (Low RAM)", op: "PBKDF2 (Low RAM)", kp: "PBKDF2 / Argon2 (configuration-dependent)" },
+    { feature: "Zero-Knowledge Architecture", bastion: "Enforced (Local Execution)", lp: "Policy Based", bw: "Audited Code", op: "Proprietary", kp: "Open Source" },
+    { feature: "Centralized Attack Surface", bastion: "Not applicable (no central store)", lp: "Centralized storage model", bw: "Centralized storage model", op: "Centralized storage model", kp: "None" }
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
@@ -139,7 +137,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     </h1>
                     
                     <p className="text-lg text-slate-400 font-sans leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                        Bastion Enclave replaces "trust" with verifiable cryptography. Every password is derived on-the-fly using Argon2id and deterministic math. Your secrets never leave your device—no storage, no leaks, no compromise.
+                        Bastion Enclave replaces centralized trust with verifiable cryptography.
+                        Every credential is derived on demand using memory-hard functions and deterministic context.
+                        Execution is local. Keys are never transmitted.
+                        There is no central vault to breach.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
@@ -178,9 +179,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <div className="space-y-8">
                             <h2 className="text-3xl md:text-4xl font-sans font-bold text-slate-100 tracking-tight">Trust No One. Not Even Us.</h2>
                             <p className="text-base font-sans text-slate-400 leading-relaxed">
-                                Most password managers claim "Zero Knowledge" while still storing your encrypted blob on their central servers. This is a <strong>policy</strong>, not a guarantee. If their server is subpoenaed or breached, your data is at risk.
+                                Most password managers store encrypted vaults on centralized infrastructure.
+                                This creates high-value aggregation targets.
+                                Bastion removes this layer entirely.
+                                Vault operations execute locally. There is no central database to attack.
                                 <br/><br/>
-                                <strong className="text-slate-200">Bastion is architecturally different.</strong> It executes entirely in your browser's memory. We provide the code; you provide the execution environment. There is no central database to breach.
+                                Security is distributed across independent clients rather than concentrated in shared infrastructure.
                             </p>
                             
                             {/* Interactive Pipeline Triggers */}
@@ -304,7 +308,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                          <h2 className="text-3xl font-sans font-bold text-slate-100 tracking-tight">Distributed Sovereignty</h2>
                          <p className="text-base font-sans text-slate-400 leading-relaxed">
                             Bastion Enclave distributes the risk. By keeping data local, there is no central database to breach. 
-                            Attacking Bastion means attacking millions of individual, hardened devices—a task that is computationally and economically infeasible.
+                            Attacking Bastion requires targeting individual, hardened environments rather than a single system.
                          </p>
                     </div>
                 </div>
@@ -379,6 +383,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <h3 className="text-xl font-sans font-bold text-slate-100 tracking-tight mb-3">Portable Identity</h3>
                         <p className="text-slate-400 font-sans text-sm leading-relaxed">
                             Your Identity (Passwords, Contacts, Notes, and File Keys) travels with your 5KB text backup. You can restore access on any device instantly, while heavy files remain on their origin device.
+                            <br/><br/>
+                            Optional device hardening can bind vault access to trusted environments for additional protection.
                         </p>
                     </div>
                 </div>

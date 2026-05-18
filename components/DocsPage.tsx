@@ -9,7 +9,7 @@ interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'training' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -34,7 +34,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                     <NavButton active={activeSection === 'chaos'} onClick={() => setActiveSection('chaos')} icon={<RefreshCw size={16}/>} label="Chaos Engine™" />
                     <NavButton active={activeSection === 'locker'} onClick={() => setActiveSection('locker')} icon={<FileLock2 size={16}/>} label="Bastion Locker" />
                     <NavButton active={activeSection === 'identity'} onClick={() => setActiveSection('identity')} icon={<Fingerprint size={16}/>} label="Sovereign Identity" />
-                    <NavButton active={activeSection === 'training'} onClick={() => setActiveSection('training')} icon={<ShieldAlert size={16}/>} label="Active Defense" />
                     <NavButton active={activeSection === 'breach'} onClick={() => setActiveSection('breach')} icon={<ShieldAlert size={16}/>} label="Breach Scanner" />
                 </div>
 
@@ -61,7 +60,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
                 {activeSection === 'identity' && <IdentityContent />}
-                {activeSection === 'training' && <TrainingContent />}
                 {activeSection === 'agents' && <AgentContent />}
                 {activeSection === 'java' && <JavaContent />}
                 {activeSection === 'breach' && <BreachContent />}
@@ -195,49 +193,6 @@ const IdentityContent = () => (
 }`}
                 </pre>
             </div>
-        </div>
-    </div>
-);
-
-const TrainingContent = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-        <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Active Defense Training</h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-                Security is not a passive state; it's an active discipline. Bastion Enclave includes a built-in Security Monitor to train your threat recognition and incident response skills.
-            </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Threat Recognition</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    Learn to identify common attack vectors and anomalies in network traffic, system logs, and user behavior.
-                </p>
-                <ul className="space-y-2 text-sm text-slate-600">
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Phishing Detection</li>
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Port Scanning Analysis</li>
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-amber-500"/> Entropy Analysis</li>
-                </ul>
-            </div>
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Incident Response</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    Practice mitigating active threats under pressure. Develop muscle memory for isolating compromised systems and blocking malicious traffic.
-                </p>
-                <ul className="space-y-2 text-sm text-slate-600">
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> DDoS Mitigation</li>
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> Sequence Matching</li>
-                    <li className="flex items-center gap-2"><ShieldAlert size={14} className="text-emerald-500"/> Neural Network Defense</li>
-                </ul>
-            </div>
-        </div>
-
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">The Security Monitor</h3>
-            <p className="text-slate-600 leading-relaxed">
-                Access the Security Monitor from the main dashboard. It provides a simulated environment where you can test your skills against various attack scenarios. Completing training modules improves your overall security posture and contributes to your Sovereign Identity.
-            </p>
         </div>
     </div>
 );

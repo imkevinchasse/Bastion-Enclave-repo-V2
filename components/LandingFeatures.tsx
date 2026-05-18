@@ -152,7 +152,7 @@ export const LandingFeatures: React.FC = () => {
       <div className="relative pl-8 border-l-2 border-amber-500/30">
          <h2 className="text-2xl font-sans font-bold text-slate-100 tracking-tight mb-4">Architectural Guarantees</h2>
          <p className="text-slate-400 font-sans text-base leading-relaxed max-w-3xl">
-            Bastion Enclave introduces <strong className="text-slate-200">Sovereign-V4</strong>: a strict, memory-hard cryptographic standard designed to resist GPU-accelerated brute force attacks. We do not ask for your trust; we prove our security through transparent, open-source architecture.
+            Bastion Enclave introduces <strong className="text-slate-200">Sovereign-V4</strong>: a strict, memory-hard cryptographic standard designed to resist GPU-accelerated brute force attacks. Security is enforced through transparent, auditable cryptographic design—not policy.
          </p>
       </div>
 

@@ -60,10 +60,8 @@ export const Contacts: React.FC<ContactsProps> = ({ contacts, onSave, onDelete }
   };
 
   const handleDelete = (id: string) => {
-      if (confirm("Are you sure you want to delete this person?")) {
-        onDelete(id);
-        setEditingId(null);
-      }
+      onDelete(id);
+      setEditingId(null);
   };
 
   return (

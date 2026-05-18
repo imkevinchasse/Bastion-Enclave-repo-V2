@@ -11,15 +11,16 @@
       DEBUG CSP: Permissive to identify loading issues.
       Once stable, restrict to 'self' and specific CDNs.
     -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://js.puter.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
 
     <link rel="manifest" href="/manifest.json" />
     <title>Bastion Enclave | Secure Boot</title>
+    <script src="https://js.puter.com/v2/"></script>
 
     <!-- 1. CRITICAL RUNTIME POLYFILLS -->
     <script>
       window.global = window;
-      window.process = { env: { NODE_ENV: 'development' } };
+      window.process = { env: { NODE_ENV: 'production' } };
       window.Buffer = window.Buffer || {
         isBuffer: function() { return false; },
         from: function(data) { 
@@ -92,21 +93,6 @@
     </div>
 
     <div id="root"></div>
-
-    <script type="module">
-      // Remove loader when React mounts
-      const observer = new MutationObserver(() => {
-        if (document.getElementById('root').childElementCount > 0) {
-          const loader = document.getElementById('boot-loader');
-          if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => loader.remove(), 500);
-          }
-          observer.disconnect();
-        }
-      });
-      observer.observe(document.getElementById('root'), { childList: true });
-    </script>
 
     <script type="module" src="/index.tsx"></script>
   </body>

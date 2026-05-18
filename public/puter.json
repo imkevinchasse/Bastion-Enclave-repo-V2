@@ -1,0 +1,10 @@
+{
+    "name": "bastion-enclave",
+    "title": "Bastion Enclave",
+    "description": "Sovereign Digital Enclave",
+    "version": "3.5.0",
+    "index": "index.html",
+    "icon": "logo.svg",
+    "width": 1024,
+    "height": 768
+}

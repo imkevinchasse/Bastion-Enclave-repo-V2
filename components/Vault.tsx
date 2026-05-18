@@ -9,7 +9,7 @@ import { ChaosEngine, ChaosLock, SecretSharer } from '../services/cryptoService'
 import { expandSearchQuery, isModelReady } from '../services/llmService';
 import { useDebounce } from '../hooks/useDebounce';
 import { RecoverySetup } from './RecoverySetup';
-import { Trash2, Copy, Eye, EyeOff, Search, Plus, RotateCw, Wallet, Globe, ArrowLeft, ShieldCheck, KeyRound, Share2, Layers, Check, AlertTriangle, X, ShieldAlert, Edit2, AlertOctagon, Clock, Sparkles, Loader2, ArrowUp, ArrowDown, ListFilter, Calendar, BarChart2, Hash, Terminal } from 'lucide-react';
+import { Trash2, Copy, Eye, EyeOff, Search, Plus, RotateCw, Wallet, Globe, ArrowLeft, ShieldCheck, KeyRound, Share2, Layers, Check, AlertTriangle, X, ShieldAlert, Edit2, AlertOctagon, Clock, Sparkles, Loader2, ArrowUp, ArrowDown, ListFilter, Calendar, BarChart2, Hash, Terminal, FileText } from 'lucide-react';
 
 interface VaultProps {
   configs: VaultConfig[];
@@ -227,7 +227,9 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
             length: 16, 
             useSymbols: true,
             version: 1,
-            customPassword: ''
+            customPassword: '',
+            url: '',
+            notes: ''
           });
       }
       setView('editor');
@@ -250,7 +252,9 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
             createdAt: Date.now(),
             usageCount: 0,
             sortOrder: configs.length,
-            customPassword: editConfig.customPassword
+            customPassword: editConfig.customPassword,
+            url: editConfig.url,
+            notes: editConfig.notes
         });
     } else {
         const newStats = editConfig.breachStats ? { ...editConfig.breachStats, status: 'unknown' as const, seenCount: 0 } : undefined;
@@ -290,21 +294,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
             }}
             onValueAction={onValueAction}
           />
-      );
-  }
-
-  if (view === 'generator') {
-      return (
-          <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                  <Button variant="ghost" onClick={() => setView('list')} className="shrink-0">
-                      <ArrowLeft size={18} /> Back to Logins
-                  </Button>
-              </div>
-              <div className="bg-slate-900/50 border border-white/5 rounded-none p-8 shadow-2xl animate-in fade-in slide-in-from-right-4">
-                   <Generator />
-              </div>
-          </div>
       );
   }
 
@@ -368,6 +357,23 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                         onChange={e => setEditConfig({...editConfig, username: e.target.value})}
                         icon={<Wallet size={16} />}
                         required
+                    />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    <Input 
+                        label="Website URL (Optional)" 
+                        placeholder="https://..." 
+                        value={editConfig.url || ''}
+                        onChange={e => setEditConfig({...editConfig, url: e.target.value})}
+                        icon={<Globe size={16} />}
+                    />
+                    <Input 
+                        label="Notes (Optional)" 
+                        placeholder="Additional details..." 
+                        value={editConfig.notes || ''}
+                        onChange={e => setEditConfig({...editConfig, notes: e.target.value})}
+                        icon={<FileText size={16} />}
                     />
                 </div>
                 
@@ -485,9 +491,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                 <Button onClick={() => setView('recover')} variant="secondary" className="shrink-0 h-10" title="Assemble Shards">
                     <Layers size={18} />
                 </Button>
-                <Button onClick={() => setView('generator')} variant="secondary" className="shrink-0 h-10" title="Random Password Generator">
-                    <KeyRound size={18} />
-                </Button>
                 <Button onClick={() => openEditor()} data-agent-id="vault-add-btn" className="shrink-0 h-10">
                     <Plus size={18} /> New
                 </Button>
@@ -546,7 +549,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                 )}
 
                 <div className="flex gap-2 mt-4">
-                    <Button variant="secondary" onClick={() => setView('generator')} size="sm">Generator Tool</Button>
                     <Button onClick={() => openEditor()} size="sm">Create Login</Button>
                 </div>
             </div>
@@ -658,7 +660,7 @@ const VaultConfigCard: React.FC<{
                 {/* Actions */}
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={onEdit} className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-none transition-colors"><Edit2 size={16} /></button>
-                    <button onClick={() => { if(confirm('Delete credential?')) onDelete(); }} className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-none transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={() => onDelete()} className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-none transition-colors"><Trash2 size={16} /></button>
                     {sortMode === 'manual' && (
                         <div className="flex flex-col gap-0.5 ml-1">
                             <button onClick={onMoveUp} disabled={isFirst} className="p-0.5 text-slate-500 hover:text-white disabled:opacity-30"><ArrowUp size={12}/></button>

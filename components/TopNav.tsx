@@ -59,16 +59,6 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
                   onClick={() => onNavigate('documents')} 
                   label="Research" 
                 />
-                <NavButton 
-                  active={active === 'game'} 
-                  onClick={() => onNavigate('game')} 
-                  label="Active Defense" 
-                />
-                <NavButton 
-                  active={active === 'breach'} 
-                  onClick={() => onNavigate('breach')} 
-                  label="Breach Check" 
-                />
             </div>
           </div>
 
@@ -125,20 +115,6 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
                 icon={<BookOpen size={16} />} 
                 label="Research" 
                 desc="Technical Papers"
-             />
-             <MobileNavButton 
-                active={active === 'game'} 
-                onClick={() => handleNav('game')} 
-                icon={<ShieldAlert size={16} />} 
-                label="Active Defense" 
-                desc="Security Training"
-             />
-             <MobileNavButton 
-                active={active === 'breach'} 
-                onClick={() => handleNav('breach')} 
-                icon={<ShieldAlert size={16} />} 
-                label="Breach Check" 
-                desc="Password Analysis"
              />
              
              <div className="h-px bg-slate-800 my-4"></div>

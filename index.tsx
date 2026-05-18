@@ -3,9 +3,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { ChaosLock } from './services/cryptoService';
 
 // NOTE: Runtime polyfills (process, Buffer) have been moved to index.html 
 // to ensure they execute before React imports.
+
+ChaosLock.initDeviceSecret();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -18,4 +21,11 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Remove the boot loader natively
+const loader = document.getElementById('boot-loader');
+if (loader) {
+  loader.style.opacity = '0';
+  setTimeout(() => loader.remove(), 500);
+}
     

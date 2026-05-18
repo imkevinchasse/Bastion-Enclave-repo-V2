@@ -103,67 +103,53 @@ export class ChaosLock {
     return this.dec(idBytes).trim();
   }
 
-  private static async deriveKeyArgon2id(
-    password: string, 
-    salt: Uint8Array,
-    memorySize: number = ARGON_MEM_KB_V4,
-    parallelism: number = ARGON_PARALLELISM_V4,
-    iterations: number = ARGON_ITERATIONS_V4
-  ): Promise<CryptoKey> {
+  static initDeviceSecret(): void {
+    if (!localStorage.getItem('bastion_device_secret')) {
+      const secret = cryptoAPI.getRandomValues(new Uint8Array(32));
+      localStorage.setItem('bastion_device_secret', this.buf2hex(secret));
+    }
+  }
+
+  private static async deriveFinalKey(password: string, salt: Uint8Array, useDeviceSecret: boolean = true): Promise<CryptoKey> {
     const derivedBytes = await argon2id({
       password,
       salt,
-      parallelism,
-      iterations,
-      memorySize,
+      parallelism: ARGON_PARALLELISM_V4,
+      iterations: ARGON_ITERATIONS_V4,
+      memorySize: ARGON_MEM_KB_V4,
       hashLength: ARGON_HASH_LEN,
       outputType: 'binary'
     });
 
+    let finalMaterial = derivedBytes;
+    const deviceSecretHex = localStorage.getItem('bastion_device_secret');
+    if (useDeviceSecret && deviceSecretHex) {
+      const deviceSecret = this.hex2buf(deviceSecretHex);
+      finalMaterial = new Uint8Array(await cryptoAPI.subtle.digest("SHA-256", toArrayBuffer(this.concat(derivedBytes, deviceSecret))));
+    }
+
     return cryptoAPI.subtle.importKey(
       "raw",
-      toArrayBuffer(derivedBytes),
+      toArrayBuffer(finalMaterial),
       { name: "AES-GCM" },
       false,
       ["encrypt", "decrypt"]
     );
   }
 
-  private static async deriveKeyPBKDF2(password: string, salt: Uint8Array, useDomainSep: boolean = true, iterations: number = PBKDF2_V2_ITERATIONS): Promise<CryptoKey> {
-    const finalSalt = useDomainSep ? this.concat(this.enc("BASTION_VAULT_V1::"), salt) : salt;
-    const material = await cryptoAPI.subtle.importKey(
-      "raw",
-      toArrayBuffer(this.enc(password)),
-      { name: "PBKDF2" },
-      false,
-      ["deriveKey"]
-    );
-    return cryptoAPI.subtle.deriveKey(
-      { name: "PBKDF2", salt: toArrayBuffer(finalSalt), iterations, hash: "SHA-256" },
-      material,
-      { name: "AES-GCM", length: 256 },
-      false,
-      ["encrypt", "decrypt"]
-    );
-  }
-
-  private static nonceCounter = 0;
-
   static generateNonce(): Uint8Array {
     const iv = new Uint8Array(12);
-    // Fill first 8 bytes with random data
-    cryptoAPI.getRandomValues(new Uint8Array(iv.buffer, 0, 8));
-    // Use a counter for the last 4 bytes to guarantee uniqueness within the session
-    new DataView(iv.buffer).setUint32(8, this.nonceCounter++);
+    // 96-bit cryptographically random nonce
+    cryptoAPI.getRandomValues(iv);
     return iv;
   }
 
-  static async encryptBinary(data: Uint8Array, password: string): Promise<Uint8Array> {
+  static async encryptBinary(data: Uint8Array, password: string, useDeviceSecret: boolean = true): Promise<Uint8Array> {
     const salt = cryptoAPI.getRandomValues(new Uint8Array(16));
     const iv = this.generateNonce();
-    const key = await this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4);
+    const key = await this.deriveFinalKey(password, salt, useDeviceSecret);
     const encrypted = await cryptoAPI.subtle.encrypt(
-      { name: "AES-GCM", iv: toArrayBuffer(iv) },
+      { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 },
       key,
       toArrayBuffer(data)
     );
@@ -186,35 +172,37 @@ export class ChaosLock {
     const iv = blob.slice(offset + 16, offset + 28);
     const cipher = blob.slice(offset + 28);
 
-    const keyFallbacks: (() => Promise<CryptoKey>)[] = [
-      () => (version >= 5 ? this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4) :
-             version >= 3 ? this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V3, ARGON_PARALLELISM_V3, ARGON_ITERATIONS_V3) : 
-             this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)),
-      () => this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V4, ARGON_PARALLELISM_V4, ARGON_ITERATIONS_V4),
-      () => this.deriveKeyArgon2id(password, salt, ARGON_MEM_KB_V3, ARGON_PARALLELISM_V3, ARGON_ITERATIONS_V3),
-      () => this.deriveKeyPBKDF2(password, salt, false, PBKDF2_V2_ITERATIONS),
-      () => this.deriveKeyPBKDF2(password, salt, true, PBKDF2_V2_ITERATIONS)
-    ];
-
-    for (const getKey of keyFallbacks) {
-      try {
-        const key = await getKey();
-        const decrypted = await cryptoAPI.subtle.decrypt(
-            { name: "AES-GCM", iv: toArrayBuffer(iv) }, 
-            key, 
-            toArrayBuffer(cipher)
-        );
-        return { data: new Uint8Array(decrypted), version };
-      } catch { /* continue fallback */ }
+    if (version !== 5) {
+      throw new Error("Unsupported vault version");
     }
 
-    throw new Error("Decryption failed. Invalid password or incompatible vault version.");
+    try {
+      const key = await this.deriveFinalKey(password, salt, true);
+      const decrypted = await cryptoAPI.subtle.decrypt(
+          { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 }, 
+          key, 
+          toArrayBuffer(cipher)
+      );
+      return { data: new Uint8Array(decrypted), version };
+    } catch (e) {
+      try {
+        const keyFallback = await this.deriveFinalKey(password, salt, false);
+        const decryptedFallback = await cryptoAPI.subtle.decrypt(
+            { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 }, 
+            keyFallback, 
+            toArrayBuffer(cipher)
+        );
+        return { data: new Uint8Array(decryptedFallback), version };
+      } catch (e2) {
+        throw new Error("Decryption failed. Invalid password or corrupted data.");
+      }
+    }
   }
 
-  static async pack(state: VaultState, password: string): Promise<string> {
+  static async pack(state: VaultState, password: string, useDeviceSecret: boolean = true): Promise<string> {
     const canonicalJson = BastionSerializer.serialize(state);
     const framedBytes = BastionSerializer.frame(canonicalJson);
-    const encrypted = await this.encryptBinary(framedBytes, password);
+    const encrypted = await this.encryptBinary(framedBytes, password, useDeviceSecret);
     return btoa(String.fromCharCode(...encrypted));
   }
 
@@ -393,7 +381,7 @@ export class ChaosEngine {
 
   static async transmute(master: string, ctx: VaultConfig): Promise<string> {
     if (ctx.customPassword?.length) return ctx.customPassword;
-    const baseSalt = `BASTION_GENERATOR_V4::${ctx.name.toLowerCase()}::${ctx.username.toLowerCase()}::v${ctx.version}`;
+    const baseSalt = JSON.stringify({ v: 4, service: ctx.name.toLowerCase(), user: ctx.username.toLowerCase() });
     
     const pool = GLYPHS.ALPHA + GLYPHS.CAPS + GLYPHS.NUM + (ctx.useSymbols ? GLYPHS.SYM : "");
     const limit = 256 - (256 % pool.length);

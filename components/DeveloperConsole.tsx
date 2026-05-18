@@ -72,7 +72,6 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
   };
 
   const wipeVault = () => {
-    if (confirm("DEBUG: WIPE ALL DATA? This ignores backups.")) {
         onUpdate({
             ...state,
             configs: [],
@@ -81,7 +80,6 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
             locker: []
         });
         log('Vault state cleared.');
-    }
   };
 
   const crashTest = () => {
