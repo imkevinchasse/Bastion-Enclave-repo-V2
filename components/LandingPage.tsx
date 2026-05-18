@@ -124,14 +124,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 1. HERO SECTION */}
             <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
                 <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
-                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-slate-900/80 border border-amber-500/20 text-amber-500 text-[11px] font-mono uppercase tracking-widest backdrop-blur-sm">
-                        <span className="w-1.5 h-1.5 rounded-none bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/20 text-indigo-400 text-[11px] font-mono uppercase tracking-widest backdrop-blur-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
                         Protocol V4 Active
                     </div>
                     
                     <h1 className="text-5xl md:text-7xl font-sans font-bold text-slate-100 tracking-tight leading-[1.05]">
                         The Cloud is Compromised. <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-600">
                             Go Sovereign.
                         </span>
                     </h1>
@@ -144,11 +144,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-12 text-sm px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold border-none rounded-none">
+                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-12 text-sm px-8 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold border-none rounded-lg">
                             Enter Vault <ArrowRight size={16} />
                         </Button>
                         <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                           <Button variant="secondary" size="lg" className="w-full h-12 text-sm px-8 rounded-none border-slate-700 hover:bg-slate-800 text-slate-300">
+                           <Button variant="secondary" size="lg" className="w-full h-12 text-sm px-8 rounded-lg border-slate-700 hover:bg-slate-800 text-slate-300">
                                <Terminal size={16} /> Inspect Source
                            </Button>
                         </a>
@@ -157,8 +157,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                 <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000">
                     <div className="relative">
-                        <div className="absolute inset-0 bg-amber-500/10 blur-[80px] rounded-none"></div>
-                        <BrandLogo size={320} animated={true} className="text-amber-500 relative z-10" />
+                        <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full"></div>
+                        <BrandLogo size={320} animated={true} className="text-indigo-500 relative z-10" />
                     </div>
                 </div>
             </div>
@@ -172,8 +172,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
             {/* 3. ARCHITECTURE & SECURITY */}
             <div className="max-w-7xl mx-auto px-6 py-24">
-                <div className="bg-slate-900/50 border border-slate-800/80 rounded-none overflow-hidden relative backdrop-blur-sm shadow-2xl">
-                    <div className="absolute top-0 right-0 p-32 bg-amber-500/5 rounded-none blur-3xl"></div>
+                <div className="glass-card rounded-2xl overflow-hidden relative shadow-2xl">
+                    <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
                     
                     <div className="grid lg:grid-cols-2 gap-12 p-8 lg:p-16 items-start">
                         <div className="space-y-8">
@@ -191,9 +191,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             <div className="flex flex-col gap-3">
                                 <button 
                                     onClick={() => setActiveStage('input')}
-                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'input' ? 'bg-slate-800/80 border-slate-600 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${activeStage === 'input' ? 'bg-slate-800/80 border-slate-600 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
                                 >
-                                    <div className={`p-3 rounded-none ${activeStage === 'input' ? 'bg-slate-700 text-slate-200' : 'bg-slate-900 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-lg ${activeStage === 'input' ? 'bg-slate-700 text-slate-200' : 'bg-slate-900 text-slate-500'}`}>
                                         <FileJson size={20}/>
                                     </div>
                                     <div>
@@ -205,23 +205,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                                 <button 
                                     onClick={() => setActiveStage('process')}
-                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'process' ? 'bg-amber-500/10 border-amber-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-sm border transition-all text-left group ${activeStage === 'process' ? 'bg-indigo-500/10 border-indigo-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
                                 >
-                                    <div className={`p-3 rounded-none ${activeStage === 'process' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-900 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-sm ${activeStage === 'process' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-900 text-slate-500'}`}>
                                         <Zap size={20}/>
                                     </div>
                                     <div>
-                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'process' ? 'text-amber-400' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
+                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'process' ? 'text-indigo-400' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
                                         <p className="text-xs font-sans text-slate-500 mt-0.5">V4 Protocol: Memory-hard derivation.</p>
                                     </div>
-                                    <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-amber-500' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
+                                    <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-indigo-500' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
 
                                 <button 
                                     onClick={() => setActiveStage('chaos')}
-                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'chaos' ? 'bg-orange-500/10 border-orange-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-sm border transition-all text-left group ${activeStage === 'chaos' ? 'bg-orange-500/10 border-orange-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
                                 >
-                                    <div className={`p-3 rounded-none ${activeStage === 'chaos' ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-900 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-sm ${activeStage === 'chaos' ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-900 text-slate-500'}`}>
                                         <RefreshCw size={20}/>
                                     </div>
                                     <div>
@@ -233,9 +233,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
 
                                 <button 
                                     onClick={() => setActiveStage('storage')}
-                                    className={`flex items-center gap-4 p-4 rounded-none border transition-all text-left group ${activeStage === 'storage' ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
+                                    className={`flex items-center gap-4 p-4 rounded-sm border transition-all text-left group ${activeStage === 'storage' ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700 hover:bg-slate-900/50'}`}
                                 >
-                                    <div className={`p-3 rounded-none ${activeStage === 'storage' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-900 text-slate-500'}`}>
+                                    <div className={`p-3 rounded-sm ${activeStage === 'storage' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-900 text-slate-500'}`}>
                                         <HardDrive size={20}/>
                                     </div>
                                     <div>
@@ -248,13 +248,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </div>
                         
                         {/* Interactive Code Display */}
-                        <div className="relative h-full min-h-[500px] flex flex-col bg-[#0d0d12] rounded-none border border-slate-800/80 shadow-2xl overflow-hidden">
+                        <div className="relative h-full min-h-[500px] flex flex-col bg-[#0d0d12] rounded-sm border border-slate-800/80 shadow-2xl overflow-hidden">
                             {/* Window Header */}
                             <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/80 border-b border-slate-800/80">
                                 <div className="flex gap-1.5">
-                                    <div className="w-3 h-3 rounded-none bg-slate-700"></div>
-                                    <div className="w-3 h-3 rounded-none bg-slate-700"></div>
-                                    <div className="w-3 h-3 rounded-none bg-slate-700"></div>
+                                    <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+                                    <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+                                    <div className="w-3 h-3 rounded-full bg-slate-700"></div>
                                 </div>
                                 <div className="flex-1 text-center font-mono text-[11px] text-slate-500 tracking-wider">
                                     bastion_runtime_env

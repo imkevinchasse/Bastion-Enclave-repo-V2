@@ -138,7 +138,7 @@ export const DeveloperConsole: React.FC<DeveloperConsoleProps> = ({ state, onUpd
                         <Key size={18} className="text-emerald-400" /> API Access Control
                     </h3>
                     <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                        Generate a "Headless Master Key" for use with the Python/Java runtimes. 
+                        Generate a "Headless Master Key" for programmatic vault access. 
                         This key allows automation scripts to derive credentials without UI interaction.
                     </p>
                     

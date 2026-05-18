@@ -1,44 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  /* Override Slate with a darker, more technical gray */
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #151619;
-  --color-slate-950: #0a0a0c;
-
-  /* Override Amber with a technical Orange/Amber */
-  --color-amber-50: #fff7ed;
-  --color-amber-100: #ffedd5;
-  --color-amber-200: #fed7aa;
-  --color-amber-300: #fdba74;
-  --color-amber-400: #fb923c;
-  --color-amber-500: #f97316;
-  --color-amber-600: #ea580c;
-  --color-amber-700: #c2410c;
-  --color-amber-800: #9a3412;
-  --color-amber-900: #7c2d12;
-  --color-amber-950: #431407;
+  --color-slate-950: #050506;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
 }
 
 @layer base {
   body {
     background-color: var(--color-slate-950);
-    color: var(--color-slate-200);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+    color: var(--color-slate-300);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  /* Glass Card */
+  .glass-card {
+    background: rgba(15, 17, 21, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -65,6 +64,28 @@
   border-radius: 0px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
+
+/* Boot Loader Styles */
+#boot-loader {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-slate-950);
+  z-index: 9999;
+  transition: opacity 0.5s;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-left-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .data-row {
   display: flex;

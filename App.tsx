@@ -35,15 +35,15 @@ const MobileNavBtn = ({active, onClick, icon, label}: any) => (
 const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
     <button 
         onClick={onClick}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium transition-all duration-200 group ${
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-sm w-full text-sm font-medium transition-all duration-300 group border ${
             active 
-                ? (activeClass || 'bg-amber-600 text-white shadow-lg shadow-amber-500/20') 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                ? (activeClass || 'bg-slate-800 text-indigo-400 border-indigo-500/30') 
+                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border-transparent hover:border-slate-800'
         }`}
     >
-        <span className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>{icon}</span>
+        <span className={`transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>{icon}</span>
         {label}
-        {active && <span className="ml-auto w-1.5 h-1.5 rounded-none bg-white/50"></span>}
+        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500"></span>}
     </button>
 );
 

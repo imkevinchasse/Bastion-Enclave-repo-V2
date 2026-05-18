@@ -66,7 +66,7 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
           <div className="hidden md:flex items-center gap-4">
               <button 
                 onClick={() => onNavigate('auth')}
-                className="group relative px-4 py-1.5 rounded-none bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-medium transition-all flex items-center gap-2 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+                className="group relative px-4 py-1.5 rounded-sm bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-all flex items-center gap-2 overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
               >
                 <Lock size={12} className="group-hover:scale-110 transition-transform" />
                 <span>Vault Access</span>
@@ -75,7 +75,7 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
 
           {/* Mobile Toggle */}
           <button 
-            className="md:hidden p-2 text-slate-400 hover:text-amber-400 transition-colors"
+            className="md:hidden p-2 text-slate-400 hover:text-indigo-400 transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
           >
@@ -121,7 +121,7 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
 
              <button 
                 onClick={() => handleNav('auth')} 
-                className="w-full p-4 rounded-none bg-amber-600 text-slate-950 font-mono font-bold uppercase text-xs tracking-wider flex items-center justify-between"
+                className="w-full p-4 rounded-sm bg-slate-900 border border-slate-800 text-slate-200 font-mono font-bold uppercase text-xs tracking-wider flex items-center justify-between hover:bg-slate-800 transition-colors"
              >
                 <span className="flex items-center gap-3">
                   <Lock size={16} /> Vault Access
@@ -138,9 +138,9 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
 const NavButton = ({ active, onClick, label }: { active: boolean, onClick: () => void, label: string }) => (
   <button 
     onClick={onClick}
-    className={`px-3 py-1.5 rounded-none text-xs font-medium transition-all ${
+    className={`px-3 py-1.5 rounded-sm text-xs font-medium transition-all ${
       active 
-        ? 'text-amber-400 bg-amber-500/10' 
+        ? 'text-indigo-400 border-b border-indigo-500' 
         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
     }`}
   >
@@ -151,13 +151,13 @@ const NavButton = ({ active, onClick, label }: { active: boolean, onClick: () =>
 const MobileNavButton = ({ active, onClick, icon, label, desc }: any) => (
   <button 
       onClick={onClick}
-      className={`p-3 rounded-none flex items-center gap-4 transition-all border ${active ? 'bg-amber-500/10 border-amber-500/20' : 'bg-transparent border-transparent hover:bg-slate-800/50 hover:border-white/5'}`}
+      className={`p-3 rounded-sm flex items-center gap-4 transition-all border ${active ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-transparent border-transparent hover:bg-slate-800/50 hover:border-white/5'}`}
   >
-      <div className={`text-slate-500 ${active ? 'text-amber-400' : ''}`}>
+      <div className={`text-slate-500 ${active ? 'text-indigo-400' : ''}`}>
         {icon}
       </div>
       <div className="text-left">
-        <div className={`text-sm font-medium ${active ? 'text-amber-400' : 'text-slate-300'}`}>{label}</div>
+        <div className={`text-sm font-medium ${active ? 'text-indigo-400' : 'text-slate-300'}`}>{label}</div>
         <div className="text-[10px] text-slate-500 font-mono mt-0.5">{desc}</div>
       </div>
   </button>
