@@ -6,7 +6,6 @@ import { TopNav } from './TopNav';
 import { RefreshCw, Copy, Check, Eye, EyeOff, ShieldAlert, Trash2, LogIn, UserPlus, HelpCircle, HardDrive, FileText, Scan, Fingerprint, Info, Terminal, ShieldCheck } from 'lucide-react';
 import { ChaosLock, ChaosEngine } from '../services/cryptoService';
 import { VaultState, PublicPage, VaultFlags } from '../types';
-import { track } from '@vercel/analytics';
 import { SecurityService } from '../services/securityService';
 
 interface AuthScreenProps {
@@ -148,9 +147,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         // Reset version sentinel for new vault
         localStorage.removeItem('BASTION_MAX_VERSION');
 
-        // Analytics Beacon
-        track('Vault Created');
-
         // Pass isNew=true to trigger unsaved changes warning until backup
         onOpen(initialState, newBlob, finalPassword, true, 4); // 4 = Current Protocol
     } catch (_e) {
@@ -199,17 +195,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
             };
             const newBlob = await ChaosLock.pack(recoveredState, finalPassword || 'temp');
             
-            // Analytics Beacon
-            track('Identity Recovered');
-
             // Recovering from seed is effectively a "new" session in memory until saved
             onOpen(recoveredState, newBlob, finalPassword, true, 4);
         } else {
             const { state, version } = await ChaosLock.unpack(inputData, finalPassword);
             
-            // Analytics Beacon
-            track('Vault Unlocked');
-
             // Pass detected version to App for legacy handling
             onOpen(state, inputData, finalPassword, false, version);
         }

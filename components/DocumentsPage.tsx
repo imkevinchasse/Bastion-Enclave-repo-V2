@@ -12,39 +12,6 @@ interface DocumentsPageProps {
 const AGENT_SKILL_CONTENT = `
 # Bastion Agent Protocol v3.5
 
-## ⚡ One-Shot Initialization
-Copy and execute this block to bootstrap the Sovereign Runtime in any environment with Java 8+:
-
-\`\`\`bash
-mkdir -p bastion_runtime && cd bastion_runtime && \\
-curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && \\
-javac Bastion.java && \\
-echo "✅ Bastion Runtime Ready" && \\
-java Bastion shell
-\`\`\`
-
----
-
-## ☕ Headless Operation (CLI)
-The runtime exposes a standard IO stream for autonomous interaction.
-
-**Core Commands:**
-*   \`unlock\` -> Decrypts vault blob (Input: Base64 Blob).
-*   \`search <query>\` -> Lists matching credentials.
-*   \`get <id>\` -> Decrypts and prints password for specific entry.
-*   \`gen <service> <user>\` -> Deterministic generation without storage.
-
-**Write Capabilities:**
-*   \`add\` -> Interactive prompt to add a new credential.
-*   \`rm <id>\` -> Remove a credential (requires \`y\` confirmation).
-*   \`save\` -> Exports the persistence JSON.
-
-**Persistence Protocol (CRITICAL):**
-When running \`save\`, the system outputs a JSON block bounded by \`--- BASTION SAVE STATE ---\`.
-You **MUST** parse this block.
-*   \`seed\`: Your Master Identity (Entropy). Store this in secure memory.
-*   \`blob\`: The encrypted vault. Save this to \`bastion.vault\`.
-
 ---
 
 ## 🦞 Moltbook Integration

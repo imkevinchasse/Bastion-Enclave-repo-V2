@@ -9,7 +9,7 @@ interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'agents' | 'java' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'agents' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -40,7 +40,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 <div className="space-y-1">
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Agent & Dev</div>
                     <NavButton active={activeSection === 'agents'} onClick={() => setActiveSection('agents')} icon={<Bot size={16}/>} label="OpenClaw Protocols" />
-                    <NavButton active={activeSection === 'java'} onClick={() => setActiveSection('java')} icon={<Coffee size={16}/>} label="Java Runtime" />
                     <NavButton active={activeSection === 'changelog'} onClick={() => setActiveSection('changelog')} icon={<History size={16}/>} label="Changelog" />
                 </div>
 
@@ -61,7 +60,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 {activeSection === 'locker' && <LockerContent />}
                 {activeSection === 'identity' && <IdentityContent />}
                 {activeSection === 'agents' && <AgentContent />}
-                {activeSection === 'java' && <JavaContent />}
                 {activeSection === 'breach' && <BreachContent />}
                 {activeSection === 'changelog' && <ChangelogContent />}
                 
@@ -393,44 +391,6 @@ const BreachContent = () => (
         </div>
     </div>
 );
-
-const JavaContent = () => {
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex justify-between items-start">
-                <Header icon={<Coffee size={32} className="text-orange-400"/>} title="Java Runtime (Headless)" />
-                <a href="/Bastion.java" download="Bastion.java">
-                    <Button variant="secondary" className="text-xs">
-                        <Download size={14} /> Download Source
-                    </Button>
-                </a>
-            </div>
-            
-            <div className="space-y-4">
-                <p className="text-slate-300">
-                    The <strong>Reference Implementation</strong> for offline agents. This single-file Java application runs anywhere, has zero external dependencies, and supports a full interactive CLI mode for headless operation.
-                </p>
-
-                <div className="bg-black rounded-none border border-white/10 overflow-hidden font-mono text-sm shadow-xl">
-                    <div className="bg-slate-900 px-4 py-2 border-b border-white/5 flex items-center gap-2 text-slate-500">
-                        <Terminal size={14} /> bash
-                    </div>
-                    <div className="p-6 relative group space-y-4">
-                        <div>
-                            <div className="text-slate-500 mb-1"># 1. Download & Compile (GitHub Main)</div>
-                            <div className="text-emerald-400">curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java</div>
-                            <div className="text-emerald-400">javac Bastion.java</div>
-                        </div>
-                        <div>
-                            <div className="text-slate-500 mb-1"># 2. Run CLI Mode</div>
-                            <div className="text-emerald-400">java Bastion shell</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const ChangelogContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">

@@ -7,7 +7,8 @@ import { BastionSerializer } from "./serializer";
 const PBKDF2_V2_ITERATIONS = 210_000;
 const PBKDF2_DIGEST = "SHA-512";
 
-// Argon2id Constants (V4 Standard)
+// Argon2id Constants (V4 Standard - Optimized for browser security)
+// Constants defined to match OWASP recommendations for local generation (m=128MB, t=3, p=4)
 const ARGON_MEM_KB_V4 = 131072; // 128 MB
 const ARGON_ITERATIONS_V4 = 3;
 const ARGON_PARALLELISM_V4 = 4;
@@ -381,13 +382,20 @@ export class ChaosEngine {
 
   static async transmute(master: string, ctx: VaultConfig): Promise<string> {
     if (ctx.customPassword?.length) return ctx.customPassword;
+    
+    // Salt Determinism: Salt is derived from predictable inputs (service, user) 
+    // to ensure reproducibility while remaining complex via Argon2id.
     const baseSalt = JSON.stringify({ v: 4, service: ctx.name.toLowerCase(), user: ctx.username.toLowerCase() });
     
     const pool = GLYPHS.ALPHA + GLYPHS.CAPS + GLYPHS.NUM + (ctx.useSymbols ? GLYPHS.SYM : "");
-    const limit = 256 - (256 % pool.length);
+    
+    // Rejection Sampling: Unbiased mapping to prevent modulo bias (critical for entropy quality).
+    const limit = Math.floor(256 / pool.length) * pool.length;
     let out = "";
     let counter = 0;
     
+    // Side-channel consideration: Loop execution time depends on rejection rate.
+    // The rejection rate depends on CSPRNG/Argon2id output entropy.
     while (out.length < ctx.length) {
       const salt = `${baseSalt}::${counter}`;
       const buf = await this.flux(master, salt, ctx.length);
