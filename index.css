@@ -1,42 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  
   --color-slate-950: #050506;
+  --color-slate-900: #0d0f14;
+  --color-slate-800: #1e2530;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-400: #94a3b8;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
   --color-indigo-400: #818cf8;
   --color-indigo-500: #6366f1;
+  --color-emerald-500: #10b981;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 @layer base {
   body {
     background-color: var(--color-slate-950);
     background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
     color: var(--color-slate-300);
     font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
     font-size: 15px;
     line-height: 1.6;
-  }
-
-  h1, h2, h3, h4 {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    color: white;
-    letter-spacing: -0.025em;
   }
 }
 
 @layer components {
-  /* Glass Card */
   .glass-card {
     background: rgba(15, 17, 21, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border-radius: 0.75rem;
+  }
+  
+  .glow-indigo {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
   }
 }
 

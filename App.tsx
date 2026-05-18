@@ -352,56 +352,53 @@ export default function App() {
     if (!vaultState) return <>{bridge}<AuthScreen onOpen={handleOpenVault} onNavigate={setPublicPage} /></>;
 
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
+      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row overflow-hidden">
           
           <SecurityMonitor />
           {bridge}
 
           {/* Desktop Sidebar */}
-          <aside className="hidden md:flex w-64 bg-slate-900 border-r border-white/5 flex-col p-4 shrink-0 z-30">
-              <div className="flex items-center gap-3 px-2 mb-8 mt-2 cursor-pointer group" onClick={() => setPublicPage('landing')}>
-                  <BrandLogo size={32} className="drop-shadow-lg group-hover:brightness-125 transition-all" />
+          <aside className="hidden md:flex w-72 glass-card rounded-none border-r border-white/5 flex-col p-6 shrink-0 z-30">
+              <div className="flex items-center gap-3 px-2 mb-10 mt-2 cursor-pointer group" onClick={() => setPublicPage('landing')}>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                    <BrandLogo size={24} className="text-indigo-500" />
+                  </div>
                   <div>
-                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">Bastion Enclave</h1>
-                      <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></div>
-                          SECURE_V4
+                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-indigo-400 transition-colors">Bastion</h1>
+                      <div className="text-[10px] text-indigo-400 font-mono mt-1 flex items-center gap-1.5 uppercase tracking-wider">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
+                          Enclave V4
                       </div>
                   </div>
               </div>
 
-              <div className="space-y-1 flex-1">
-                  <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-4">Vault Access</div>
+              <div className="space-y-1.5 flex-1">
+                  {/* ... Sidebar navigation links ... */}
                   <SidebarBtn active={currentTab === AppTab.VAULT} onClick={() => setCurrentTab(AppTab.VAULT)} icon={<Shield size={18}/>} label="Logins" />
                   <SidebarBtn active={currentTab === AppTab.CONTACTS} onClick={() => setCurrentTab(AppTab.CONTACTS)} icon={<Users size={18}/>} label="People" />
                   <SidebarBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={18}/>} label="Notes" />
                   <SidebarBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={18}/>} label="Locker" />
                   
-                  {/* <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-6">Utilities</div>
-                  <SidebarBtn active={currentTab === AppTab.GENERATOR} onClick={() => setCurrentTab(AppTab.GENERATOR)} icon={<RefreshCw size={18}/>} label="Generator" />
-                  <SidebarBtn active={currentTab === AppTab.SANDBOX} onClick={() => setCurrentTab(AppTab.SANDBOX)} icon={<FlaskConical size={18}/>} label="Sandbox" />
-                  <SidebarBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={18}/>} label="My Bond" /> */}
-                  
                   {isDeveloper && (
                       <>
-                          <div className="text-xs font-bold text-amber-600 uppercase tracking-widest px-3 mb-2 mt-6">Root Access</div>
+                          <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest px-3 mb-2 mt-8">Root Access</div>
                           <SidebarBtn active={currentTab === AppTab.DEVELOPER} onClick={() => setCurrentTab(AppTab.DEVELOPER)} icon={<Terminal size={18}/>} label="Console" activeClass="bg-amber-900/20 text-amber-400 border-amber-500/20" />
                       </>
                   )}
               </div>
 
-              <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
+              <div className="mt-auto pt-6 border-t border-white/5 space-y-2">
                   <button 
                       onClick={handleBackup}
                       data-agent-id="nav-backup-btn"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
                   >
                       <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" /> Backup Kit
-                      {vaultState.lastModified > lastBackupTime && <span className="w-2 h-2 rounded-none bg-amber-500 animate-pulse ml-auto"></span>}
+                      {vaultState.lastModified > lastBackupTime && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-auto"></span>}
                   </button>
                   <button 
                       onClick={handleLogout}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
                   >
                       <LogOut size={18} /> Lock Vault
                   </button>
