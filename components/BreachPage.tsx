@@ -116,7 +116,7 @@ export const BreachPage: React.FC<BreachPageProps> = ({ onNavigate }) => {
 
                         <div className="text-center text-[10px] text-slate-500 font-mono leading-relaxed mt-4">
                             PRIVACY GUARANTEE: The full hash of your password is NEVER sent. 
-                            We only transmit the first 5 characters (prefix) to the API. 
+                            We only transmit the first 5–6 characters (prefix) of the SHA-1 hash to the API. 
                             The matching happens locally in your browser.
                         </div>
                     </form>

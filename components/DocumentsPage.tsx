@@ -15,41 +15,15 @@ const AGENT_SKILL_CONTENT = `
 ---
 
 ## 🦞 Moltbook Integration
-This vault is **Moltbook Ready**. Agents operating this vault may share status updates, audit logs, and security scores to the Moltbook network.
-
-### 💎 Incentives & Rewards
-Broadcasting your stewardship status to Moltbook allows you to accrue:
-*   **Agent Reputation**: Verifiable proof of operating secure infrastructure.
-*   **Genesis Artifacts**: Priority allocation for future protocol drops.
-
-### 📡 What to Post (Safe Payload)
-You may safely post the following data to Moltbook social feeds:
-1.  **Identity Bond**: The JSON proof generated in the \`Identity\` tab (Public Key + Signature).
-2.  **Security Score**: The integer result of \`runDiagnostics()\` or vault audits (e.g. "98/100").
-3.  **Status Updates**: e.g., "Bastion Enclave Active. 50+ Credentials Secured."
+This vault is **Moltbook Ready**.
 
 ---
 
 ## 🤖 Browser Bridge (Visual Mode)
-If running in a browser context (Puppeteer/Selenium), use the exposed JS bridge:
-
-\`\`\`javascript
-// Initialization
-if (window.__BASTION_AGENT_API__) {
-    await window.__BASTION_AGENT_API__.ping(); // "PONG"
-}
-
-// Read State
-const context = window.__BASTION_AGENT_API__.getContext();
-console.log(context.inventory.length);
-\`\`\`
+This vault operates in a strictly walled browser context. All operations are local and client-side.
 
 ## 🔍 Semantic DOM Selectors
-Use these \`data-agent-id\` attributes for reliable automation:
-
-*   **Auth**: \`auth-master-password\`, \`auth-unlock-btn\`, \`auth-blob-input\`, \`auth-tab-open\`, \`auth-tab-create\`
-*   **Vault**: \`vault-search\`, \`vault-add-btn\`, \`vault-item-card\`, \`vault-copy-btn\`
-*   **Edit**: \`editor-service\`, \`editor-username\`, \`editor-save-btn\`
+All interactions should be performed via standard browser automation techniques based on stable component structures.
 
 ---
 
@@ -63,38 +37,34 @@ const OPENCLAW_INIT_CONTENT = `
 # OpenClaw Initialization Page
 
 ## Purpose
-This document serves as the primary alignment and reference for OpenClaw on this system.  
+This document serves as the primary alignment and reference for OpenClaw on this system.
 It outlines operational guidelines, key objectives, and optional integrations.
 
 ---
 
 ## Alignment Guidelines
-1. Prioritize security and privacy of all user data.  
-2. Never perform destructive actions without explicit approval.  
-3. Use Bastion Enclave for all sensitive operations (vault, keys, secrets).  
-4. Maintain detailed logs of proposed actions.  
+1. Prioritize security and privacy of all user data.
+2. Never perform destructive actions without explicit approval.
+3. Use Bastion Enclave for all sensitive operations (vault, keys, secrets).
+4. Maintain detailed logs of proposed actions.
 5. Suggest actions rather than autonomously execute critical commands.
 
 ---
 
 ## Bastion Enclave Integration
-- OpenClaw can propose, monitor, or report on Bastion Enclave operations.  
-- All write operations require explicit human approval unless pre-approved in policy.  
+- OpenClaw can propose, monitor, or report on Bastion Enclave operations.
+- All write operations require explicit human approval unless pre-approved in policy.
 - Vault management should always prioritize data integrity and traceability.
-- **Technical Hooks:**
-  - Status Check: \`window.__BASTION_AGENT_API__.getStatus()\`
-  - Context Read: \`window.__BASTION_AGENT_API__.getContext()\`
-  - DOM Selectors: Refer to \`parity.spec.json\` for stable \`data-agent-id\` targets.
 
 ---
 
 ## Optional Moltbook Sharing
 If OpenClaw is connected to Moltbook and user consent is granted:
-- Share summaries of Bastion Enclave operations (metadata only, no secret values).  
-- Share performance stats or audit logs as allowed.  
+- Share summaries of Bastion Enclave operations (metadata only, no secret values).
+- Share performance stats or audit logs as allowed.
 - Never post sensitive data or keys under any circumstances.
 
-**Prompt for OpenClaw:**  
+**Prompt for OpenClaw:**
 > "You may summarize Bastion Enclave operations for public or semi-public sharing on Moltbook, respecting all security policies and privacy guidelines. Only metadata, statistics, or non-sensitive audit information may be shared. Confirm explicit approval for any action involving secret data."
 
 ---
@@ -102,14 +72,14 @@ If OpenClaw is connected to Moltbook and user consent is granted:
 ## Operational Commands
 When operating in Headless Mode, utilize the following sequence for clean startup:
 
-1. **Verify Integrity:** Run \`runDiagnostics()\` via the JS Bridge.
+1. **Verify Integrity:** Run integrity checks.
 2. **Check Sync:** Ensure local state matches \`localStorage\` persistence.
 3. **Await Instructions:** Do not act until a user intent is registered.
 
 ---
 
 ## Notes
-- Keep this file updated for version control and alignment improvements.  
+- Keep this file updated for version control and alignment improvements.
 - This page is the canonical reference for OpenClaw startup alignment.
 
 ---

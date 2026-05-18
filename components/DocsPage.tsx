@@ -380,7 +380,7 @@ const BreachContent = () => (
                 <div className="bg-slate-900 p-4 rounded-none border border-white/5">
                     <div className="text-amber-400 font-bold text-xs uppercase mb-2">Step 2</div>
                     <div className="text-white text-sm mb-1">Prefix Query</div>
-                    <div className="text-slate-500 text-xs">We send only the first 5 characters of the hash to the API.</div>
+                    <div className="text-slate-500 text-xs">We send only the first 5–6 characters (prefix) of the SHA-1 hash to the API.</div>
                 </div>
                 <div className="bg-slate-900 p-4 rounded-none border border-white/5">
                     <div className="text-amber-400 font-bold text-xs uppercase mb-2">Step 3</div>

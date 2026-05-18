@@ -24,19 +24,19 @@ As a Progressive Web App (PWA), Bastion Enclave inherits all vulnerabilities of 
 *   **XSS & Hooked Injection:** Malicious scripts running in the same origin (e.g., via a compromised dependency or cross-site scripting) can interact with `window.__BASTION_AGENT_API__` or use the Semantic DOM (`data-agent-id` selectors) to exfiltrate data, perform unauthorized cryptographic operations, or manipulate the vault.
 *   **Malicious Browser Extensions:** Extensions have privileged access to the DOM and can easily inject code to intercept user interaction with the enclave.
 
-### 3.2. Agent-First Paradox (The "AgentBridge" Threat)
-Bastion provides explicit hooks for headless agent interaction (`parity.spec.json` -> `agent_interface`).
-*   **Risk:** Explicitly documenting stable DOM identifiers (`data-agent-id`) and an injectable JS bridge (`__BASTION_AGENT_API__`) makes it easier to create autonomous malicious agents that can programmatically interact with the vault.
-*   **Inversion of Intent:** A feature intended for "User-driven Automation" (e.g., auto-filling, backup scripts) can be repurposed by an attacker (via XSS) to silently exfiltrate vault actions or monitor the state of the enclave.
+### 3.2. Agent-First Paradox (Deprecated Surface)
+Bastion previously provided explicit hooks for headless agent interaction.
+*   **Risk (Historical):** Documenting stable DOM identifiers (`data-agent-id`) and an injectable JS bridge (`__BASTION_AGENT_API__`) made it easier to create autonomous malicious agents that could programmatically interact with the vault.
+*   **Mitigation (Completed):** These features have been entirely removed (July 2026) to reduce the attack surface.
 
-### 3.3. Update Mechanism Fragility
-*   **Insecure Execution Pipeline:** The use of `curl | bash` for script updates is a notoriously risky pattern. While the `GUARDRAIL` invariants protect the *state*, the *delivery* mechanism for the application update is currently high-risk and vulnerable to potential MITM or repository hijacking if not strictly pinned by hash.
+### 3.4. Cryptographic Practice (Anonymization)
+*   ** SHA-1 Hashing:** When checking for compromised passwords, the application computes the SHA-1 hash of the password locally. To preserve user privacy while performing the check, the application only sends the first 5–6 hexadecimal characters of this hash to third-party services (k-anonymity protocol). This is standard practice in the security industry.
 
 ## 4. Known Limitations & Risks
 
 | Risk Area | Risk Level | Description |
 | :--- | :--- | :--- |
-| **XSS / Content Injection** | HIGH | Compromise of the host page allows direct interaction with the agent-bridge API. |
+| **XSS / Content Injection** | MEDIUM | Compromise of the host page allows interaction with standard DOM elements. |
 | **Browser Extension Spoofing** | MEDIUM | Privileged extensions can mimic agent behavior to exfiltrate vault state. |
 | **Update Pipeline** | HIGH | `curl | bash` update pattern lacks cryptographic verification of the update payload (i.e., NO sig-check). |
 
@@ -48,8 +48,8 @@ Bastion provides explicit hooks for headless agent interaction (`parity.spec.jso
     *   Replace the `curl | bash` update mechanism. Use a cryptographically signed binary distribution or at least verify the SHA-256 checksum of the downloaded update before execution, comparing it against a known-good manifest signed by the Bastion development keys.
 3.  **Strict CSP:**
     *   Implement a locked-down, production-grade Content Security Policy (CSP). The current rescue-mode CSP is overly permissive (`unsafe-inline`, `unsafe-eval`). This *must* be heavily restricted to `self` and verified CDN origins for production.
-4.  **Sandbox AgentSelectors:**
-    *   If the agent features are not in use, define a build flag to strip the `data-agent-id` attributes and disable the injection of `window.__BASTION_AGENT_API__` entirely at compile time to remove that attack surface.
+4. Sandbox AgentSelectors:
+    *   (Removed: This recommendation was satisfied by the complete removal of the `data-agent-id` and `AgentBridge` features).
 
 ## 6. Serious & Secure Mitigation Strategies
 

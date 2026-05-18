@@ -262,14 +262,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                     <div className="flex border-b border-white/5 bg-slate-900/30">
                         <button 
                             onClick={() => {setTab('open'); setError('');}}
-                            data-agent-id="auth-tab-open"
                             className={`flex-1 py-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${tab === 'open' ? 'text-amber-400 bg-amber-500/5 border-b-2 border-amber-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                         >
                             <LogIn size={16} /> Unlock Vault
                         </button>
                         <button 
                             onClick={() => {setTab('create'); setError('');}}
-                            data-agent-id="auth-tab-create"
                             className={`flex-1 py-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${tab === 'create' ? 'text-amber-400 bg-amber-500/5 border-b-2 border-amber-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                         >
                             <UserPlus size={16} /> Create New
@@ -342,7 +340,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                             )}
                                             
                                             <textarea 
-                                                data-agent-id="auth-blob-input"
                                                 value={blob}
                                                 onChange={e => setBlob(e.target.value)}
                                                 className="w-full h-32 bg-transparent p-4 text-[11px] font-mono text-slate-300 resize-none outline-none relative z-10 placeholder-transparent custom-scrollbar leading-relaxed"
@@ -370,7 +367,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                         <label className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">Master Password</label>
                                         <div className="relative">
                                             <Input 
-                                                data-agent-id="auth-master-password"
                                                 type={showPassword ? "text" : "password"}
                                                 value={password}
                                                 onChange={e => setPassword(e.target.value)}
@@ -422,7 +418,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                                     <Trash2 size={20} />
                                                 </button>
                                             )}
-                                            <Button type="submit" data-agent-id="auth-unlock-btn" className="w-full h-11" isLoading={loading}>
+                                            <Button type="submit" className="w-full h-11" isLoading={loading}>
                                                 {isSeed ? 'Recover Vault' : 'Unlock Vault'}
                                             </Button>
                                         </div>
@@ -470,7 +466,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                     )}
                                 </div>
 
-                                <Button type="submit" data-agent-id="auth-create-btn" className="w-full h-11" isLoading={loading}>
+                                <Button type="submit" className="w-full h-11" isLoading={loading}>
                                     {isDevModeTrigger ? 'Initialize Dev Vault' : 'Create Vault'}
                                 </Button>
                                 
