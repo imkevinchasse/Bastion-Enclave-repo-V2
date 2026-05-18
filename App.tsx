@@ -470,7 +470,6 @@ export default function App() {
                           />
                       )}
                   </div>
-              </div>
 
               {/* Mobile Bottom Nav */}
               <div className="md:hidden bg-slate-900 border-t border-white/5 px-6 py-3 flex justify-between items-center z-30 pb-safe">
@@ -484,6 +483,7 @@ export default function App() {
                   <MobileNavBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={20}/>} label="Locker" />
               </div>
           </main>
+          </div>
 
           {/* Notifications & Modals */}
           {showMigrationModal && (
