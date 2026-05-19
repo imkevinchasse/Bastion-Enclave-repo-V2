@@ -1,4 +1,5 @@
 
+// @deprecated
 import React, { useState } from 'react';
 import { ChaosLock } from '../services/cryptoService';
 import { Button } from './Button';

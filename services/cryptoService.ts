@@ -123,16 +123,27 @@ export class ChaosLock {
     const deviceSecretHex = localStorage.getItem('bastion_device_secret');
     if (useDeviceSecret && deviceSecretHex) {
       const deviceSecret = this.hex2buf(deviceSecretHex);
-      finalMaterial = new Uint8Array(await cryptoAPI.subtle.digest("SHA-256", toArrayBuffer(this.concat(derivedBytes, deviceSecret))));
+      const toHash = this.concat(derivedBytes, deviceSecret);
+      finalMaterial = new Uint8Array(await cryptoAPI.subtle.digest("SHA-256", toArrayBuffer(toHash)));
+      
+      // Wipe sensitive intermediates
+      deviceSecret.fill(0);
+      toHash.fill(0);
+      derivedBytes.fill(0);
     }
 
-    return cryptoAPI.subtle.importKey(
+    const key = await cryptoAPI.subtle.importKey(
       "raw",
       toArrayBuffer(finalMaterial),
       { name: "AES-GCM" },
       false,
       ["encrypt", "decrypt"]
     );
+
+    // Wipe final material
+    finalMaterial.fill(0);
+
+    return key;
   }
 
   static generateNonce(): Uint8Array {
@@ -146,12 +157,14 @@ export class ChaosLock {
     const salt = cryptoAPI.getRandomValues(new Uint8Array(16));
     const iv = this.generateNonce();
     const key = await this.deriveFinalKey(password, salt, useDeviceSecret);
-    const encrypted = await cryptoAPI.subtle.encrypt(
+    const encrypted = new Uint8Array(await cryptoAPI.subtle.encrypt(
       { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 },
       key,
       toArrayBuffer(data)
-    );
-    return this.concat(HEADER_V4, salt, iv, new Uint8Array(encrypted));
+    ));
+    const result = this.concat(HEADER_V4, salt, iv, encrypted);
+    encrypted.fill(0);
+    return result;
   }
 
   static async decryptBinary(blob: Uint8Array, password: string): Promise<{ data: Uint8Array; version: number }> {
@@ -171,7 +184,10 @@ export class ChaosLock {
     const cipher = blob.slice(offset + 28);
 
     if (version !== 5) {
-      throw new Error(`Vault version V${version} is outdated. Migration to Sovereign-V5 required.`);
+      const err = new Error(`Migration required: Vault version V${version}`);
+      (err as any).code = 'MIGRATION_REQUIRED';
+      (err as any).version = version;
+      throw err;
     }
 
     try {
@@ -202,6 +218,46 @@ export class ChaosLock {
     const jsonStr = version >= 4 ? BastionSerializer.deframe(data) : new TextDecoder().decode(data);
     return { state: JSON.parse(jsonStr), version };
   }
+}
+
+/* ===================== MIGRATOR ===================== */
+export class Migrator {
+    static async migrateV4toV5(blob: Uint8Array, password: string): Promise<Uint8Array> {
+        // 1. Parse V4 blob
+        const salt = blob.slice(5, 21);
+        const iv = blob.slice(21, 33);
+        const cipher = blob.slice(33);
+        
+        // 2. Decrypt using V4 key
+        const key = await this.deriveV4Key(password, salt);
+        const decrypted = new Uint8Array(await cryptoAPI.subtle.decrypt(
+            { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 },
+            key,
+            toArrayBuffer(cipher)
+        ));
+        
+        // 3. Encrypt using V5
+        const result = await ChaosLock.encryptBinary(decrypted, password, true);
+        
+        // 4. Wipe
+        decrypted.fill(0);
+        return result;
+    }
+
+    static async deriveV4Key(password: string, salt: Uint8Array): Promise<CryptoKey> {
+        const derivedBytes = await argon2id({
+            password,
+            salt,
+            parallelism: LEGACY_VERSIONS.V4.PARALLELISM,
+            iterations: LEGACY_VERSIONS.V4.ITERATIONS,
+            memorySize: LEGACY_VERSIONS.V4.MEM_KB,
+            hashLength: 32,
+            outputType: 'binary'
+        });
+        const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(derivedBytes), { name: "AES-GCM" }, false, ["decrypt"]);
+        derivedBytes.fill(0);
+        return key;
+    }
 }
 
 /* ===================== SECRET SHARER ===================== */
@@ -354,15 +410,22 @@ export class ResonanceEngine {
 export class ChaosEngine {
   private static async flux(entropy: string, salt: string, length: number): Promise<Uint8Array> {
     const enc = new TextEncoder();
-    return argon2id({
+    const entropyBytes = enc.encode(entropy);
+    const saltBytes = enc.encode(salt);
+    
+    const result = await argon2id({
       password: entropy,
-      salt: enc.encode(salt),
+      salt: saltBytes,
       parallelism: ARGON_V5.PARALLELISM,
       iterations: ARGON_V5.ITERATIONS,
       memorySize: ARGON_V5.MEM_KB,
       hashLength: length * 6,
       outputType: 'binary'
     });
+    
+    entropyBytes.fill(0);
+    saltBytes.fill(0);
+    return result;
   }
 
   static generateEntropy(): string {

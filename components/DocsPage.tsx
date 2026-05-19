@@ -44,7 +44,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
 
                 <div className="p-4 bg-amber-900/10 rounded-none border border-amber-500/20 mt-8">
                     <h4 className="font-bold text-amber-400 text-sm mb-2">Status: Operational</h4>
-                    <p className="text-xs text-amber-200/80">Version 4.0.0<br/>Protocol: V4 (Active)</p>
+                    <p className="text-xs text-amber-200/80">Version 5.0.0<br/>Protocol: V5 (Active)</p>
                 </div>
             </aside>
 
@@ -210,7 +210,7 @@ const ChaosContent = () => (
             </div>
             <div className="p-6 bg-black/20 border-t border-white/5">
                 <h3 className="font-bold text-amber-400 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Terminal size={14}/> Technical Specification (V4)
+                    <Terminal size={14}/> Technical Specification (V5)
                 </h3>
                 <ul className="space-y-3 text-sm text-slate-500 font-mono">
                     <li className="flex gap-3"><ChevronRight size={14} className="shrink-0 mt-0.5"/><span>Algo: Argon2id</span></li>
@@ -283,7 +283,7 @@ const ChangelogContent = () => (
             <div className="relative border-l-2 border-amber-500 pl-6 pb-2">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-none bg-amber-500 border-4 border-slate-950"></div>
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-3">
-                    Bastion Protocol V4 <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-none border border-amber-500/30">STABLE</span>
+                    Bastion Protocol V5 <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-none border border-amber-500/30">STABLE</span>
                 </h3>
                 <div className="text-xs text-slate-500 font-mono mb-4">Epoch: 2026-03-23 • Scope: Argon2id & Developer Mode</div>
 
@@ -291,7 +291,7 @@ const ChangelogContent = () => (
                     <div className="space-y-2">
                         <h4 className="text-white font-bold flex items-center gap-2"><Binary size={14} className="text-blue-400"/> Argon2id Key Derivation</h4>
                         <ul className="list-disc list-outside ml-4 space-y-1 text-slate-400 marker:text-slate-600">
-                            <li>Upgraded Chaos Engine to V4 using Argon2id for deterministic generation.</li>
+                            <li>Upgraded Chaos Engine to V5 using Argon2id for deterministic generation.</li>
                             <li>Increased Argon2id memory cost to 128MB and parallelism to 4.</li>
                         </ul>
                     </div>

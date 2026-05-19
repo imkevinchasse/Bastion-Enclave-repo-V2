@@ -25,17 +25,17 @@ const DEMO_STAGES = {
   "service": "github.com",
   "username": "developer@bastion.os",
   "password": "correct-horse-battery-staple",
-  "protocol": "SOVEREIGN_V4"
+  "protocol": "SOVEREIGN_V5"
 }`
     },
     'process': {
         icon: <Binary size={20} />,
         label: 'Argon2id Transmutation',
-        desc: 'Memory-Hard Key Derivation (V4 Standard)',
+        desc: 'Memory-Hard Key Derivation (V5 Standard)',
         color: 'text-amber-400',
         borderColor: 'border-amber-500',
         bg: 'bg-amber-500/10',
-        code: `// Sovereign-V4: Anti-ASIC Hardening
+        code: `// Sovereign-V5: Anti-ASIC Hardening
 const masterKey = await argon2id({
   password: userInput,
   salt: randomBytes(16),
@@ -50,13 +50,13 @@ const masterKey = await argon2id({
     },
     'chaos': {
         icon: <RefreshCw size={20} />,
-        label: 'Chaos Engine V4',
+        label: 'Chaos Engine V5',
         desc: 'Deterministic Stateless Generation',
         color: 'text-orange-400',
         borderColor: 'border-orange-500',
         bg: 'bg-orange-500/10',
-        code: `// Chaos V4: Argon2id + Rejection Sampling
-const salt = "BASTION_GENERATOR_V4::" + service + "::" + user + "::v" + version;
+        code: `// Chaos V5: Argon2id + Rejection Sampling
+const salt = "BASTION_GENERATOR_V5::" + service + "::" + user + "::v" + version;
 const flux = await argon2id({ password: entropy, salt, ...v4Params });
 
 // Zero-Bias Sampling Loop
@@ -126,7 +126,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-indigo-500/20 text-indigo-400 text-[11px] font-mono uppercase tracking-widest backdrop-blur-sm">
                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
-                        Protocol V4 Active
+                        Protocol V5 Active
                     </div>
                     
                     <h1 className="text-5xl md:text-7xl font-sans font-bold text-slate-100 tracking-tight leading-[1.05]">
@@ -147,11 +147,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-12 text-sm px-8 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold border-none rounded-lg">
                             Enter Vault <ArrowRight size={16} />
                         </Button>
-                        <a href="https://github.com/imkevinchasse/Bastion-Enclave-repo-V2" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                           <Button variant="secondary" size="lg" className="w-full h-12 text-sm px-8 rounded-lg border-slate-700 hover:bg-slate-800 text-slate-300">
-                               <Terminal size={16} /> Inspect Source
-                           </Button>
-                        </a>
                     </div>
                 </div>
 
@@ -212,7 +207,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     </div>
                                     <div>
                                         <h4 className={`font-sans font-semibold text-sm ${activeStage === 'process' ? 'text-indigo-400' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
-                                        <p className="text-xs font-sans text-slate-500 mt-0.5">V4 Protocol: Memory-hard derivation.</p>
+                                        <p className="text-xs font-sans text-slate-500 mt-0.5">V5 Protocol: Memory-hard derivation.</p>
                                     </div>
                                     <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-indigo-500' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
@@ -225,7 +220,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                         <RefreshCw size={20}/>
                                     </div>
                                     <div>
-                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'chaos' ? 'text-orange-400' : 'text-slate-400'}`}>3. Chaos Engine V4</h4>
+                                        <h4 className={`font-sans font-semibold text-sm ${activeStage === 'chaos' ? 'text-orange-400' : 'text-slate-400'}`}>3. Chaos Engine V5</h4>
                                         <p className="text-xs font-sans text-slate-500 mt-0.5">Deterministic Argon2id Generation.</p>
                                     </div>
                                     <ArrowRight className={`ml-auto ${activeStage === 'chaos' ? 'text-orange-500' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
@@ -369,13 +364,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <h3 className="text-xl font-sans font-bold text-slate-100 tracking-tight mb-3">Anchored Data</h3>
                         <p className="text-slate-400 font-sans text-sm leading-relaxed">
                             Heavy files in the Locker are <strong>anchored</strong> to the specific device they were encrypted on. They do not sync automatically, preventing massive bandwidth usage or "surprise" downloads on mobile.
-                        </p>
-                    </div>
-                    <div className="bg-slate-900/50 p-8 rounded-none border border-slate-800 hover:border-emerald-500/30 transition-colors shadow-lg">
-                        <Scaling size={28} className="text-emerald-500 mb-6" />
-                        <h3 className="text-xl font-sans font-bold text-slate-100 tracking-tight mb-3">Edge AI Analysis</h3>
-                        <p className="text-slate-400 font-sans text-sm leading-relaxed">
-                            Our Neural Auditor runs via WebGPU on your local graphics card. We don't send your passwords to an AI server; we bring the AI model to you.
                         </p>
                     </div>
                     <div className="bg-slate-900/50 p-8 rounded-none border border-slate-800 hover:border-orange-500/30 transition-colors shadow-lg">

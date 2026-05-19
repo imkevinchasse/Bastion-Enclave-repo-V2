@@ -16,7 +16,7 @@ const FEATURES = [
     id: 'locker',
     icon: <Archive size={28} className="text-orange-500" />,
     title: "Bastion Locker",
-    short: "Memory-hard encryption for sensitive assets using Sovereign-V4.",
+    short: "Memory-hard encryption for sensitive assets using Sovereign-V5.",
     specs: ["ARGON2ID", "AES-256-GCM", "SPLIT-HORIZON"]
   },
   {
@@ -32,13 +32,6 @@ const FEATURES = [
     title: "Prime Field Sharing",
     short: "Cryptographically split secrets into recovery shards.",
     specs: ["SHAMIR SECRET SHARING", "FINITE FIELD (Fp)", "INFORMATION THEORETIC SECURITY"]
-  },
-  {
-    id: 'agent',
-    icon: <Bot size={28} className="text-blue-500" />,
-    title: "Agent-First Architecture",
-    short: "Semantic DOM and JSON Bridge for headless automation and agents.",
-    specs: ["V4 SPEC", "SEMANTIC DOM", "STATE BRIDGE"]
   }
 ];
 
@@ -90,18 +83,6 @@ const GLOSSARY: Record<string, { title: string, body: string }> = {
     "INFORMATION THEORETIC SECURITY": {
         title: "Information-Theoretic Security",
         body: "The highest level of security. It means the system cannot be broken even with infinite computing power. Our sharding implementation adheres to this standard."
-    },
-    "SEMANTIC DOM": {
-        title: "Semantic Agent DOM",
-        body: "The interface exposes stable `data-agent-id` attributes for every interactive element. This allows autonomous agents (like OpenClaw or Selenium scripts) to reliably navigate, read, and operate the vault without relying on fragile XPath or CSS selectors that break with UI updates."
-    },
-    "STATE BRIDGE": {
-        title: "Reactive State Bridge",
-        body: "A hidden JSON feed (`#bastion-agent-bridge`) reflects the vault's internal cryptographic state in real-time. Agents can 'see' the application state (locked status, item counts, sync status) instantly without OCR or screen scraping."
-    },
-    "V4 SPEC": {
-        title: "Sovereign-V4 Protocol",
-        body: "The official interchange standard for Bastion Agents. Ensures that headless CLI tools (Java) and visual agents (Browser) share perfect parity in cryptographic primitives (Argon2id), serialization formats, and persistence capabilities."
     }
 };
 
@@ -114,8 +95,8 @@ const DEEP_DIVES: Record<string, { title: string, subtitle: string, desc: string
     },
     "locker": {
         title: "Bastion Locker",
-        subtitle: "Sovereign-V4 Protocol",
-        desc: "We have upgraded our vault encryption to the Sovereign-V4 standard. This utilizes Argon2id with 128MB of memory hardness and dynamic parallelism. This makes brute-forcing your vault on consumer hardware computationally infeasible, and makes cloud-scale GPU cracking significantly more expensive for attackers.",
+        subtitle: "Sovereign-V5 Protocol",
+        desc: "We have upgraded our vault encryption to the Sovereign-V5 standard. This utilizes Argon2id with 256MB of memory hardness and dynamic parallelism. This makes brute-forcing your vault on consumer hardware computationally infeasible, and makes cloud-scale GPU cracking significantly more expensive for attackers.",
         technical: ["Argon2id (m=128MB, t=3)", "AES-256-GCM", "Random Padding"]
     },
     "identity": {
@@ -129,12 +110,6 @@ const DEEP_DIVES: Record<string, { title: string, subtitle: string, desc: string
         subtitle: "Threshold Cryptography",
         desc: "Backups are a security risk. If you write down your password, it can be stolen. Bastion allows you to split your master password into 5 'shards'. You can distribute these shards (e.g., one to a lawyer, one in a safe, one with a spouse). An attacker needs 3 combined shards to recover the key. 2 shards are useless.",
         technical: ["Lagrange Interpolation", "GF(2^256) Arithmetic", "Hybrid Encryption"]
-    },
-    "agent": {
-        title: "Agent-First Architecture",
-        subtitle: "Programmable Sovereignty",
-        desc: "Bastion is designed to be operated by machines as well as humans. We expose a full Semantic DOM and State Bridge that allows tools like OpenClaw and Selenium to drive the vault programmatically. This enables you to build your own auto-rotation bots, backup daemons, and audit scripts that run entirely offline on your own infrastructure.",
-        technical: ["Data-Agent-ID Selectors", "JSON State Bridge", "V4 Protocol"]
     }
 };
 
@@ -152,7 +127,7 @@ export const LandingFeatures: React.FC = () => {
       <div className="relative pl-8 border-l-2 border-amber-500/30">
          <h2 className="text-2xl font-sans font-bold text-slate-100 tracking-tight mb-4">Architectural Guarantees</h2>
          <p className="text-slate-400 font-sans text-base leading-relaxed max-w-3xl">
-            Bastion Enclave introduces <strong className="text-slate-200">Sovereign-V4</strong>: a strict, memory-hard cryptographic standard designed to resist GPU-accelerated brute force attacks. Security is enforced through transparent, auditable cryptographic design—not policy.
+            Bastion Enclave introduces <strong className="text-slate-200">Sovereign-V5</strong>: a strict, memory-hard cryptographic standard designed to resist GPU-accelerated brute force attacks. Security is enforced through transparent, auditable cryptographic design—not policy.
          </p>
       </div>
 
@@ -177,7 +152,7 @@ export const LandingFeatures: React.FC = () => {
                     
                     <h3 className="text-xl font-sans font-bold text-slate-100 tracking-tight mb-3 group-hover:text-amber-400 flex items-center gap-2 transition-colors">
                         {feature.title}
-                        <span className="text-[10px] font-mono tracking-widest uppercase bg-slate-800/80 px-2 py-0.5 rounded-none text-slate-400 group-hover:text-amber-500/80 border border-slate-700/50">V4 SPEC</span>
+                        <span className="text-[10px] font-mono tracking-widest uppercase bg-slate-800/80 px-2 py-0.5 rounded-none text-slate-400 group-hover:text-amber-500/80 border border-slate-700/50">V5 SPEC</span>
                     </h3>
                     <p className="text-sm font-sans text-slate-400 leading-relaxed mb-6 flex-1">
                         {feature.short}

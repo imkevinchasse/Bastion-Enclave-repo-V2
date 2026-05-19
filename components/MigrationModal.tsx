@@ -22,7 +22,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
             </div>
             <div>
                 <h2 className="text-2xl font-bold text-white tracking-tight">Protocol Upgraded</h2>
-                <p className="text-amber-200 text-sm mt-1">Your vault has been seamlessly migrated to Sovereign-V4.</p>
+                <p className="text-amber-200 text-sm mt-1">Your vault has been seamlessly migrated to Sovereign-V5.</p>
             </div>
         </div>
 
@@ -68,8 +68,8 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
                             <Layers size={14} /> Shards Deprecated
                         </div>
                         <p className="text-slate-300 text-xs leading-relaxed mb-3">
-                            If you use Secret Shards, verify they are generated with the new V4 engine (Prime Field). 
-                            Legacy V1 shards are not compatible with V4 vaults.
+                            If you use Secret Shards, verify they are generated with the new V5 engine (Prime Field). 
+                            Legacy V1 shards are not compatible with V5 vaults.
                         </p>
                     </div>
 
@@ -90,7 +90,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ onDismiss, onDow
         {/* Footer */}
         <div className="p-6 bg-slate-950 border-t border-white/5 flex flex-col sm:flex-row justify-end gap-3">
             <Button variant="secondary" onClick={onDownloadBackup} className="w-full sm:w-auto">
-                <Download size={16} /> Download V4 Backup
+                <Download size={16} /> Download V5 Backup
             </Button>
             <Button onClick={onDismiss} className="w-full sm:w-auto bg-amber-600 hover:bg-amber-500">
                 I Understand <ArrowRight size={16} />

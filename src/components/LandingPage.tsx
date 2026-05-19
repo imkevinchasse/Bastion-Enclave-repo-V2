@@ -25,17 +25,17 @@ const DEMO_STAGES = {
   "service": "github.com",
   "username": "developer@bastion.os",
   "password": "correct-horse-battery-staple",
-  "protocol": "SOVEREIGN_V4"
+  "protocol": "SOVEREIGN_V5"
 }`
     },
     'process': {
         icon: <Binary size={20} />,
         label: 'Argon2id Transmutation',
-        desc: 'Memory-Hard Key Derivation (V4 Standard)',
+        desc: 'Memory-Hard Key Derivation (V5 Standard)',
         color: 'text-emerald-400',
         borderColor: 'border-emerald-500',
         bg: 'bg-emerald-500/10',
-        code: `// Sovereign-V4: Anti-ASIC Hardening
+        code: `// Sovereign-V5: Anti-ASIC Hardening
 const masterKey = await argon2id({
   password: userInput,
   salt: randomBytes(16),
@@ -126,47 +126,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* 1. HERO SECTION */}
             <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
                 <div className="flex-1 text-center lg:text-left space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-slate-900/50 border border-amber-500/30 text-amber-400 text-[10px] font-mono uppercase tracking-widest">
-                        <span className="w-1.5 h-1.5 rounded-none bg-amber-500 animate-pulse"></span>
-                        Protocol V4 Active
+                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-slate-900/50 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono uppercase tracking-widest">
+                        <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
+                        Protocol V5 Active
                     </div>
                     
                     <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1.1]">
-                        The Cloud is Compromised. <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-violet-400 to-emerald-400">
-                            Go Sovereign.
+                        Sovereign Security. <br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-violet-400 to-amber-400">
+                            Absolute Local Control.
                         </span>
                     </h1>
                     
                     <p className="text-xl text-slate-400 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                        Bastion Enclave replaces "trust" with <strong>Argon2id Cryptography</strong> and <strong>Deterministic Math</strong>. 
-                        We don't store your passwords; we calculate them on-the-fly. Your data physically cannot leave your device.
+                        Bastion Enclave replaces "trust" with <strong>Argon2id V5 Cryptography</strong> and <strong>Deterministic Math</strong>. 
+                        We implement strict, on-the-fly memory-wiping to reduce the risk of secret leakage in volatile browser memory. Your data remains local to your device by architectural design.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)]">
+                        <Button size="lg" onClick={() => onNavigate('auth')} className="w-full sm:w-auto h-14 text-lg px-8 shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]">
                             Enter Vault <ArrowRight size={20} />
                         </Button>
-                        <a href="https://github.com/google-gemini/bastion" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                           <Button variant="secondary" size="lg" className="w-full h-14 text-lg px-8">
-                               <Terminal size={20} /> Inspect Source
-                           </Button>
-                        </a>
                     </div>
                 </div>
 
                 <div className="flex-1 flex justify-center animate-in fade-in zoom-in-95 duration-1000 relative">
-                    <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(99,102,241,0.2)] group">
-                        <div className="absolute inset-0 bg-amber-500/20 blur-[80px] rounded-none z-0"></div>
+                    <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(16,185,129,0.2)] group">
+                        <div className="absolute inset-0 bg-emerald-500/20 blur-[80px] rounded-none z-0"></div>
                         <img 
-                            src="https://picsum.photos/seed/cybervault/800/800?blur=2" 
-                            alt="Digital Vault" 
+                            src="/assets/images/sovereign_vault_splash_1779197943786.png" 
+                            alt="Digital Vault V5" 
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-cover relative z-10 opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-700"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-20"></div>
                         <div className="absolute inset-0 flex items-center justify-center z-30">
-                            <BrandLogo size={160} animated={true} className="drop-shadow-[0_0_30px_rgba(245,158,11,0.5)]" />
+                            <BrandLogo size={160} animated={true} className="drop-shadow-[0_0_30px_rgba(16,185,129,0.5)]" />
                         </div>
                     </div>
                 </div>
@@ -188,9 +183,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         <div className="space-y-8">
                             <h2 className="text-3xl md:text-4xl font-bold text-white">Trust No One. Not Even Us.</h2>
                             <p className="text-lg text-slate-400 leading-relaxed">
-                                Most password managers claim "Zero Knowledge" while still storing your encrypted blob on their central servers. This is a <strong>policy</strong>, not a guarantee. If their server is subpoenaed or breached, your data is at risk.
+                                Most password managers claim "Zero Knowledge" while storing encrypted data on central servers; this reliance on policy creates a critical single point of failure.
                                 <br/><br/>
-                                <strong className="text-white">Bastion is architecturally different.</strong> It executes entirely in your browser's memory. We provide the code; you provide the execution environment. There is no central database to breach.
+                                <strong className="text-white">Bastion Enclave V5 is architecturally different.</strong> It executes entirely in your browser's memory, utilizing memory-hardened derivation and explicit, on-the-fly memory-wiping to reduce the footprint of sensitive data.
                             </p>
                             
                             {/* Interactive Pipeline Triggers */}
@@ -217,8 +212,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                         <Zap size={20}/>
                                     </div>
                                     <div>
-                                        <h4 className={`font-bold ${activeStage === 'process' ? 'text-white' : 'text-slate-400'}`}>2. Argon2id Hardening</h4>
-                                        <p className="text-xs text-slate-500">V4 Protocol: Memory-hard derivation.</p>
+                                        <h4 className={`font-bold ${activeStage === 'process' ? 'text-white' : 'text-slate-400'}`}>2. Argon2id Hardening (V5)</h4>
+                                        <p className="text-xs text-slate-500">Protocol V5: 256MB/5i Memory Hard.</p>
                                     </div>
                                     <ArrowRight className={`ml-auto ${activeStage === 'process' ? 'text-emerald-400' : 'text-slate-700'} group-hover:translate-x-1 transition-transform`} size={16} />
                                 </button>
@@ -252,8 +247,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                 </button>
                             </div>
                         </div>
-                        
-                        {/* Interactive Code Display */}
+
+                        {/* Interactive Code Display Updated */}
                         <div className="relative h-full min-h-[500px] flex flex-col bg-slate-950 rounded-none border border-white/10 overflow-hidden shadow-2xl">
                             {/* Window Header */}
                             <div className="flex items-center gap-2 px-4 py-3 bg-slate-900 border-b border-white/5">
@@ -263,7 +258,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     <div className="w-3 h-3 rounded-none bg-emerald-500/20 border border-emerald-500/50"></div>
                                 </div>
                                 <div className="flex-1 text-center font-mono text-[10px] text-slate-500 uppercase">
-                                    bastion_runtime_env
+                                    bastion_runtime_env_v5
                                 </div>
                             </div>
 
@@ -279,7 +274,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                         // {currentDemo.desc}
                                     </div>
                                     <pre className="text-slate-300 leading-relaxed whitespace-pre-wrap break-all">
-                                        {currentDemo.code}
+                                        {activeStage === 'process' ? `// Sovereign-V5: Fortified Memory Isolation
+const masterKey = await argon2id({
+  password: userInput,
+  salt: randomBytes(16),
+  parallelism: 4,
+  iterations: 5,
+  memorySize: 262144, // 256 MB RAM Cost
+  hashLength: 32,
+  outputType: 'binary'
+});
+
+// STATUS: KEY DERIVED 
+// WIPING HEAP... [0x000000000000...]` : currentDemo.code}
                                     </pre>
                                 </div>
                             </div>
@@ -287,7 +294,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                             {/* Status Footer */}
                             <div className="px-4 py-2 bg-slate-900 border-t border-white/5 text-[10px] font-mono flex justify-between text-slate-500">
                                 <span>UTF-8</span>
-                                <span>{activeStage === 'storage' ? 'ENCRYPTED' : activeStage === 'process' ? 'PROCESSING' : activeStage === 'chaos' ? 'COMPUTING' : 'PLAINTEXT'}</span>
+                                <span>{activeStage === 'storage' ? 'ENCRYPTED' : activeStage === 'process' ? 'PROCESSING (SECURE)' : activeStage === 'chaos' ? 'COMPUTING' : 'PLAINTEXT'}</span>
                             </div>
                         </div>
                     </div>
@@ -313,11 +320,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                          </div>
                          <h2 className="text-3xl font-bold text-white">Distributed Sovereignty</h2>
                          <p className="text-lg text-slate-400 leading-relaxed">
-                            Bastion Enclave distributes the risk. By keeping data local, there is no central database to breach. 
+                            Bastion Enclave V5 distributes the risk. By keeping data local and scrubbing memory clean after every operation, there is no central database to breach and no lingering sensitive data to scrape. 
                             Attacking Bastion means attacking millions of individual, hardened devices—a task that is computationally and economically infeasible.
                          </p>
                     </div>
                 </div>
+            </div>
             </div>
 
             {/* 5. COMPETITIVE LANDSCAPE */}

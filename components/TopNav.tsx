@@ -33,7 +33,7 @@ export const TopNav: React.FC<TopNavProps> = ({ active, onNavigate }) => {
                 <BrandLogo size={24} className="group-hover:brightness-125 transition-all text-amber-500" />
                 <div className="flex flex-col">
                   <span className="font-semibold text-base text-slate-200 tracking-tight leading-none group-hover:text-amber-400 transition-colors">BASTION ENCLAVE</span>
-                  <span className="text-[9px] text-slate-500 font-mono uppercase tracking-widest leading-none mt-1">Sovereign-V4</span>
+                  <span className="text-[9px] text-slate-500 font-mono uppercase tracking-widest leading-none mt-1">Sovereign-V5</span>
                 </div>
             </div>
 
