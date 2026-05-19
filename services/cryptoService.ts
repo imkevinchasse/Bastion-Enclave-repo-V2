@@ -1,24 +1,21 @@
-
 import { VaultState, Resonance, VaultConfig } from "../types";
 import { argon2id } from 'hash-wasm';
 import { BastionSerializer } from "./serializer";
 
-// PBKDF2 Constants (Legacy Support)
-const PBKDF2_V2_ITERATIONS = 210_000;
-const PBKDF2_DIGEST = "SHA-512";
+// Argon2id Constants (V5 Standard)
+const ARGON_V5 = {
+  MEM_KB: 262144, // 256 MB
+  ITERATIONS: 5,
+  PARALLELISM: 4,
+  HASH_LEN: 32 // 256 bits
+};
 
-// Argon2id Constants (V4 Standard - Optimized for browser security)
-// Constants defined to match OWASP recommendations for local generation (m=128MB, t=3, p=4)
-const ARGON_MEM_KB_V4 = 131072; // 128 MB
-const ARGON_ITERATIONS_V4 = 3;
-const ARGON_PARALLELISM_V4 = 4;
-
-// Argon2id Constants (V3.5 Legacy)
-const ARGON_MEM_KB_V3 = 65536; // 64 MB
-const ARGON_ITERATIONS_V3 = 3;
-const ARGON_PARALLELISM_V3 = 1;
-
-const ARGON_HASH_LEN = 32; // 256 bits
+// LEGACY SUPPORT INFRASTRUCTURE (For future migration handler)
+const LEGACY_VERSIONS = {
+  V4: { MEM_KB: 131072, ITERATIONS: 3, PARALLELISM: 4 },
+  V3: { MEM_KB: 65536, ITERATIONS: 3, PARALLELISM: 1 },
+  PBKDF2: { ITERATIONS: 210_000, DIGEST: "SHA-512" }
+};
 
 const MAGIC_BYTES = new Uint8Array([0x42, 0x41, 0x53, 0x54, 0x49, 0x4f, 0x4e, 0x31]); // "BASTION1"
 
@@ -115,10 +112,10 @@ export class ChaosLock {
     const derivedBytes = await argon2id({
       password,
       salt,
-      parallelism: ARGON_PARALLELISM_V4,
-      iterations: ARGON_ITERATIONS_V4,
-      memorySize: ARGON_MEM_KB_V4,
-      hashLength: ARGON_HASH_LEN,
+      parallelism: ARGON_V5.PARALLELISM,
+      iterations: ARGON_V5.ITERATIONS,
+      memorySize: ARGON_V5.MEM_KB,
+      hashLength: ARGON_V5.HASH_LEN,
       outputType: 'binary'
     });
 
@@ -174,7 +171,7 @@ export class ChaosLock {
     const cipher = blob.slice(offset + 28);
 
     if (version !== 5) {
-      throw new Error("Unsupported vault version");
+      throw new Error(`Vault version V${version} is outdated. Migration to Sovereign-V5 required.`);
     }
 
     try {
@@ -186,17 +183,9 @@ export class ChaosLock {
       );
       return { data: new Uint8Array(decrypted), version };
     } catch (e) {
-      try {
-        const keyFallback = await this.deriveFinalKey(password, salt, false);
-        const decryptedFallback = await cryptoAPI.subtle.decrypt(
-            { name: "AES-GCM", iv: toArrayBuffer(iv), additionalData: toArrayBuffer(ChaosLock.enc("BASTION_V4")), tagLength: 128 }, 
-            keyFallback, 
-            toArrayBuffer(cipher)
-        );
-        return { data: new Uint8Array(decryptedFallback), version };
-      } catch (e2) {
-        throw new Error("Decryption failed. Invalid password or corrupted data.");
-      }
+      // [SOVEREIGN-V5 UPGRADE INFRASTRUCTURE]
+      // Legacy V4 fallback (useDeviceSecret=false) removed for strict V5 enforcement.
+      throw new Error("Decryption failed. Invalid password or corrupted data.");
     }
   }
 
@@ -368,9 +357,9 @@ export class ChaosEngine {
     return argon2id({
       password: entropy,
       salt: enc.encode(salt),
-      parallelism: ARGON_PARALLELISM_V4,
-      iterations: ARGON_ITERATIONS_V4,
-      memorySize: ARGON_MEM_KB_V4,
+      parallelism: ARGON_V5.PARALLELISM,
+      iterations: ARGON_V5.ITERATIONS,
+      memorySize: ARGON_V5.MEM_KB,
       hashLength: length * 6,
       outputType: 'binary'
     });

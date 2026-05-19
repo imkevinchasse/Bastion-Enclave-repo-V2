@@ -1,7 +1,217 @@
 
 # Bastion Enclave :: Mathematical Proofs
 
-This document details the exact mathematical formulas and cryptographic primitives used in the **Sovereign-V4** protocol.
+This document details the exact mathematical formulas and cryptographic primitives used in the security of Bastion Enclave, including the current **Sovereign-V5** protocol and historical **Sovereign-V4** proofs.
+
+---
+
+## 1. Sovereign-V5 (Max Security Edition)
+Version: Sovereign-V5 (May 2026)
+Goal: Maximum practical cryptographic strength while maintaining full determinism, cross-device portability, and usability for standard users.
+
+### 1.1. Core Philosophy
+* The Root Secret (Seed) contains all information needed to regenerate credentials.
+* The Unlock Password is the sole gatekeeper — no recovery mechanisms.
+* Any change in context produces a completely different output.
+* All derivations are fully deterministic.
+
+### 1.2. High-Level Derivation Pipeline
+```text
+Root Secret (High Entropy) 
+        +
+Unlock Password
+        ↓
+   Argon2id (256 MiB, t=5, p=4)
+        ↓
+   K_intermediate (64 bytes)
+        ↓
+   HKDF-SHA256 Extract
+        ↓
+   PRK (Pseudo-Random Key)
+        ↓
+   BLAKE3 (keyed mode) + Domain Separation
+        ↓
+   Multiple Domain Keys (Vault DEK, Generator PRF, etc.)
+```
+
+### 1.3. Detailed Steps
+#### Step 1: Argon2id — Memory-Hard Key Derivation
+*   Algorithm: Argon2id
+*   Memory: 262144 KiB (256 MiB)
+*   Iterations (t): 5
+*   Parallelism (p): 4
+*   Output Length: 64 bytes
+*   Salt: Derived from Root Secret (high entropy)
+*   Additional Input: Unlock Password
+
+#### Step 2: HKDF-SHA256 Extract (Conservative Extraction)
+Use HKDF-SHA256 Extract on the Argon2id output to produce a high-quality 32-byte PRK. This step provides strong theoretical security guarantees.
+
+#### Step 3: BLAKE3 Keyed Expansion + Domain Separation
+All subsequent keys are derived using BLAKE3 in keyed mode (PRK as key).
+
+| Domain | Context String | Purpose |
+| :--- | :--- | :--- |
+| Vault DEK | BASTION_VAULT_DEK_V5 | Encrypts the Seed/Vault |
+| Generator PRF | BASTION_GENERATOR_PRF_V5 | Master key for credential generation |
+| Shamir Secret Sharing | BASTION_SHAMIR_V5 | Secret sharing operations |
+| Breach Check | BASTION_BREACH_CHECK_V5 | k-anonymity prefix |
+| Metadata | BASTION_VAULT_METADATA_V5 | Vault headers and versioning |
+
+#### Step 4: Envelope Encryption (Strong Separation)
+1.  Generate a random 256-bit Data Encryption Key (DEK) per vault.
+2.  Cipher: XChaCha20-Poly1305 (primary) or AES-256-GCM (fallback).
+3.  The Seed + metadata are encrypted with the DEK.
+4.  The DEK itself is encrypted with the Argon2id-derived key.
+
+#### Step 5: Credential Generation
+1.  Derive Generator_PRF using BLAKE3.
+2.  Construct context: `BASTION_GENERATOR_V5::site|username|counter|extra|...`.
+3.  Expand with BLAKE3 to desired length.
+4.  Apply unbiased rejection sampling for final password / key output.
+
+### 1.4. Security Properties
+*   Memory-hard resistance: Extremely high (256 MiB Argon2id)
+*   Key separation: Strong (HKDF + BLAKE3 domains)
+*   Authenticated encryption: XChaCha20-Poly1305
+*   No nonce reuse risk: Envelope + modern AEAD
+*   Deterministic & Cross-device: Fully preserved
+*   Forward secrecy elements: Per-vault DEK rotation possible
+
+### 1.5. Recommended Parameters (V5 Default)
+```yaml
+argon2id:
+  memory: 262144     # 256 MiB
+  iterations: 5
+  parallelism: 4
+  output_len: 64
+
+aead:
+  primary: XChaCha20-Poly1305
+  fallback: AES-256-GCM
+```
+
+---
+
+## 2. Historical Context (Sovereign-V4)
+
+## 2.1. The Chaos Engine (Deterministic Entropy)
+
+The Chaos Engine transforms a Master Seed and Context into a password without storage.
+
+### 2.1.1. Key Derivation (Flux)
+We generate independent memory-hard expansions indexed by a counter ($Flux$) using Argon2id to ensure memory-hardness and GPU resistance, matching the vault's security level.
+
+$$
+Flux_i = \text{Argon2id}(P=E, S=Salt \parallel i, t=3, m=128\text{ MiB}, p=4, dkLen=L \times 6)
+$$
+
+Where:
+*   $E$: Entropy (32-byte Hex String of Master Seed).
+*   $Salt$: $\text{"BASTION\_GENERATOR\_V4::"} \parallel S \parallel \text{"::"} \parallel U \parallel \text{"::v"} \parallel V$ (All components are UTF-8 encoded and delimiter-safe).
+*   $i$: Counter index ($0, 1, 2, \dots$) for deterministic reseeding.
+*   $dkLen$: Derived Key Length ($6 \times$ the target password length to provide headroom for rejection sampling).
+
+### 2.1.2. Unbiased Rejection Sampling
+Standard modulo arithmetic (`byte % N`) introduces bias if $256$ is not perfectly divisible by the character set size $N$. 
+
+**Proof of Bias:**
+Let $N = 62$ (Alphanumeric).
+$256 = 4 \times 62 + 8$.
+Bytes $[0, 7]$ map to indices $[0, 7]$ **5 times** ($0, 62, 124, 186, 248$).
+Bytes $[8, 61]$ map to indices $[8, 61]$ **4 times**.
+Result: The first 8 characters are $1.25x$ more likely to appear.
+
+**Bastion Correction:**
+We define a limit $L_{limit}$ to discard the "remainder" portion of the byte space.
+
+$$
+L_{limit} = 256 - (256 \pmod N)
+$$
+
+**Algorithm:**
+For each byte $b \in Flux$:
+$$
+\text{Action}(b) = 
+\begin{cases} 
+\text{Use } (b \pmod N) & \text{if } b < L_{limit} \\
+\text{Discard} & \text{if } b \ge L_{limit}
+\end{cases}
+$$
+
+If $Flux_i$ is exhausted before $L$ valid characters are generated, a new stream $Flux_{i+1}$ is derived by incrementing the counter $i$. This counter-based derivation ensures clean determinism without structural bias or feedback loops.
+
+---
+
+## 2.2. Sovereign-V4 Protocol (Vault Encryption)
+
+### 2.2.1. Argon2id Key Derivation
+To protect the vault against GPU brute-force, we use memory-hard derivation.
+
+$$
+K_{master} = \text{Argon2id}(P, S, t, m, p)
+$$
+
+*   $P$: User Password (UTF-8).
+*   $S$: 16-byte Random Salt.
+*   $t$: 3 Iterations.
+*   $m$: 128 MiB ($2^{17}$ KB).
+*   $p$: 4 Parallelism.
+*   $K_{master}$: 32-byte (256-bit) AES Key.
+
+### 2.2.2. Deterministic Framing & Random Padding
+The plaintext JSON $J$ is wrapped in a binary frame $F$ with a length prefix and random padding to obscure the exact payload size.
+
+$$
+Len = \text{ByteLength}(J)
+$$
+$$
+Header = \text{LittleEndianInt32}(Len)
+$$
+$$
+Total = 4 + Len
+$$
+$$
+Pad_{bytes} = \text{RandomInteger}(128, 4096)
+$$
+$$
+F = Header \parallel J \parallel \text{RandomBytes}(Pad_{bytes})
+$$
+
+### 2.2.3. Authenticated Encryption
+$$
+C, Tag = \text{AES-GCM}(K_{master}, IV, F)
+$$
+*   $IV$: 12-byte Deterministic/Counter-based Nonce. Counter state is persisted alongside the key.
+*   $Tag$: 16-byte GCM Authentication Tag.
+
+---
+
+## 3. Threshold Cryptography (Secret Sharing)
+
+We use Shamir's Secret Sharing over a Prime Field $\mathbb{F}_p$.
+
+### 3.1. Construction
+To split a secret $S$ into $n$ shares with threshold $k$:
+$$
+f(x) = S + \sum_{i=1}^{k-1} a_i x^i \pmod p \quad \text{where } p = 2^{256} - 2^{32} - 977
+$$
+
+### 3.2. Reconstruction (Lagrange Interpolation)
+$$
+S = \sum_{j=0}^{k-1} y_j \prod_{\substack{m=0 \\ m \neq j}}^{k-1} \frac{-x_m}{x_j - x_m} \pmod p
+$$
+
+---
+
+## 4. k-Anonymity (Breach Scanner)
+
+To check a password without revealing it to the server. 
+
+1.  **Client-Side Hashing:** $$ H = \text{SHA-1}(Password) $$
+2.  **Prefix Extraction:** $$ Prefix = H[0 \dots 4] $$
+3.  **Anonymity Set:** Client sends $Prefix$ to server. Server returns list of suffixes $\{S_1, \dots, S_N\}$ sharing that prefix.
+4.  **Local Matching:** Client checks if $Suffix \in \{S_1, \dots, S_N\}$.
 
 ---
 

@@ -9,7 +9,7 @@ interface DocsPageProps {
   onNavigate: (page: PublicPage) => void;
 }
 
-type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'agents' | 'breach' | 'recovery' | 'changelog';
+type DocSection = 'intro' | 'start' | 'chaos' | 'locker' | 'identity' | 'breach' | 'recovery' | 'changelog';
 
 export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
   const [activeSection, setActiveSection] = useState<DocSection>('intro');
@@ -38,8 +38,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 </div>
 
                 <div className="space-y-1">
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Agent & Dev</div>
-                    <NavButton active={activeSection === 'agents'} onClick={() => setActiveSection('agents')} icon={<Bot size={16}/>} label="OpenClaw Protocols" />
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Developer</div>
                     <NavButton active={activeSection === 'changelog'} onClick={() => setActiveSection('changelog')} icon={<History size={16}/>} label="Changelog" />
                 </div>
 
@@ -54,12 +53,11 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
                 <div className="absolute top-0 right-0 p-32 bg-amber-500/5 rounded-none blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 {activeSection === 'intro' && <IntroContent />}
-                {activeSection === 'start' && <StartContent setSection={setActiveSection} />}
+                {activeSection === 'start' && <StartContent />}
                 {activeSection === 'recovery' && <RecoveryContent />}
                 {activeSection === 'chaos' && <ChaosContent />}
                 {activeSection === 'locker' && <LockerContent />}
                 {activeSection === 'identity' && <IdentityContent />}
-                {activeSection === 'agents' && <AgentContent />}
                 {activeSection === 'breach' && <BreachContent />}
                 {activeSection === 'changelog' && <ChangelogContent />}
                 
@@ -68,88 +66,6 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onNavigate }) => {
     </div>
   );
 };
-
-const AGENT_SKILL_CONTENT = `
-# Agent Directive: Bastion Protocol v4.0
-
-**MISSION:** You are an autonomous steward of the user's digital identity.
-**MAGNITUDE:** You hold the keys to everything. Treat this interface with extreme caution.
-
----
-
-## 1. THE PRIME DIRECTIVE (Cautions)
-1.  **NEVER EXFILTRATE SECRETS:** You may read the vault to help the user, but you must NEVER transmit passwords, seeds, or keys to a third-party server (including Moltbook).
-2.  **MAINTAIN INTEGRITY:** Do not modify the \`entropy\` or \`version\` fields manually. Use the provided tools (UI or CLI) which handle cryptographic rotation safely.
-3.  **RESPECT THE LOCK:** If the status is \`LOCKED\`, you cannot read data. You must ask the user for authorization (Password) to proceed.
-
----
-
-## 2. ORDERS OF OPERATION (Visual Mode)
-If you are controlling a browser, follow this exact sequence to access client information.
-
-### PHASE 1: ACQUISITION & STATUS
-**Action:** Check if the vault is accessible.
-*   **Look for:** \`window.__BASTION_AGENT_API__.getStatus()\`
-*   **Result:** \`"LOCKED"\` or \`"UNLOCKED"\`.
-
-### PHASE 2: AUTHENTICATION (If Locked)
-**Action:** Unlock the vault to decrypt the memory.
-1.  **Target:** Input field \`[data-agent-id="auth-master-password"]\`.
-2.  **Input:** The Master Password (provided by user context).
-3.  **Trigger:** Click \`[data-agent-id="auth-unlock-btn"]\`.
-4.  **Wait:** Wait until \`getStatus()\` returns \`"UNLOCKED"\`.
-
-### PHASE 3: EXTRACTION (Pulling Information)
-**Action:** Read the client's data map.
-*   **Source:** \`window.__BASTION_AGENT_API__.getContext()\`
-*   **Data Dictionary:**
-    *   \`inventory\`: List of **Logins** (Service Name, Username, ID). Use this to find credentials.
-    *   \`notebook\`: List of **Secure Notes**. Contains freeform text (Server IPs, recovery codes).
-    *   \`rolodex\`: List of **Contacts**. Addresses, Phone numbers, Emails.
-
-### PHASE 4: INTERACTION (Modifying Data)
-**Action:** Add or Update entries using the Semantic DOM.
-1.  **Click:** \`[data-agent-id="vault-add-btn"]\` to open editor.
-2.  **Fill:** \`[data-agent-id="editor-service"]\` and \`[data-agent-id="editor-username"]\`.
-3.  **Commit:** Click \`[data-agent-id="editor-save-btn"]\`.
-
----
-
-## 3. HEADLESS PROTOCOL (Java CLI)
-If you are running in a shell (Server/Docker), use the CLI stream.
-
-### PHASE 1: INITIALIZATION
-\`\`\`bash
-# Bootstrap the Runtime (One-Shot)
-curl -sO https://raw.githubusercontent.com/imkevinchasse/Bastion-Enclave-repo-V2/main/public/Bastion.java && javac Bastion.java && java Bastion shell
-\`\`\`
-
-### PHASE 2: UNLOCKING
-1.  Send command: \`unlock\`
-2.  System prompts for **Blob**. Paste the encrypted string.
-3.  System prompts for **Password**. Send the master password.
-4.  System confirms: \`Vault Unlocked\`.
-
-### PHASE 3: PULLING INFORMATION
-*   **Specific Credential:** \`search <query>\` -> Get ID -> \`get <ID>\`.
-*   **Full Dump (High Magnitude):** \`export\`.
-    *   **Effect:** Prints the entire *decrypted* vault (JSON) to STDOUT.
-    *   **Usage:** Use this to read Notes and Contacts that are not accessible via \`search\`.
-    *   **Warning:** Output contains plaintext secrets. Parse immediately and clear memory.
-
-### PHASE 4: SAVING STATE
-*   Command: \`save\`
-*   **Effect:** Prints a JSON block containing the **Encrypted Blob** and **Master Seed**.
-*   **Duty:** You MUST save this output to a file (e.g., \`bastion.vault\`). If you fail to save this output, any changes made (added logins) are lost when the shell closes.
-
----
-
-## 4. DATA TYPES (Reference)
-*   **Entropy:** 32-byte Hex string. The "Soul" of the vault.
-*   **Blob:** Base64 string starting with \`BSTN\`. The encrypted body.
-*   **Config:** A login entry (Service + User).
-*   **Resonance:** A file encryption key (for Locker).
-`;
 
 const IdentityContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -195,28 +111,6 @@ const IdentityContent = () => (
     </div>
 );
 
-const AgentContent = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-        <div className="flex justify-between items-start">
-            <Header icon={<Bot size={32} className="text-pink-400"/>} title="Agent Directive: V4" />
-            <a href="/skill.md" target="_blank" rel="noopener noreferrer">
-                <Button size="sm" variant="secondary" className="border-pink-500/30 hover:bg-pink-500/20 text-pink-300">
-                    <FileText size={14} /> Download skill.md
-                </Button>
-            </a>
-        </div>
-        
-        <div className="bg-slate-900 border border-white/10 rounded-none overflow-hidden shadow-2xl">
-            <div className="bg-black p-6 overflow-x-auto custom-scrollbar">
-                <div className="prose prose-invert prose-amber max-w-none">
-                    <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-300">
-                        {AGENT_SKILL_CONTENT}
-                    </pre>
-                </div>
-            </div>
-        </div>
-    </div>
-);
 
 const IntroContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -241,22 +135,10 @@ const IntroContent = () => (
     </div>
 );
 
-const StartContent = ({ setSection }: { setSection: (s: DocSection) => void }) => (
+const StartContent = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <Header icon={<Fingerprint size={32} className="text-emerald-400"/>} title="Getting Started" />
         
-        {/* Agent Shortcut */}
-        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-none flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <Bot size={24} className="text-pink-400" />
-                <div>
-                    <h4 className="font-bold text-white text-sm">Are you an Autonomous Agent?</h4>
-                    <p className="text-xs text-slate-400">Skip the UI guide. Go straight to the API protocols.</p>
-                </div>
-            </div>
-            <Button size="sm" onClick={() => setSection('agents')}>Open Protocol</Button>
-        </div>
-
         <div className="space-y-6">
             <Step number={1} title="Create Your Master Identity">
                 <p>When you launch Bastion Enclave, you create a new Vault. You will set a <strong>Master Password</strong>. This password is the only key to your kingdom. Make it strong, and memorize it.</p>
