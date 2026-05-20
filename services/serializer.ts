@@ -26,7 +26,7 @@ export class BastionSerializer {
 
     private static ORDER_CONFIG = [
         "id", "name", "username", "category", "version", 
-        "length", "useSymbols", "customPassword", "breachStats", "compromised",
+        "length", "useSymbols", "customPassword",
         "createdAt", "updatedAt", "usageCount", "sortOrder"
     ];
 

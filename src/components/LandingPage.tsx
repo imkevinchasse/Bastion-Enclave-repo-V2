@@ -464,6 +464,5 @@ const masterKey = await argon2id({
                 </div>
             </div>
         </div>
-    </div>
   );
 };

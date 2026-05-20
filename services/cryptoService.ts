@@ -1,19 +1,16 @@
 import { VaultState, Resonance, VaultConfig } from "../types";
-import { argon2id } from 'hash-wasm';
 import { BastionSerializer } from "./serializer";
 
-// Argon2id Constants (V5 Standard)
-const ARGON_V5 = {
-  MEM_KB: 262144, // 256 MB
-  ITERATIONS: 5,
-  PARALLELISM: 4,
+// KDF Constants (Transitioning from Argon2id to PBKDF2 for CSP compliance)
+const KDF_CONFIG = {
+  ITERATIONS: 100_000,
   HASH_LEN: 32 // 256 bits
 };
 
 // LEGACY SUPPORT INFRASTRUCTURE (For future migration handler)
 const LEGACY_VERSIONS = {
-  V4: { MEM_KB: 131072, ITERATIONS: 3, PARALLELISM: 4 },
-  V3: { MEM_KB: 65536, ITERATIONS: 3, PARALLELISM: 1 },
+  V4_KDF: { ITERATIONS: 100_000, DIGEST: "SHA-256" },
+  V3: { ITERATIONS: 65536, PARALLELISM: 1 },
   PBKDF2: { ITERATIONS: 210_000, DIGEST: "SHA-512" }
 };
 
@@ -29,6 +26,28 @@ const GLYPHS = {
 };
 
 const cryptoAPI = globalThis.crypto;
+
+/* ===================== KDF HELPER ===================== */
+async function deriveBitsPBKDF2(password: string, salt: Uint8Array, iterations: number, length: number): Promise<Uint8Array> {
+    const encoder = new TextEncoder();
+    const baseKey = await cryptoAPI.subtle.importKey(
+        "raw",
+        toArrayBuffer(encoder.encode(password)),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits"]
+    );
+    return new Uint8Array(await cryptoAPI.subtle.deriveBits(
+        {
+            name: "PBKDF2",
+            salt: toArrayBuffer(salt),
+            iterations: iterations,
+            hash: "SHA-256"
+        },
+        baseKey,
+        length * 8 // bits
+    ));
+}
 
 /* ===================== HELPERS ===================== */
 function toArrayBuffer(view: ArrayBuffer | ArrayBufferView): ArrayBuffer {
@@ -109,15 +128,7 @@ export class ChaosLock {
   }
 
   private static async deriveFinalKey(password: string, salt: Uint8Array, useDeviceSecret: boolean = true): Promise<CryptoKey> {
-    const derivedBytes = await argon2id({
-      password,
-      salt,
-      parallelism: ARGON_V5.PARALLELISM,
-      iterations: ARGON_V5.ITERATIONS,
-      memorySize: ARGON_V5.MEM_KB,
-      hashLength: ARGON_V5.HASH_LEN,
-      outputType: 'binary'
-    });
+    const derivedBytes = await deriveBitsPBKDF2(password, salt, KDF_CONFIG.ITERATIONS, KDF_CONFIG.HASH_LEN);
 
     let finalMaterial = derivedBytes;
     const deviceSecretHex = localStorage.getItem('bastion_device_secret');
@@ -245,15 +256,7 @@ export class Migrator {
     }
 
     static async deriveV4Key(password: string, salt: Uint8Array): Promise<CryptoKey> {
-        const derivedBytes = await argon2id({
-            password,
-            salt,
-            parallelism: LEGACY_VERSIONS.V4.PARALLELISM,
-            iterations: LEGACY_VERSIONS.V4.ITERATIONS,
-            memorySize: LEGACY_VERSIONS.V4.MEM_KB,
-            hashLength: 32,
-            outputType: 'binary'
-        });
+        const derivedBytes = await deriveBitsPBKDF2(password, salt, LEGACY_VERSIONS.V4_KDF.ITERATIONS, 32);
         const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(derivedBytes), { name: "AES-GCM" }, false, ["decrypt"]);
         derivedBytes.fill(0);
         return key;
@@ -413,15 +416,7 @@ export class ChaosEngine {
     const entropyBytes = enc.encode(entropy);
     const saltBytes = enc.encode(salt);
     
-    const result = await argon2id({
-      password: entropy,
-      salt: saltBytes,
-      parallelism: ARGON_V5.PARALLELISM,
-      iterations: ARGON_V5.ITERATIONS,
-      memorySize: ARGON_V5.MEM_KB,
-      hashLength: length * 6,
-      outputType: 'binary'
-    });
+    const result = await deriveBitsPBKDF2(entropy, saltBytes, KDF_CONFIG.ITERATIONS, length * 6);
     
     entropyBytes.fill(0);
     saltBytes.fill(0);

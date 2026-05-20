@@ -1,10 +1,4 @@
 
-export interface BreachStats {
-  status: 'clean' | 'compromised' | 'unknown';
-  lastChecked: number; // Timestamp
-  seenCount: number; // How many times seen in HIBP (0 if clean)
-}
-
 export interface VaultConfig {
   id: string;
   name: string; // Service Name
@@ -18,10 +12,6 @@ export interface VaultConfig {
   url?: string;
   notes?: string;
   
-  // COMPLIANCE UPDATE: Granular breach tracking
-  breachStats?: BreachStats; 
-  compromised?: boolean; // @deprecated: Kept for migration, use breachStats
-
   // SORTING & METRICS
   createdAt?: number; // Timestamp of creation
   usageCount?: number; // Number of times accessed/copied
@@ -76,7 +66,6 @@ export interface VaultState {
   // Security & Integrity Meta
   version: number; // Monotonic counter to detect rollback
   lastModified: number; // Timestamp of last write
-  lastBreachCheck?: number; // Global timestamp of last scan start
   flags?: number; // Bitmask for vault capabilities (Encrypted)
   
   // Legacy Tracking
@@ -121,4 +110,4 @@ export interface LLMStatus {
   message: string;
 }
 
-export type PublicPage = 'landing' | 'auth' | 'news' | 'documents' | 'game' | 'docs' | 'breach';
+export type PublicPage = 'landing' | 'auth' | 'news' | 'documents' | 'game' | 'docs';

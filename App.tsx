@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { LandingPage } from './components/LandingPage';
 import { AuthScreen } from './components/AuthScreen';
@@ -14,16 +13,15 @@ import { DocsPage } from './components/DocsPage';
 import { DeveloperConsole } from './components/DeveloperConsole';
 import { SecurityMonitor } from './components/SecurityMonitor'; 
 import { Generator } from './components/Generator';
-import { BreachPage } from './components/BreachPage';
 import { MigrationModal } from './components/MigrationModal';
-import { AppTab, VaultState, PublicPage, VaultFlags, BreachStats } from './types';
+import { AppTab, VaultState, PublicPage, VaultFlags } from './types';
 import { ChaosLock, ChaosEngine } from './services/cryptoService';
-import { BreachService } from './services/breachService';
 import { SecurityService } from './services/securityService';
 import { Guardrail } from './services/guardrail';
 import { Shield, LogOut, Terminal, Copy, Check, Book, FileLock2, Users, Download, AlertTriangle, AlertOctagon, Fingerprint, FlaskConical, DollarSign } from 'lucide-react';
 import { Button } from './components/Button';
 import { BrandLogo } from './components/BrandLogo';
+import { ProvisionalFlagAvatar, generateVisualIdentity } from './components/ProvisionalFlagAvatar';
 
 const MobileNavBtn = ({active, onClick, icon, label}: any) => (
     <button onClick={onClick} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all ${active ? 'text-amber-400 bg-amber-500/10' : 'text-slate-500 hover:text-slate-300'}`}>
@@ -49,6 +47,7 @@ const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
 
 export default function App() {
   const [vaultState, setVaultState] = useState<VaultState | null>(null);
+  const [vaultIdentity, setVaultIdentity] = useState<any>(null);
   const [sessionPassword, setSessionPassword] = useState<string>('');
   const [vaultString, setVaultString] = useState<string>('');
   
@@ -71,12 +70,16 @@ export default function App() {
   // Sentinel State (Rollback Protection)
   const [rollbackAlert, setRollbackAlert] = useState<{current: number, known: number} | null>(null);
 
-  // Background Scanning State
-  const [breachReport, setBreachReport] = useState<{count: number, items: string[]} | null>(null);
-  const isScanningRef = useRef(false);
-
   // Dev Mode Detection
   const isDeveloper = vaultState ? ((vaultState.flags || 0) & VaultFlags.DEVELOPER) === VaultFlags.DEVELOPER : false;
+
+  useEffect(() => {
+    if (vaultState) {
+        generateVisualIdentity(vaultState.entropy, true).then(setVaultIdentity);
+    } else {
+        setVaultIdentity(null);
+    }
+}, [vaultState]);
 
   // --- EFFECT: Application Integrity Check ---
   useEffect(() => {
@@ -105,84 +108,6 @@ export default function App() {
       return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [vaultState, lastBackupTime, hasCopiedSeed]);
 
-  // --- EFFECT: Automatic Breach Scan (Compliant) ---
-  useEffect(() => {
-      if (!vaultState) return;
-
-      const runAutoScan = async () => {
-          if (isScanningRef.current) return;
-
-          // 1. Identify Stale Items (Last check > 7 days or never checked)
-          const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-          const now = Date.now();
-          
-          const staleConfigs = vaultState.configs.filter(c => {
-              if (!c.breachStats) return true; // Never checked
-              return (now - c.breachStats.lastChecked) > SEVEN_DAYS;
-          });
-
-          if (staleConfigs.length === 0) return; // Nothing to do
-
-          isScanningRef.current = true;
-
-          const compromisedItems: string[] = [];
-          const compromisedNames: string[] = [];
-
-          try {
-              // Iterate sequentially to enforce rate limits
-              for (const config of staleConfigs) {
-                  if (!isScanningRef.current) break;
-
-                  // 1. Generate Password (In-Memory)
-                  const password = await ChaosEngine.transmute(vaultState.entropy, config);
-                  
-                  // 2. Check Breach (API)
-                  const pwnCount = await BreachService.checkPassword(password);
-                  
-                  // 3. Construct Result
-                  const stats: BreachStats = {
-                      status: pwnCount > 0 ? 'compromised' : 'clean',
-                      lastChecked: Date.now(),
-                      seenCount: pwnCount
-                  };
-
-                  // 4. Update Local State (Persist Progress)
-                  setVaultState(prev => {
-                      if (!prev) return null;
-                      const newConfigs = prev.configs.map(c => 
-                          c.id === config.id ? { ...c, breachStats: stats } : c
-                      );
-                      const newState = { ...prev, configs: newConfigs };
-                      handleUpdateVault(newState, true); 
-                      return newState;
-                  });
-
-                  if (pwnCount > 0) {
-                      compromisedItems.push(config.id);
-                      compromisedNames.push(config.name);
-                  }
-
-                  // 5. Strict Rate Limiting (500ms)
-                  await new Promise(r => setTimeout(r, 500));
-              }
-
-              if (compromisedItems.length > 0) {
-                  setBreachReport({ count: compromisedItems.length, items: compromisedNames });
-              }
-
-          } catch (e: any) {
-              console.warn("[Bastion] Scan paused:", e.message);
-          } finally {
-              isScanningRef.current = false;
-          }
-      };
-
-      runAutoScan();
-
-      return () => { isScanningRef.current = false; };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vaultState?.entropy]);
-
   const handleOpenVault = (
       state: VaultState, 
       encryptedBlob: string, 
@@ -197,22 +122,6 @@ export default function App() {
         alert("CRITICAL ERROR: Vault Integrity Check Failed.\n" + e.message);
         return;
     }
-
-    // Migration: Migrate boolean 'compromised' to new 'breachStats' if missing
-    state.configs = state.configs.map(c => {
-        if (c.compromised && !c.breachStats) {
-            return {
-                ...c,
-                breachStats: {
-                    status: 'compromised',
-                    lastChecked: Date.now(),
-                    seenCount: 1 
-                },
-                compromised: undefined 
-            };
-        }
-        return c;
-    });
 
     // Ensure safe defaults
     if (!state.notes) state.notes = [];
@@ -333,8 +242,6 @@ export default function App() {
       setHasCopiedSeed(false);
       setShowExitModal(false);
       setShowMigrationModal(false);
-      setBreachReport(null);
-      isScanningRef.current = false;
       valueActionRef.current = 0; // Reset session value counter
   };
 
@@ -348,7 +255,6 @@ export default function App() {
     if (publicPage === 'documents' && !vaultState) return <>{bridge}<DocumentsPage onNavigate={setPublicPage} /></>;
     if (publicPage === 'game' && !vaultState) return <>{bridge}<GamePage onNavigate={setPublicPage} /></>;
     if (publicPage === 'docs' && !vaultState) return <>{bridge}<DocsPage onNavigate={setPublicPage} /></>;
-    if (publicPage === 'breach' && !vaultState) return <>{bridge}<BreachPage onNavigate={setPublicPage} /></>;
     if (!vaultState) return <>{bridge}<AuthScreen onOpen={handleOpenVault} onNavigate={setPublicPage} /></>;
 
     return (
@@ -360,9 +266,13 @@ export default function App() {
           {/* Desktop Sidebar */}
           <aside className="hidden md:flex w-64 bg-slate-900 border-r border-white/5 flex-col p-4 shrink-0 z-30">
               <div className="flex items-center gap-3 px-2 mb-8 mt-2 cursor-pointer group" onClick={() => setPublicPage('landing')}>
-                  <BrandLogo size={32} className="drop-shadow-lg group-hover:brightness-125 transition-all" />
+                  {vaultState && vaultIdentity ? (
+                      <ProvisionalFlagAvatar seedInput={vaultState.entropy} isVaultFound={true} size={48} showName={false} />
+                  ) : (
+                      <BrandLogo size={32} className="drop-shadow-lg group-hover:brightness-125 transition-all" />
+                  )}
                   <div>
-                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">Bastion Enclave</h1>
+                      <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">{vaultState && vaultIdentity ? vaultIdentity.name : 'Bastion Enclave (Vault)'}</h1>
                       <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></div>
                           SECURE_V4
@@ -376,11 +286,6 @@ export default function App() {
                   <SidebarBtn active={currentTab === AppTab.CONTACTS} onClick={() => setCurrentTab(AppTab.CONTACTS)} icon={<Users size={18}/>} label="People" />
                   <SidebarBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={18}/>} label="Notes" />
                   <SidebarBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={18}/>} label="Locker" />
-                  
-                  {/* <div className="text-xs font-bold text-slate-600 uppercase tracking-widest px-3 mb-2 mt-6">Utilities</div>
-                  <SidebarBtn active={currentTab === AppTab.GENERATOR} onClick={() => setCurrentTab(AppTab.GENERATOR)} icon={<RefreshCw size={18}/>} label="Generator" />
-                  <SidebarBtn active={currentTab === AppTab.SANDBOX} onClick={() => setCurrentTab(AppTab.SANDBOX)} icon={<FlaskConical size={18}/>} label="Sandbox" />
-                  <SidebarBtn active={currentTab === AppTab.IDENTITY} onClick={() => setCurrentTab(AppTab.IDENTITY)} icon={<Award size={18}/>} label="My Bond" /> */}
                   
                   {isDeveloper && (
                       <>
@@ -415,7 +320,7 @@ export default function App() {
               <header className="md:hidden bg-slate-900/90 backdrop-blur-md border-b border-white/5 h-16 flex items-center justify-between px-4 sticky top-0 z-20">
                   <div className="flex items-center gap-3">
                       <BrandLogo size={24} />
-                      <span className="font-bold text-white tracking-tight">Bastion Enclave</span>
+                      <span className="font-bold text-white tracking-tight">{vaultState && vaultIdentity ? vaultIdentity.name : 'Bastion Enclave'}</span>
                   </div>
                   <button onClick={handleLogout} className="text-slate-400 hover:text-white">
                       <LogOut size={20} />
@@ -448,12 +353,7 @@ export default function App() {
                       )}
                   </div>
                   <div className="flex items-center gap-2">
-                      {/* Status Indicators */}
-                      {(vaultState.lastModified > lastBackupTime && !hasCopiedSeed) && (
-                          <span className="text-xs text-amber-500 font-bold flex items-center gap-1 mr-4 animate-in fade-in">
-                              <AlertTriangle size={12} /> Unsaved Changes
-                          </span>
-                      )}
+			  {/* Notifications & Status */}
                   </div>
               </header>
 
@@ -505,142 +405,44 @@ export default function App() {
                               onDelete={(id) => handleUpdateVault({...vaultState, locker: vaultState.locker.filter(e => e.id !== id)})}
                           />
                       )}
-                      
-                      {/* {currentTab === AppTab.GENERATOR && (
-                          <div className="max-w-3xl mx-auto">
-                               <Button variant="ghost" onClick={() => setCurrentTab(AppTab.VAULT)} className="mb-4"><Layers size={16}/> Return to Vault</Button>
-                               <div className="bg-slate-900/50 border border-white/5 rounded-none p-8 shadow-2xl">
-                                  <div className="max-w-xl mx-auto">
-                                      <Generator />
-                                  </div>
-                               </div>
-                          </div>
-                      )} */}
-
-                      {/* {currentTab === AppTab.IDENTITY && (
-                          <div className="max-w-4xl mx-auto animate-in fade-in">
-                              <h2 className="text-2xl font-bold text-white mb-6">Sovereign Identity</h2>
-                              {vaultState.identity ? (
-                                  <div className="space-y-8">
-                                      <IdentityCard proof={vaultState.identity} />
-                                      <div className="text-center">
-                                          <Button variant="secondary" onClick={() => { setCovenantMode('onboarding'); setShowCovenant(true); }}>
-                                              <RotateCcw size={16} /> Renew or Upgrade Bond
-                                          </Button>
-                                          <p className="text-xs text-slate-500 mt-2">
-                                              Renewing generates a new proof and resets the bond epoch.
-                                          </p>
-                                      </div>
-                                  </div>
-                              ) : (
-                                  <div className="text-center p-12 bg-slate-900/50 rounded-none border border-white/5">
-                                      <p className="text-slate-400 mb-4">No identity proof found.</p>
-                                      <Button onClick={() => setShowCovenant(true)}>Generate Identity</Button>
-                                  </div>
-                              )}
-                          </div>
-                      )}
-
-                      {currentTab === AppTab.SANDBOX && <Sandbox />} */}
-                      {currentTab === AppTab.DEVELOPER && isDeveloper && (
-                          <DeveloperConsole 
-                              state={vaultState} 
-                              onUpdate={handleUpdateVault} 
-                              onForceExit={performLogout} 
-                          />
-                      )}
                   </div>
               </div>
 
-              {/* Mobile Bottom Nav */}
-              <div className="md:hidden bg-slate-900 border-t border-white/5 px-6 py-3 flex justify-between items-center z-30 pb-safe">
-                  <MobileNavBtn active={currentTab === AppTab.VAULT} onClick={() => setCurrentTab(AppTab.VAULT)} icon={<Shield size={20}/>} label="Vault" />
-                  <div className="relative -top-6">
-                      <button onClick={handleBackup} data-agent-id="nav-backup-btn" className="bg-amber-600 text-white p-4 rounded-none shadow-lg shadow-amber-500/40 border-4 border-slate-950 active:scale-95 transition-transform">
-                          <Download size={24} />
-                      </button>
-                  </div>
-                  <MobileNavBtn active={currentTab === AppTab.NOTES} onClick={() => setCurrentTab(AppTab.NOTES)} icon={<Book size={20}/>} label="Notes" />
-                  <MobileNavBtn active={currentTab === AppTab.LOCKER} onClick={() => setCurrentTab(AppTab.LOCKER)} icon={<FileLock2 size={20}/>} label="Locker" />
-              </div>
-          </main>
+              {/* Modals */}
+              {showMigrationModal && (
+                  <MigrationModal 
+                      onDismiss={() => setShowMigrationModal(false)}
+                      onDownloadBackup={handleBackup}
+                  />
+              )}
 
-          {/* Notifications & Modals */}
-          {showMigrationModal && (
-              <MigrationModal 
-                  onDismiss={() => setShowMigrationModal(false)}
-                  onDownloadBackup={handleBackup}
-              />
-          )}
-          {/* Breach Report Modal */}
-          {breachReport && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-                  <div className="bg-slate-900 border border-red-500/30 rounded-none shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95">
-                      <div className="bg-red-900/20 p-6 border-b border-red-500/20 flex items-center gap-4">
-                          <div className="p-3 bg-red-500/20 rounded-none text-red-500">
-                              <AlertOctagon size={32} />
+              {/* Exit Modal */}
+              {showExitModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+                      <div className="bg-slate-900 border border-white/10 rounded-none p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+                          <div className="w-12 h-12 bg-amber-500/10 rounded-none flex items-center justify-center mb-4 text-amber-500">
+                              <AlertTriangle size={24} />
                           </div>
-                          <div>
-                              <h3 className="text-xl font-bold text-white">Security Report</h3>
-                              <p className="text-red-300 text-sm">Automatic scan results</p>
-                          </div>
-                      </div>
-                      
-                      <div className="p-6 space-y-6">
-                          <div className="text-center">
-                              <p className="text-slate-300 mb-2">
-                                  Your background audit identified 
-                                  <strong className="text-red-400 text-lg mx-1">{breachReport.count}</strong> 
-                                  credentials appearing in known breaches.
-                              </p>
-                              <div className="text-xs text-slate-500 bg-black/20 p-2 rounded-none">
-                                  Affected: {breachReport.items.slice(0, 3).join(", ")}
-                                  {breachReport.items.length > 3 && ` +${breachReport.items.length - 3} more`}
-                              </div>
-                          </div>
-
-                          <div className="p-4 bg-red-950/30 border border-red-500/20 rounded-none text-xs text-red-200/80">
-                              <strong className="block text-red-400 mb-1 uppercase tracking-wider">Action Required</strong>
-                              We cannot determine the specific breach source. Reuse of these passwords significantly increases your risk. Rotate them immediately.
-                          </div>
-
-                          <div className="flex gap-3">
-                              <Button onClick={() => setBreachReport(null)} className="w-full">
-                                  Review Vault
+                          <h3 className="text-xl font-bold text-white mb-2">Unsaved Changes</h3>
+                          <p className="text-slate-400 text-sm mb-6">
+                              You have changes that haven't been backed up to a file yet. 
+                              If you lock the vault now, these changes exist only in your browser cache.
+                          </p>
+                          <div className="space-y-3">
+                              <Button onClick={async () => { await handleBackup(); performLogout(); }} className="w-full">
+                                  Download Backup & Lock
+                              </Button>
+                              <Button variant="danger" onClick={performLogout} className="w-full">
+                                  Discard & Lock
+                              </Button>
+                              <Button variant="ghost" onClick={() => setShowExitModal(false)} className="w-full">
+                                  Cancel
                               </Button>
                           </div>
                       </div>
                   </div>
-              </div>
-          )}
-
-          {/* Exit Modal */}
-          {showExitModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-                  <div className="bg-slate-900 border border-white/10 rounded-none p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
-                      <div className="w-12 h-12 bg-amber-500/10 rounded-none flex items-center justify-center mb-4 text-amber-500">
-                          <AlertTriangle size={24} />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">Unsaved Changes</h3>
-                      <p className="text-slate-400 text-sm mb-6">
-                          You have changes that haven't been backed up to a file yet. 
-                          If you lock the vault now, these changes exist only in your browser cache.
-                      </p>
-                      <div className="space-y-3">
-                          <Button onClick={async () => { await handleBackup(); performLogout(); }} className="w-full">
-                              Download Backup & Lock
-                          </Button>
-                          <Button variant="danger" onClick={performLogout} className="w-full">
-                              Discard & Lock
-                          </Button>
-                          <Button variant="ghost" onClick={() => setShowExitModal(false)} className="w-full">
-                              Cancel
-                          </Button>
-                      </div>
-                  </div>
-              </div>
-          )}
-
+              )}
+          </main>
       </div>
     );
   };

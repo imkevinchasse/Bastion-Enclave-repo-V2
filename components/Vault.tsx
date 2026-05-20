@@ -4,7 +4,6 @@ import { VaultConfig } from '../types';
 import { Input } from './Input';
 import { Button } from './Button';
 import { Generator } from './Generator';
-import { VaultBreachScanner } from './VaultBreachScanner';
 import { ChaosEngine, ChaosLock, SecretSharer } from '../services/cryptoService';
 import { expandSearchQuery, isModelReady } from '../services/llmService';
 import { useDebounce } from '../hooks/useDebounce';
@@ -84,7 +83,7 @@ const ShardRecovery: React.FC = () => {
 };
 
 export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, onDeleteConfig, onUpdateConfig, onUpdateAllConfigs, onValueAction }) => {
-  const [view, setView] = useState<'list' | 'editor' | 'generator' | 'recover' | 'scanner' | 'recovery-setup'>('list');
+  const [view, setView] = useState<'list' | 'editor' | 'generator' | 'recover' | 'recovery-setup'>('list');
   const [search, setSearch] = useState('');
   
   const debouncedSearch = useDebounce(search, 300);
@@ -105,13 +104,11 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
   });
   const [isNewEntry, setIsNewEntry] = useState(true);
 
-  const lastGlobalAudit = configs.reduce((latest, c) => {
-      return c.breachStats && c.breachStats.lastChecked > latest ? c.breachStats.lastChecked : latest;
-  }, 0);
+  const lastGlobalAudit = 0;
 
   // --- BEHAVIORAL FINGERPRINT: CLI GRAMMAR ---
   // Implements strict asymmetry. 
-  // !weak, !old, !compromised are "Commands"
+  // !weak, !old are "Commands"
   // >user: maps to fields
   const isCommand = debouncedSearch.startsWith('!');
   const isFieldQuery = debouncedSearch.startsWith('>');
@@ -122,8 +119,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
       const cmd = debouncedSearch.substring(1).toLowerCase();
       if (cmd.startsWith('weak')) {
           processedConfigs = configs.filter(c => c.length < 12 && !c.customPassword); // Generator < 12
-      } else if (cmd.startsWith('compromised')) {
-          processedConfigs = configs.filter(c => c.breachStats?.status === 'compromised');
       } else if (cmd.startsWith('old')) {
           const SIX_MONTHS = 1000 * 60 * 60 * 24 * 30 * 6;
           const now = Date.now();
@@ -156,11 +151,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
 
   // --- SORTING ---
   processedConfigs.sort((a, b) => {
-      const aCompromised = a.breachStats?.status === 'compromised';
-      const bCompromised = b.breachStats?.status === 'compromised';
-      if (aCompromised && !bCompromised) return -1;
-      if (!aCompromised && bCompromised) return 1;
-
       switch (sortMode) {
           case 'created':
               return (b.createdAt || 0) - (a.createdAt || 0);
@@ -257,45 +247,15 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
             notes: editConfig.notes
         });
     } else {
-        const newStats = editConfig.breachStats ? { ...editConfig.breachStats, status: 'unknown' as const, seenCount: 0 } : undefined;
         
         onUpdateConfig({
             ...(editConfig as VaultConfig),
             version: (editConfig.version || 0) + 1,
-            updatedAt: Date.now(),
-            breachStats: newStats
+            updatedAt: Date.now()
         });
     }
     setView('list');
   };
-
-  if (view === 'scanner') {
-      return (
-          <VaultBreachScanner 
-            configs={configs} 
-            masterSeed={masterSeed} 
-            onClose={() => setView('list')} 
-            onNavigateToConfig={(id) => {
-                const cfg = configs.find(c => c.id === id);
-                if (cfg) openEditor(cfg);
-            }}
-            onMarkCompromised={(id) => {
-                const cfg = configs.find(c => c.id === id);
-                if (cfg) {
-                    onUpdateConfig({ 
-                        ...cfg, 
-                        breachStats: { 
-                            status: 'compromised', 
-                            lastChecked: Date.now(),
-                            seenCount: 1 
-                        } 
-                    });
-                }
-            }}
-            onValueAction={onValueAction}
-          />
-      );
-  }
 
   if (view === 'recover') {
       return (
@@ -432,11 +392,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                  <h1 className="text-2xl font-bold text-white tracking-tight">Logins</h1>
                  <p className="text-slate-400 text-sm flex items-center gap-2">
                      Deterministic & Stored Credentials
-                     {lastGlobalAudit > 0 && (
-                         <span className="text-xs text-slate-500 border-l border-slate-700 pl-2 ml-1 flex items-center gap-1">
-                             <Clock size={10} /> Auto-Defense Scan: {new Date(lastGlobalAudit).toLocaleDateString()}
-                         </span>
-                     )}
                  </p>
              </div>
              
@@ -479,9 +434,6 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                     {isSortMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setIsSortMenuOpen(false)}></div>}
                 </div>
 
-                <Button onClick={() => setView('scanner')} variant="secondary" className="shrink-0 h-10 text-red-400 border-red-500/20 hover:bg-red-500/10" title="Check for Breaches">
-                    <ShieldAlert size={18} />
-                </Button>
                 <Button onClick={() => setView('recovery-setup')} variant="secondary" className="shrink-0 h-10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10" title="Setup Recovery">
                     <ShieldCheck size={18} />
                 </Button>
@@ -560,7 +512,7 @@ export const Vault: React.FC<VaultProps> = ({ configs, masterSeed, onAddConfig, 
                         isFirst={idx === 0}
                         isLast={idx === processedConfigs.length - 1}
                         onDelete={() => onDeleteConfig(config.id)}
-                        onRotate={() => onUpdateConfig({...config, version: config.version + 1, updatedAt: Date.now(), breachStats: undefined})}
+                        onRotate={() => onUpdateConfig({...config, version: config.version + 1, updatedAt: Date.now()})}
                         onEdit={() => openEditor(config)}
                         onIncrementUsage={() => handleIncrementUsage(config)}
                         onMoveUp={() => handleMove(idx, 'up')}
@@ -591,8 +543,6 @@ const VaultConfigCard: React.FC<{
     const [showShare, setShowShare] = useState(false);
     const [generatedShards, setGeneratedShards] = useState<string[]>([]);
     const [isSharing, setIsSharing] = useState(false);
-
-    const isCompromised = config.breachStats?.status === 'compromised';
 
     const toggleReveal = async () => {
         if (!reveal) {
@@ -631,21 +581,12 @@ const VaultConfigCard: React.FC<{
     };
 
     return (
-        <div className={`border p-5 rounded-none transition-all duration-300 relative group overflow-hidden ${isCompromised ? 'bg-red-950/20 border-red-500/50 shadow-[0_0_20px_-5px_rgba(239,68,68,0.3)]' : 'bg-slate-900/80 border-white/5 hover:border-amber-500/30 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]'}`}>
+        <div className={`border p-5 rounded-none transition-all duration-300 relative group overflow-hidden bg-slate-900/80 border-white/5 hover:border-amber-500/30 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]`}>
             
-            {/* Compromised Banner */}
-            {isCompromised && (
-                <div className="absolute top-0 right-0 p-2 pointer-events-none">
-                    <div className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wider flex items-center gap-1 shadow-lg">
-                        <ShieldAlert size={10} /> BREACHED
-                    </div>
-                </div>
-            )}
-
             {/* Content */}
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-none flex items-center justify-center text-xl font-bold border shadow-inner ${isCompromised ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-slate-800 border-white/5 text-white'}`}>
+                    <div className={`w-12 h-12 rounded-none flex items-center justify-center text-xl font-bold border shadow-inner bg-slate-800 border-white/5 text-white`}>
                         {config.name.charAt(0).toUpperCase()}
                     </div>
                     <div>

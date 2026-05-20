@@ -18,7 +18,7 @@ window.onerror = function(msg, url, line, col, error) {
     msg = "External Script Failed (CORS).";
   }
   
-  var overlay = document.getElementById('boot-error');
+  let overlay = document.getElementById('boot-error');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'boot-error';

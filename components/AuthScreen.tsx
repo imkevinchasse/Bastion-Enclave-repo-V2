@@ -7,6 +7,7 @@ import { RefreshCw, Copy, Check, Eye, EyeOff, ShieldAlert, Trash2, LogIn, UserPl
 import { ChaosLock, ChaosEngine } from '../services/cryptoService';
 import { VaultState, PublicPage, VaultFlags } from '../types';
 import { SecurityService } from '../services/securityService';
+import { ProvisionalFlagAvatar } from './ProvisionalFlagAvatar';
 
 interface AuthScreenProps {
   onOpen: (state: VaultState, blob: string, password: string, isNew?: boolean, detectedVersion?: number) => void;
@@ -104,52 +105,42 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
         return;
     }
     setLoading(true);
+    setError('');
     
-    // --- SECURE DEVELOPER MODE INITIALIZATION ---
-    // 1. Check for trigger prefix
-    let finalPassword = password;
-    let flags = VaultFlags.NONE;
-
-    if (password.startsWith("dev://")) {
-        // Strip the prefix to ensure the actual key used for encryption is the strong part.
-        // This prevents the "dev://" string from becoming a known plaintext weakness in the key derivation input.
-        finalPassword = password.replace("dev://", "");
-        
-        if (finalPassword.length < 8) {
-            setError("Developer password too short after stripping prefix.");
-            setLoading(false);
-            return;
-        }
-        
-        // Set the flag BIT. This is stored INSIDE the encrypted blob.
-        // Attackers cannot see this flag without decrypting the vault first.
-        flags |= VaultFlags.DEVELOPER;
-    }
-
-    // 2. Generate Full Entropy (32 bytes)
-    // We NEVER modify this entropy. It must remain pure random.
-    const entropy = ChaosEngine.generateEntropy();
-
-    const initialState: VaultState = { 
-        entropy, 
-        configs: [], 
-        notes: [], 
-        contacts: [], 
-        locker: [],
-        version: 1,
-        lastModified: Date.now(),
-        flags: flags // Stored securely inside the blob
-    };
-
     try {
+        let finalPassword = password;
+        let flags = VaultFlags.NONE;
+
+        if (password.startsWith("dev://")) {
+            finalPassword = password.replace("dev://", "");
+            if (finalPassword.length < 8) {
+                setError("Developer password too short after stripping prefix.");
+                setLoading(false);
+                return;
+            }
+            flags |= VaultFlags.DEVELOPER;
+        }
+
+        const entropy = ChaosEngine.generateEntropy();
+
+        const initialState: VaultState = { 
+            entropy, 
+            configs: [], 
+            notes: [], 
+            contacts: [], 
+            locker: [],
+            version: 1,
+            lastModified: Date.now(),
+            flags: flags
+        };
+
         const newBlob = await ChaosLock.pack(initialState, finalPassword);
         
-        // Reset version sentinel for new vault
         localStorage.removeItem('BASTION_MAX_VERSION');
 
-        // Pass isNew=true to trigger unsaved changes warning until backup
-        onOpen(initialState, newBlob, finalPassword, true, 4); // 4 = Current Protocol
-    } catch (_e) {
+        onOpen(initialState, newBlob, finalPassword, true, 4);
+    } catch (e) {
+        console.error("Vault creation error:", e);
         setError("Failed to create vault.");
     } finally {
         setLoading(false);
@@ -195,16 +186,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
             };
             const newBlob = await ChaosLock.pack(recoveredState, finalPassword || 'temp');
             
-            // Recovering from seed is effectively a "new" session in memory until saved
             onOpen(recoveredState, newBlob, finalPassword, true, 4);
         } else {
             const { state, version } = await ChaosLock.unpack(inputData, finalPassword);
             
-            // Pass detected version to App for legacy handling
             onOpen(state, inputData, finalPassword, false, version);
         }
 
-    } catch (_e) {
+    } catch (e) {
+        console.error("Vault opening error:", e);
         await new Promise(r => setTimeout(r, 800));
         setError("Incorrect password or invalid file.");
     } finally {
@@ -295,6 +285,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                         {tab === 'open' ? (
                             <form onSubmit={handleOpen} className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                 <div className="text-center">
+                                    {/* Visual Identity Anchor */}
+                                    <div className="flex justify-center mb-6">
+                                        <ProvisionalFlagAvatar seedInput={blob} isVaultFound={localVaultFound} size={160} />
+                                    </div>
                                     {localVaultFound ? (
                                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-amber-500/10 text-amber-400 mb-4 border border-amber-500/20">
                                              <HardDrive size={24} />
