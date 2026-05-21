@@ -19,3 +19,8 @@ Bastion provides advanced client-side cryptographic hardening for browser-based 
 ## 3. Persistent Risks
 - Root secret (entropy) in memory during active session.
 - Browser vulnerability (extensions/hooking) as a primary attack vector.
+
+## 4. Supply Chain & Surface Area Minimization
+- **Removed Cloud AI Dependencies**: All cloud-dependent AI SDKs (e.g., Gemini API) have been removed to eliminate telemetric risks and fulfill the "offline-first, zero-telemetry" promise.
+- **Surface Area Reduction**: Unused code modules (e.g., `bastion-core` Rust CLI components) have been removed to reduce the attack surface.
+- **Protocol Baseline Verification**: Introduced Known-Answer Test (KAT) vectors in `/tests/kat.test.ts` to ensure strict, deterministic compliance between the TypeScript reference implementation and future cross-language implementations.

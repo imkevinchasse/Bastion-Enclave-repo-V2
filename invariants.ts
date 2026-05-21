@@ -45,7 +45,7 @@ export const PROTOCOL_VERSION_ENFORCED = true;
 
 /**
  * The current canonical protocol version.
- * v3.0.0 = Argon2id + AES-GCM + Prime Field Sharing
+ * v5.0.0 = Argon2id + XChaCha20-Poly1305 + BLAKE3 Keyed Expansion.
  */
 export const CURRENT_PROTOCOL_VERSION = 5;
 

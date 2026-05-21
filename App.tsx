@@ -295,7 +295,6 @@ export default function App() {
               <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
                   <button 
                       onClick={handleBackup}
-                      data-agent-id="nav-backup-btn"
                       className="flex items-center gap-3 px-3 py-2.5 rounded-none w-full text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
                   >
                       <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" /> Backup Kit

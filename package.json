@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@google/genai": "^1.46.0",
     "buffer": "^6.0.3",
     "fflate": "^0.8.1",
     "hash-wasm": "4.11.0",
