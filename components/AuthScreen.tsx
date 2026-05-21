@@ -440,7 +440,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                                     </label>
                                     <div className="relative group">
                                         <Input 
-                                            data-agent-id="auth-master-password"
                                             type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}

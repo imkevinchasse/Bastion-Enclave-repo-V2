@@ -5,25 +5,25 @@
  * Defines fixed inputs and expected deterministic outputs for protocol baseline verification.
  * Used for cross-implementation (JS <=> Rust) verification.
  */
-import { text } from "stream/consumers";
-
-// Structural Constants defined by parity.spec.json
-const HEADER_MAGIC = "BASTION_V5::";
-const BINARY_HEADER = "BSTN\x05";
+import { ChaosLock } from "../services/cryptoService";
 
 async function testKnownVectors() {
     console.log("Running Protocol V5 Known-Answer Tests...");
 
-    // Vector 1: Header Integrity
-    const expectedHeader = BINARY_HEADER;
-    // In actual implementation, this is encoded at the start of the binary stream.
-    // Ensure we can identify the V5 header precisely.
-    console.assert(expectedHeader === "BSTN\x05", "Binary Header Mismatch");
+    // Vector 1: SHA-256 Hash KAT
+    // Known output for "hello world" using SHA-256
+    const hashInput = "hello world";
+    const expectedHash = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9";
+    const actualHash = await ChaosLock.computeHash(ChaosLock.enc(hashInput));
     
-    // Vector 2: Cryptographic parameter baseline validation
-    // These should match parity.spec.json (Time 5, Memory 262144, P4)
-    console.log("KAT Baseline: Protocol V5 Parameters Validated.");
-    
+    if (actualHash !== expectedHash) {
+        throw new Error(`Hash KAT failed: expected ${expectedHash}, got ${actualHash}`);
+    }
+    console.log("KAT Hash: Passed.");
+
+    // Vector 2: Structural Constants
+    console.assert(ChaosLock.enc("BSTN\x05").length === 5, "Binary Header length mismatch");
+
     console.log("KAT SUCCESS.");
 }
 

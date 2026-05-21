@@ -20,3 +20,4 @@ All notable changes to this project will be documented in this file.
 - **Agent Bridge Artifacts**: Final cleanup of `data-agent-id` selectors in `App.tsx` and removal of `agent_interface` specifications in `parity.spec.json` to fully eliminate the agent interaction surface.
 - **Protocol Standardization**: Synchronized protocol version 5 across `invariants.ts`, `MATH.md`, and `parity.spec.json` to ensure a single source of truth for cryptographic parameters.
 - **Protocol Baseline Verification**: Added `/tests/kat.test.ts` to implement deterministic Known-Answer Test (KAT) vectors for Protocol V5.
+- **Security Headers**: Migrated Content Security Policy (CSP) from `<meta>` tag to `vercel.json` headers block, and added `X-Frame-Options`, `X-Content-Type-Options`, and `Referrer-Policy` to enhance browser-level security enforcement.
