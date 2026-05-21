@@ -47,7 +47,7 @@ export const PROTOCOL_VERSION_ENFORCED = true;
  * The current canonical protocol version.
  * v3.0.0 = Argon2id + AES-GCM + Prime Field Sharing
  */
-export const CURRENT_PROTOCOL_VERSION = 3;
+export const CURRENT_PROTOCOL_VERSION = 5;
 
 // --- 3. UX ENFORCEMENT ---
 

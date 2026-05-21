@@ -44,6 +44,8 @@ export class BastionSerializer {
 
     /**
      * Recursively re-orders the VaultState to match the Canonical Signature.
+     * WARNING: This serializes the plaintext `entropy` field into the JSON string
+     * prior to encryption. This is a known risk in current Bastion V5 serialization.
      */
     static serialize(state: VaultState): string {
         const ordered: any = this.reorder(state, this.ORDER_ROOT);

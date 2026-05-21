@@ -48,7 +48,7 @@ const SidebarBtn = ({active, onClick, icon, label, activeClass}: any) => (
 export default function App() {
   const [vaultState, setVaultState] = useState<VaultState | null>(null);
   const [vaultIdentity, setVaultIdentity] = useState<any>(null);
-  const [sessionPassword, setSessionPassword] = useState<string>('');
+  const sessionPasswordRef = useRef<Uint8Array | null>(null);
   const [vaultString, setVaultString] = useState<string>('');
   
   // Backup Tracking
@@ -136,22 +136,18 @@ export default function App() {
         state.legacyOrigin = detectedVersion;
     }
 
+    if (!state.highWaterMarkVersion) state.highWaterMarkVersion = state.version;
+    
     // Sentinel Check
-    const storedMax = localStorage.getItem('BASTION_MAX_VERSION');
-    const knownMax = storedMax ? parseInt(storedMax, 10) : 0;
-
-    if (state.version < knownMax) {
-        setRollbackAlert({ current: state.version, known: knownMax });
+    if (state.version < state.highWaterMarkVersion) {
+        setRollbackAlert({ current: state.version, known: state.highWaterMarkVersion });
     } else {
         setRollbackAlert(null);
-        if (state.version > knownMax) {
-            localStorage.setItem('BASTION_MAX_VERSION', state.version.toString());
-        }
     }
 
     setVaultState(state);
     setVaultString(encryptedBlob);
-    setSessionPassword(password);
+    sessionPasswordRef.current = new TextEncoder().encode(password);
     localStorage.setItem('BASTION_VAULT', encryptedBlob);
     
     setLastBackupTime(isNew ? 0 : Date.now());
@@ -173,6 +169,7 @@ export default function App() {
     const proposedState = {
         ...newState,
         version: nextVersion,
+        highWaterMarkVersion: Math.max(newState.highWaterMarkVersion || 0, nextVersion),
         lastModified: Date.now()
     };
 
@@ -188,7 +185,7 @@ export default function App() {
     }
 
     // 3. Commit
-    const encrypted = await ChaosLock.pack(proposedState, sessionPassword);
+    const encrypted = await ChaosLock.pack(proposedState, sessionPasswordRef.current!);
     
     if (!silent) {
         setVaultState(proposedState);
@@ -196,7 +193,6 @@ export default function App() {
     }
     
     localStorage.setItem('BASTION_VAULT', encrypted);
-    localStorage.setItem('BASTION_MAX_VERSION', nextVersion.toString());
     
     if (rollbackAlert && nextVersion >= rollbackAlert.known) {
         setRollbackAlert(null);
@@ -205,8 +201,8 @@ export default function App() {
 
   const handleBackup = async () => {
     let exportString = vaultString;
-    if (vaultState && sessionPassword) {
-        exportString = await ChaosLock.pack(vaultState, sessionPassword, false);
+    if (vaultState && sessionPasswordRef.current) {
+        exportString = await ChaosLock.pack(vaultState, sessionPasswordRef.current, false);
     }
     const blob = new Blob([exportString], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -236,7 +232,8 @@ export default function App() {
 
   const performLogout = () => {
       setVaultState(null);
-      setSessionPassword('');
+      if (sessionPasswordRef.current) sessionPasswordRef.current.fill(0);
+      sessionPasswordRef.current = null;
       setVaultString('');
       setLastBackupTime(0);
       setHasCopiedSeed(false);
@@ -275,7 +272,7 @@ export default function App() {
                       <h1 className="font-bold text-white text-lg tracking-tight leading-none group-hover:text-amber-400 transition-colors">{vaultState && vaultIdentity ? vaultIdentity.name : 'Bastion Enclave (Vault)'}</h1>
                       <div className="text-[10px] text-slate-500 font-mono mt-1 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></div>
-                          SECURE_V4
+                          SECURE_V5
                       </div>
                   </div>
               </div>

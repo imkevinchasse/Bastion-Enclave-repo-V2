@@ -65,6 +65,7 @@ export interface VaultState {
   
   // Security & Integrity Meta
   version: number; // Monotonic counter to detect rollback
+  highWaterMarkVersion: number; // High-water mark version for rollback protection
   lastModified: number; // Timestamp of last write
   flags?: number; // Bitmask for vault capabilities (Encrypted)
   

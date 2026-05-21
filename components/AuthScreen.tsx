@@ -130,11 +130,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
             contacts: [], 
             locker: [],
             version: 1,
+            highWaterMarkVersion: 1,
             lastModified: Date.now(),
             flags: flags
         };
 
-        const newBlob = await ChaosLock.pack(initialState, finalPassword);
+        const newBlob = await ChaosLock.pack(initialState, new TextEncoder().encode(finalPassword));
         
         localStorage.removeItem('BASTION_MAX_VERSION');
 
@@ -181,14 +182,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onOpen, onNavigate }) =>
                 contacts: [], 
                 locker: [],
                 version: 1,
+                highWaterMarkVersion: 1,
                 lastModified: Date.now(),
                 flags: isDevMode ? VaultFlags.DEVELOPER : VaultFlags.NONE
             };
-            const newBlob = await ChaosLock.pack(recoveredState, finalPassword || 'temp');
+            const newBlob = await ChaosLock.pack(recoveredState, new TextEncoder().encode(finalPassword || 'temp'));
             
             onOpen(recoveredState, newBlob, finalPassword, true, 4);
         } else {
-            const { state, version } = await ChaosLock.unpack(inputData, finalPassword);
+            const { state, version } = await ChaosLock.unpack(inputData, new TextEncoder().encode(finalPassword));
             
             onOpen(state, inputData, finalPassword, false, version);
         }

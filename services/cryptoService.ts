@@ -28,11 +28,10 @@ const GLYPHS = {
 const cryptoAPI = globalThis.crypto;
 
 /* ===================== KDF HELPER ===================== */
-async function deriveBitsPBKDF2(password: string, salt: Uint8Array, iterations: number, length: number): Promise<Uint8Array> {
-    const encoder = new TextEncoder();
+async function deriveBitsPBKDF2(password: Uint8Array, salt: Uint8Array, iterations: number, length: number): Promise<Uint8Array> {
     const baseKey = await cryptoAPI.subtle.importKey(
         "raw",
-        toArrayBuffer(encoder.encode(password)),
+        toArrayBuffer(password),
         { name: "PBKDF2" },
         false,
         ["deriveBits"]
@@ -127,7 +126,7 @@ export class ChaosLock {
     }
   }
 
-  private static async deriveFinalKey(password: string, salt: Uint8Array, useDeviceSecret: boolean = true): Promise<CryptoKey> {
+  private static async deriveFinalKey(password: Uint8Array, salt: Uint8Array, useDeviceSecret: boolean = true): Promise<CryptoKey> {
     const derivedBytes = await deriveBitsPBKDF2(password, salt, KDF_CONFIG.ITERATIONS, KDF_CONFIG.HASH_LEN);
 
     let finalMaterial = derivedBytes;
@@ -164,7 +163,7 @@ export class ChaosLock {
     return iv;
   }
 
-  static async encryptBinary(data: Uint8Array, password: string, useDeviceSecret: boolean = true): Promise<Uint8Array> {
+  static async encryptBinary(data: Uint8Array, password: Uint8Array, useDeviceSecret: boolean = true): Promise<Uint8Array> {
     const salt = cryptoAPI.getRandomValues(new Uint8Array(16));
     const iv = this.generateNonce();
     const key = await this.deriveFinalKey(password, salt, useDeviceSecret);
@@ -178,7 +177,7 @@ export class ChaosLock {
     return result;
   }
 
-  static async decryptBinary(blob: Uint8Array, password: string): Promise<{ data: Uint8Array; version: number }> {
+  static async decryptBinary(blob: Uint8Array, password: Uint8Array): Promise<{ data: Uint8Array; version: number }> {
     if (blob.length < 28) throw new Error("Blob too short");
 
     let offset = 0;
@@ -216,24 +215,63 @@ export class ChaosLock {
     }
   }
 
-  static async pack(state: VaultState, password: string, useDeviceSecret: boolean = true): Promise<string> {
-    const canonicalJson = BastionSerializer.serialize(state);
+  static async pack(state: VaultState, password: Uint8Array, useDeviceSecret: boolean = true): Promise<string> {
+    // PRE-ENCRYPTION SECURITY PASS
+    const processedState = await this.prepareForSerialization(state, password, useDeviceSecret);
+    
+    const canonicalJson = BastionSerializer.serialize(processedState);
     const framedBytes = BastionSerializer.frame(canonicalJson);
     const encrypted = await this.encryptBinary(framedBytes, password, useDeviceSecret);
     return btoa(String.fromCharCode(...encrypted));
   }
 
-  static async unpack(blob: string, password: string): Promise<{ state: VaultState; version: number }> {
+  static async unpack(blob: string, password: Uint8Array): Promise<{ state: VaultState; version: number }> {
     const bytes = Uint8Array.from(atob(blob), c => c.charCodeAt(0));
     const { data, version } = await this.decryptBinary(bytes, password);
     const jsonStr = version >= 4 ? BastionSerializer.deframe(data) : new TextDecoder().decode(data);
-    return { state: JSON.parse(jsonStr), version };
+    const parsed = JSON.parse(jsonStr);
+    
+    // POST-DECRYPTION SECURITY PASS
+    const state = await this.processAfterUnpack(parsed, password);
+    return { state, version };
+  }
+
+  private static async prepareForSerialization(state: VaultState, password: Uint8Array, useDeviceSecret: boolean): Promise<VaultState> {
+      const clone = JSON.parse(JSON.stringify(state));
+      // Encrypt entropy
+      const entropyBytes = new TextEncoder().encode(clone.entropy);
+      const encEntropy = await this.encryptBinary(entropyBytes, password, useDeviceSecret);
+      clone.entropy = btoa(String.fromCharCode(...encEntropy));
+      
+      // Encrypt resonance keys
+      for (const res of clone.locker) {
+          const keyBytes = new TextEncoder().encode(res.key);
+          const encKey = await this.encryptBinary(keyBytes, password, useDeviceSecret);
+          res.key = btoa(String.fromCharCode(...encKey));
+      }
+      return clone;
+  }
+
+  private static async processAfterUnpack(state: VaultState, password: Uint8Array): Promise<VaultState> {
+      const clone = JSON.parse(JSON.stringify(state));
+      // Decrypt entropy
+      const encEntropyBytes = Uint8Array.from(atob(clone.entropy), c => c.charCodeAt(0));
+      const { data: decEntropy } = await this.decryptBinary(encEntropyBytes, password);
+      clone.entropy = new TextDecoder().decode(decEntropy);
+      
+      // Decrypt resonance keys
+      for (const res of clone.locker) {
+          const encKeyBytes = Uint8Array.from(atob(res.key), c => c.charCodeAt(0));
+          const { data: decKey } = await this.decryptBinary(encKeyBytes, password);
+          res.key = new TextDecoder().decode(decKey);
+      }
+      return clone;
   }
 }
 
 /* ===================== MIGRATOR ===================== */
 export class Migrator {
-    static async migrateV4toV5(blob: Uint8Array, password: string): Promise<Uint8Array> {
+    static async migrateV4toV5(blob: Uint8Array, password: Uint8Array): Promise<Uint8Array> {
         // 1. Parse V4 blob
         const salt = blob.slice(5, 21);
         const iv = blob.slice(21, 33);
@@ -255,7 +293,7 @@ export class Migrator {
         return result;
     }
 
-    static async deriveV4Key(password: string, salt: Uint8Array): Promise<CryptoKey> {
+    static async deriveV4Key(password: Uint8Array, salt: Uint8Array): Promise<CryptoKey> {
         const derivedBytes = await deriveBitsPBKDF2(password, salt, LEGACY_VERSIONS.V4_KDF.ITERATIONS, 32);
         const key = await cryptoAPI.subtle.importKey("raw", toArrayBuffer(derivedBytes), { name: "AES-GCM" }, false, ["decrypt"]);
         derivedBytes.fill(0);
@@ -416,7 +454,7 @@ export class ChaosEngine {
     const entropyBytes = enc.encode(entropy);
     const saltBytes = enc.encode(salt);
     
-    const result = await deriveBitsPBKDF2(entropy, saltBytes, KDF_CONFIG.ITERATIONS, length * 6);
+    const result = await deriveBitsPBKDF2(entropyBytes, saltBytes, KDF_CONFIG.ITERATIONS, length * 6);
     
     entropyBytes.fill(0);
     saltBytes.fill(0);

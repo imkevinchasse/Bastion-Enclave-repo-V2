@@ -118,7 +118,7 @@ const CipherTool = () => {
         
         try {
             if (mode === 'encrypt') {
-                const encrypted = await ChaosLock.encryptBinary(new TextEncoder().encode(input), password);
+        const encrypted = await ChaosLock.encryptBinary(new TextEncoder().encode(input), new TextEncoder().encode(password));
                 // Convert to Base64 for display
                 const b64 = btoa(String.fromCharCode(...encrypted));
                 setOutput(b64);
@@ -126,7 +126,7 @@ const CipherTool = () => {
                 // Expect Base64 input
                 const binStr = atob(input);
                 const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
-                const { data } = await ChaosLock.decryptBinary(bytes, password);
+                const { data } = await ChaosLock.decryptBinary(bytes, new TextEncoder().encode(password));
                 setOutput(new TextDecoder().decode(data));
             }
         } catch (e) {
